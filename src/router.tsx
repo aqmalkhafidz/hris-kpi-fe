@@ -21,7 +21,7 @@ import { HrDashboardPage }   from './routes/hr-dashboard'
 import { HrOrganizationPage } from './routes/hr-organization'
 import { HrKraTemplatesPage } from './routes/hr-kra-templates'
 import { HrCyclesPage }      from './routes/hr-cycles'
-import { HrDistributionPage } from './routes/hr-distribution'
+import { HrCycleDetailPage } from './routes/hr-cycle-detail'
 import { HrReportsPage }     from './routes/hr-reports'
 import { HrLayout }          from './routes/hr-layout'
 import { EmployeeLayout }    from './routes/employee-layout'
@@ -159,10 +159,10 @@ const hrCyclesRoute = createRoute({
   component: HrCyclesPage,
 })
 
-const hrDistributionRoute = createRoute({
+const hrCycleDetailRoute = createRoute({
   getParentRoute: () => hrLayoutRoute,
-  path: '/hr/distribution',
-  component: HrDistributionPage,
+  path: '/hr/cycles/$cycleId',
+  component: HrCycleDetailPage,
 })
 
 const hrReportsRoute = createRoute({
@@ -203,7 +203,7 @@ const routeTree = rootRoute.addChildren([
       hrOrganizationRoute,
       hrKraTemplatesRoute,
       hrCyclesRoute,
-      hrDistributionRoute,
+      hrCycleDetailRoute,
       hrReportsRoute,
     ]),
   ]),

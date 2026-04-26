@@ -7,7 +7,6 @@ const ITEMS = [
   { id: 'organization',  label: 'Organization',   icon: Icon.building, to: '/hr/organization' as const },
   { id: 'templates',     label: 'KRA Templates',  icon: Icon.layers,   to: '/hr/kra-templates' as const, badge: '4' },
   { id: 'cycles',        label: 'Cycles',         icon: Icon.cycle,    to: '/hr/cycles' as const },
-  { id: 'distribution',  label: 'Distribution',   icon: Icon.bar,      to: '/hr/distribution' as const },
   { id: 'reports',       label: 'Reports',        icon: Icon.paper,    to: '/hr/reports' as const },
 ]
 
