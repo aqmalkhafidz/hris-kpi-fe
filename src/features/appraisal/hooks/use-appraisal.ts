@@ -9,7 +9,7 @@ import {
   type Appraisal,
   type AppraisalStatus,
 } from '../data/mock-appraisals'
-import { UserRole } from '../auth/mock-users'
+import { UserRole } from '../../../auth/mock-users'
 
 const delay = <T>(val: T, ms = 300) => new Promise<T>(res => setTimeout(() => res(val), ms))
 

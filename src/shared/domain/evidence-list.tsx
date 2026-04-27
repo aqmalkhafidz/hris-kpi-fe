@@ -1,4 +1,4 @@
-import { Evidence } from '../../data/mock-appraisals'
+import { Evidence } from '@shared/lib/types/appraisal'
 import { Icon } from '@shared/layouts/icon'
 
 export type EvidenceItem = Evidence

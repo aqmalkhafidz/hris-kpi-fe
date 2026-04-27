@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { getAppraisalsForReviewer } from '../data/mock-appraisals'
+import { getAppraisalsForReviewer } from '@features/appraisal/data/mock-appraisals'
 
 const delay = <T>(val: T, ms = 300) => new Promise<T>(res => setTimeout(() => res(val), ms))
 

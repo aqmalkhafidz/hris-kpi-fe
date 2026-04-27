@@ -1,4 +1,4 @@
-import { type Kra } from '../../data/mock-appraisals'
+import { type Kra } from '@shared/lib/types/appraisal'
 
 const ROLE_LABEL: Record<string, string> = {
   self: 'Self',

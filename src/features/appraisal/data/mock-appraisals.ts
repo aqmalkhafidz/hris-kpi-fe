@@ -6,7 +6,7 @@ export type {
   Kra,
   AuditEntry,
   Appraisal,
-} from '../shared/lib/types/appraisal'
+} from '@shared/lib/types/appraisal'
 
 export {
   advanceStatus,
@@ -14,9 +14,9 @@ export {
   returnTargetFor,
   appendAudit,
   lastReturnEntry,
-} from '../shared/lib/types/appraisal'
+} from '@shared/lib/types/appraisal'
 
-import type { Appraisal, Kra, ReviewerRole } from '../shared/lib/types/appraisal'
+import type { Appraisal, Kra, ReviewerRole } from '@shared/lib/types/appraisal'
 
 const baseKras: Kra[] = [
   {

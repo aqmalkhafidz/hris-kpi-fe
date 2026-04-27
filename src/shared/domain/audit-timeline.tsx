@@ -1,4 +1,4 @@
-import { type AuditEntry, type AuditAction } from '../../data/mock-appraisals'
+import { type AuditEntry, type AuditAction } from '@shared/lib/types/appraisal'
 import { statusLabel } from '@shared/layouts/sidebar-badge'
 
 const ACTION_LABEL: Record<AuditAction, string> = {

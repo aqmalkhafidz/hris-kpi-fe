@@ -5,7 +5,7 @@ import {
   useAppraisalById,
   useReturnAppraisal,
   useSubmitAppraisal,
-} from '../hooks/use-appraisal'
+} from '@features/appraisal/hooks/use-appraisal'
 import { useAuth } from '../auth/auth-context'
 import { Avatar } from '@shared/layouts/avatar'
 import { Badge } from '@shared/layouts/sidebar-badge'
@@ -22,7 +22,7 @@ import { SectionCard } from '@shared/ui/section-card'
 import { StatusBadge } from '@shared/ui/status-badge'
 import { AuditTimeline } from '@shared/domain/audit-timeline'
 import { ReturnModal } from '../components/ui/return-modal'
-import { Kra } from '../data/mock-appraisals'
+import { Kra } from '@features/appraisal/data/mock-appraisals'
 
 const SCORE_LABELS: Record<number, string> = {
   1: 'Far Below',

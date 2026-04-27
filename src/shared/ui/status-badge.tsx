@@ -1,4 +1,4 @@
-import { AppraisalStatus } from '../../data/mock-appraisals'
+import { AppraisalStatus } from '@shared/lib/types/appraisal'
 import { Badge, statusLabel, statusTone } from '@shared/layouts/sidebar-badge'
 
 export function StatusBadge({ status, size = 'sm' }: { status: AppraisalStatus | string; size?: 'sm' | 'md' }) {

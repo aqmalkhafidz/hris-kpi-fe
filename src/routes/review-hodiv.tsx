@@ -5,7 +5,7 @@ import {
   useAdvanceAppraisal,
   useReturnAppraisal,
   useSubmitAppraisal,
-} from '../hooks/use-appraisal'
+} from '@features/appraisal/hooks/use-appraisal'
 import { useAuth } from '../auth/auth-context'
 import { PageShell } from '@shared/layouts/page-shell'
 import { Icon } from '@shared/layouts/icon'
@@ -20,7 +20,7 @@ import { AuditTimeline } from '@shared/domain/audit-timeline'
 import { ReturnModal } from '../components/ui/return-modal'
 import { ScoreComparison } from '@shared/domain/score-comparison'
 import { BellCurve } from '../components/ui/bell-curve'
-import { getAppraisalsForReviewer, type Kra } from '../data/mock-appraisals'
+import { getAppraisalsForReviewer, type Kra } from '@features/appraisal/data/mock-appraisals'
 
 const SCORE_LABELS: Record<number, string> = { 1: 'Far Below', 2: 'Below', 3: 'Meet', 4: 'Exceed', 5: 'Far Exceed' }
 

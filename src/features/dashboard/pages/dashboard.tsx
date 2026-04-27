@@ -1,11 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../../../auth/auth-context'
-import { useMyAppraisals } from '../../../hooks/use-appraisal'
+import { useMyAppraisals } from '@features/appraisal/hooks/use-appraisal'
 import { useReviewQueue } from '../../../hooks/use-reviews'
 import { Avatar } from '@shared/layouts/avatar'
 import { Icon } from '@shared/layouts/icon'
-import { Appraisal } from '../../../data/mock-appraisals'
+import { Appraisal } from '@features/appraisal/data/mock-appraisals'
 
 // ── Status config ─────────────────────────────────────────────────────────────
 const STATUS_FLOW = [
