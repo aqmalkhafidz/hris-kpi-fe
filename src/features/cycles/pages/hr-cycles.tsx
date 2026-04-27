@@ -236,7 +236,6 @@ export function HrCyclesPage() {
 
   return (
     <PageShell breadcrumb="Cycles">
-      <div className="mx-auto max-w-5xl px-6 py-8 space-y-6">
 
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -305,8 +304,6 @@ export function HrCyclesPage() {
             />
           ))}
         </div>
-
-      </div>
 
       <CycleModal open={creating} onClose={() => setCreating(false)} onSave={upsert} initial={null} />
       <CycleModal open={!!editing} onClose={() => setEditing(null)} onSave={upsert} initial={editing} />

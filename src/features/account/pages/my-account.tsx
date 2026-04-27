@@ -182,8 +182,7 @@ export function MyAccountPage() {
   ]
 
   return (
-    <PageShell breadcrumb="My Account">
-    <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+    <PageShell breadcrumb="My Account" maxWidth="6xl">
       <PageHeader category="Account" title="My Account" description="Manage your profile photo, contact details, password, and preferences." />
 
       <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
@@ -257,7 +256,6 @@ export function MyAccountPage() {
 
       {tab === 'security' && <SecurityPanel />}
       {tab === 'preferences' && <PreferencesPanel />}
-    </div>
     </PageShell>
   )
 }

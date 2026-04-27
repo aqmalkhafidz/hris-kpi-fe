@@ -470,7 +470,6 @@ export function HrOrganizationPage() {
 
   return (
     <PageShell breadcrumb="Organization">
-      <div className="mx-auto max-w-7xl space-y-6 px-6 py-8">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
             <p className="text-xs text-gray-400 dark:text-gray-500">Master data</p>
@@ -516,7 +515,6 @@ export function HrOrganizationPage() {
             {store.divisions.length} div · {store.departments.length} dept · {store.positions.length} pos · {store.employees.length} emp
           </div>
         </div>
-      </div>
 
       <DivisionModal   open={addingDiv}     onClose={() => setAddingDiv(false)}   onSave={f => store.upsertDivision(f)}         initial={null} />
       <DivisionModal   open={!!editingDiv}  onClose={() => setEditingDiv(null)}   onSave={(f, id) => store.upsertDivision(f, id)}   initial={editingDiv} />

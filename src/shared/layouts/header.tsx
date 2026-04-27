@@ -5,7 +5,11 @@ import { Icon } from './icon'
 import { useAuth } from '@features/auth/context/auth-context'
 import { applyTheme, getInitialTheme, toggleTheme, ThemeMode } from '@shared/lib/theme'
 
-export function Header() {
+interface HeaderProps {
+  onMenuClick?: () => void
+}
+
+export function Header({ onMenuClick }: HeaderProps = {}) {
   const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [menuOpen, setMenuOpen] = useState(false)
@@ -29,6 +33,16 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 border-b border-gray-100 bg-white/90 backdrop-blur-md dark:border-gray-800/60 dark:bg-gray-950/80">
       <div className="flex h-14 items-center gap-3 px-6">
+
+        {/* Mobile menu toggle */}
+        <button
+          type="button"
+          onClick={onMenuClick}
+          aria-label="Open menu"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.04] dark:text-gray-300 dark:hover:border-gray-700 dark:hover:bg-white/[0.08] lg:hidden"
+        >
+          {Icon.menu}
+        </button>
 
         {/* Search */}
         <div className="relative hidden md:block">

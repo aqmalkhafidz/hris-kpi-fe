@@ -34,6 +34,7 @@ export const Icon = {
   user:    <I d={<><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="1.5"/><path d="M4 21c0-4 3.5-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></>} />,
   star:    <I d={<path d="m12 3 2.6 6 6.4.6-4.8 4.4 1.4 6.4L12 17l-5.6 3.4 1.4-6.4L3 9.6 9.4 9 12 3Z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"/>} />,
   bar:     <I d={<><path d="M4 19h16M7 16V9m5 7V5m5 11v-7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/></>} />,
+  menu:    <I d={<path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/>} />,
 }
 
 export type IconKey = keyof typeof Icon

@@ -335,7 +335,6 @@ export function HrReportsPage() {
 
   return (
     <PageShell breadcrumb="Reports" primary={primaryActions}>
-      <div className="mx-auto max-w-6xl px-6 py-8 space-y-6">
 
         {/* heading + cycle picker */}
         <div className="flex flex-wrap items-end justify-between gap-4">
@@ -511,7 +510,6 @@ export function HrReportsPage() {
             Print view via <kbd className="rounded border border-gray-300 px-1.5 py-0.5 font-sans dark:border-gray-700">Cmd/Ctrl + P</kbd>.
           </p>
         </div>
-      </div>
 
       <CalibrationModal
         open={!!editing}

@@ -10,12 +10,28 @@ const ITEMS = [
   { id: 'reports',       label: 'Reports',        icon: Icon.paper,    to: '/hr/reports' as const },
 ]
 
-export function HRSidebar() {
+interface HRSidebarProps {
+  open?: boolean
+  onClose?: () => void
+}
+
+export function HRSidebar({ open = false, onClose }: HRSidebarProps = {}) {
   const { location } = useRouterState()
   const path = location.pathname
 
   return (
-    <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white px-5 py-6 dark:border-gray-800 dark:bg-gray-900 lg:flex">
+    <>
+      {open && (
+        <div
+          onClick={onClose}
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm lg:hidden"
+          aria-hidden="true"
+        />
+      )}
+    <aside
+      onClick={() => onClose?.()}
+      className={`fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 transform flex-col border-r border-gray-200 bg-white px-5 py-6 transition-transform duration-200 dark:border-gray-800 dark:bg-gray-900 lg:sticky lg:top-0 lg:z-0 lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
+    >
       <Link to="/hr/dashboard" className="flex items-center gap-2.5 px-1">
         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-500 text-white shadow-sm">
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none">
@@ -62,5 +78,6 @@ export function HRSidebar() {
         <p className="mt-1 text-[11px] leading-snug text-gray-500 dark:text-gray-400">Open your appraisal dashboard.</p>
       </Link>
     </aside>
+    </>
   )
 }

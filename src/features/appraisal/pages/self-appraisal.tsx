@@ -225,16 +225,15 @@ export function SelfAppraisalPage() {
   }
 
   if (isLoading) {
-    return <PageShell breadcrumb="Self-Appraisal"><div className="px-6 py-8"><EmptyState title="Loading appraisal..." /></div></PageShell>
+    return <PageShell breadcrumb="Self-Appraisal"><EmptyState title="Loading appraisal..." /></PageShell>
   }
 
   if (!appraisal) {
-    return <PageShell breadcrumb="Self-Appraisal"><div className="px-6 py-8"><EmptyState title="No active appraisal found." /></div></PageShell>
+    return <PageShell breadcrumb="Self-Appraisal"><EmptyState title="No active appraisal found." /></PageShell>
   }
 
   return (
     <PageShell breadcrumb="Self-Appraisal">
-      <div className="mx-auto max-w-7xl space-y-6 px-6 py-8">
         <PageHeader
           category={`Self appraisal · ${appraisal.cycleShort}`}
           title={appraisal.cycleName}
@@ -424,7 +423,6 @@ export function SelfAppraisalPage() {
             </SectionCard>
           </section>
         </div>
-      </div>
     </PageShell>
   )
 }

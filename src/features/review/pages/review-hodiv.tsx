@@ -117,23 +117,22 @@ export function HodivReviewPage() {
 
   if (isLoading) {
     return (
-      <PageShell breadcrumb="HoDiv Review">
-        <div className="px-6 py-8"><EmptyState title="Loading review queue..." /></div>
+      <PageShell breadcrumb="HoDiv Review" maxWidth="6xl">
+        <EmptyState title="Loading review queue..." />
       </PageShell>
     )
   }
 
   if (!appraisal) {
     return (
-      <PageShell breadcrumb="HoDiv Review">
-        <div className="px-6 py-8"><EmptyState title="Appraisal not found." /></div>
+      <PageShell breadcrumb="HoDiv Review" maxWidth="6xl">
+        <EmptyState title="Appraisal not found." />
       </PageShell>
     )
   }
 
   return (
-    <PageShell breadcrumb="HoDiv Review">
-      <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+    <PageShell breadcrumb="HoDiv Review" maxWidth="6xl">
         <PageHeader
           category="Division Sign-off"
           title="Head of Division Review"
@@ -238,7 +237,6 @@ export function HodivReviewPage() {
             </Button>
           </div>
         </div>
-      </div>
 
       <ReturnModal
         open={returnOpen}

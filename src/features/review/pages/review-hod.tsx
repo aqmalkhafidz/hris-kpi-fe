@@ -117,23 +117,22 @@ export function HodReviewPage() {
 
   if (isLoading) {
     return (
-      <PageShell breadcrumb="HoD Review">
-        <div className="px-6 py-8"><EmptyState title="Loading review queue..." /></div>
+      <PageShell breadcrumb="HoD Review" maxWidth="6xl">
+        <EmptyState title="Loading review queue..." />
       </PageShell>
     )
   }
 
   if (!appraisal) {
     return (
-      <PageShell breadcrumb="HoD Review">
-        <div className="px-6 py-8"><EmptyState title="Appraisal not found." /></div>
+      <PageShell breadcrumb="HoD Review" maxWidth="6xl">
+        <EmptyState title="Appraisal not found." />
       </PageShell>
     )
   }
 
   return (
-    <PageShell breadcrumb="HoD Review">
-      <div className="mx-auto max-w-6xl space-y-6 px-6 py-8">
+    <PageShell breadcrumb="HoD Review" maxWidth="6xl">
         <PageHeader
           category="Department Calibration"
           title="Head of Department Review"
@@ -228,7 +227,6 @@ export function HodReviewPage() {
             </Button>
           </div>
         </div>
-      </div>
 
       <ReturnModal
         open={returnOpen}

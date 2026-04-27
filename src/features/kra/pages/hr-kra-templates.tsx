@@ -540,7 +540,6 @@ export function HrKraTemplatesPage() {
   // ── List view ──
   return (
     <PageShell>
-      <div className="mx-auto max-w-[1400px] px-6 py-8 space-y-6">
         {/* Page header */}
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
@@ -614,7 +613,6 @@ export function HrKraTemplatesPage() {
             )}
           </div>
         </div>
-      </div>
     </PageShell>
   )
 }

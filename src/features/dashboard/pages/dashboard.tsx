@@ -5,6 +5,7 @@ import { useMyAppraisals } from '@features/appraisal/hooks/use-appraisal'
 import { useReviewQueue } from '@features/review/hooks/use-reviews'
 import { Avatar } from '@shared/layouts/avatar'
 import { Icon } from '@shared/layouts/icon'
+import { PageShell } from '@shared/layouts/page-shell'
 import { Appraisal } from '@features/appraisal/data/mock-appraisals'
 
 // ── Status config ─────────────────────────────────────────────────────────────
@@ -383,7 +384,7 @@ export function DashboardPage() {
   ]
 
   return (
-    <main className="space-y-6 px-6 py-6 lg:px-8">
+    <PageShell breadcrumb="My Appraisals">
       {/* ── Page header ── */}
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
@@ -625,6 +626,6 @@ export function DashboardPage() {
           </div>
         </>
       )}
-    </main>
+    </PageShell>
   )
 }

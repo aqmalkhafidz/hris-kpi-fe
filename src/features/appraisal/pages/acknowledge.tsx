@@ -24,7 +24,7 @@ export function AcknowledgePage() {
   if (isLoading) {
     return (
       <PageShell breadcrumb="Acknowledge">
-        <div className="px-6 py-8"><EmptyState title="Loading appraisal..." /></div>
+        <EmptyState title="Loading appraisal..." />
       </PageShell>
     )
   }
@@ -32,7 +32,7 @@ export function AcknowledgePage() {
   if (!appraisal) {
     return (
       <PageShell breadcrumb="Acknowledge">
-        <div className="px-6 py-8"><EmptyState title="Appraisal not found." /></div>
+        <EmptyState title="Appraisal not found." />
       </PageShell>
     )
   }
@@ -57,8 +57,7 @@ export function AcknowledgePage() {
   }, 0)
 
   return (
-    <PageShell breadcrumb="Acknowledge">
-      <div className="mx-auto max-w-5xl space-y-6 px-6 py-8">
+    <PageShell breadcrumb="Acknowledge" maxWidth="5xl">
         <PageHeader
           category="Final Sign-off"
           title="Acknowledge your appraisal"
@@ -144,7 +143,6 @@ export function AcknowledgePage() {
             {submitting ? 'Acknowledging...' : 'I acknowledge this appraisal'}
           </Button>
         </div>
-      </div>
     </PageShell>
   )
 }

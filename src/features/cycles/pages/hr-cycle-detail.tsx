@@ -176,11 +176,9 @@ export function HrCycleDetailPage() {
 
   if (!cycle) {
     return (
-      <PageShell breadcrumb="Cycle Detail">
-        <div className="mx-auto max-w-5xl px-6 py-8">
-          <p className="text-sm text-gray-500">Cycle tidak ditemukan.</p>
-          <Link to="/hr/cycles" className="mt-3 inline-block text-sm font-semibold text-brand-600">← Kembali ke Cycles</Link>
-        </div>
+      <PageShell breadcrumb="Cycle Detail" maxWidth="5xl">
+        <p className="text-sm text-gray-500">Cycle tidak ditemukan.</p>
+        <Link to="/hr/cycles" className="mt-3 inline-block text-sm font-semibold text-brand-600">← Kembali ke Cycles</Link>
       </PageShell>
     )
   }
@@ -245,8 +243,7 @@ export function HrCycleDetailPage() {
   ]
 
   return (
-    <PageShell breadcrumb={cycle.name}>
-      <div className="mx-auto max-w-5xl px-6 py-8 space-y-6">
+    <PageShell breadcrumb={cycle.name} maxWidth="5xl">
 
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
@@ -446,7 +443,6 @@ export function HrCycleDetailPage() {
             </div>
           </>
         )}
-      </div>
 
       {editing && (
         <EditModal open={editing} onClose={() => setEditing(false)} cycle={cycle} onSave={saveEdit} />

@@ -106,7 +106,7 @@ export function SlReviewPage() {
   if (isLoading) {
     return (
       <PageShell breadcrumb="SL Review">
-        <div className="px-6 py-8"><EmptyState title="Loading review queue..." /></div>
+        <EmptyState title="Loading review queue..." />
       </PageShell>
     )
   }
@@ -114,14 +114,13 @@ export function SlReviewPage() {
   if (!appraisal) {
     return (
       <PageShell breadcrumb="SL Review">
-        <div className="px-6 py-8"><EmptyState title="Appraisal not found." /></div>
+        <EmptyState title="Appraisal not found." />
       </PageShell>
     )
   }
 
   return (
     <PageShell breadcrumb="SL Review">
-      <div className="mx-auto max-w-7xl space-y-6 px-6 py-8">
         <PageHeader
           category="Team Reviews"
           title="Squad Leader Review"
@@ -276,7 +275,6 @@ export function SlReviewPage() {
             )}
           </section>
         </div>
-      </div>
 
       <ReturnModal
         open={returnOpen}

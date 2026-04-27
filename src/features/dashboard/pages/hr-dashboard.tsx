@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Icon } from '@shared/layouts/icon'
 import { Avatar } from '@shared/layouts/avatar'
+import { PageShell } from '@shared/layouts/page-shell'
 import { Badge } from '@shared/ui/badge'
 
 // ── Mock data (mirrors hr-dashboard.jsx mockup) ──────────────────────────────
@@ -416,7 +417,7 @@ function RecentSubmissions() {
 
 export function HrDashboardPage() {
   return (
-    <main className="space-y-6 px-6 py-6 lg:px-8">
+    <PageShell breadcrumb="HR Dashboard">
       <CycleHeader />
 
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-4">
@@ -436,6 +437,6 @@ export function HrDashboardPage() {
         <AttentionCard />
         <RecentSubmissions />
       </div>
-    </main>
+    </PageShell>
   )
 }
