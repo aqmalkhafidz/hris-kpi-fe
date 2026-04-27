@@ -5,11 +5,11 @@ import {
   redirect,
   Outlet,
 } from '@tanstack/react-router'
-import { AuthState } from '../auth/auth-context'
+import { AuthState } from '@features/auth/context/auth-context'
 
 // ─── Route components (lazy imports to keep bundle manageable) ───
-import { LoginPage }         from '../routes/login'
-import { ForgotPasswordPage } from '../routes/forgot-password'
+import { LoginPage }         from '@features/auth/pages/login'
+import { ForgotPasswordPage } from '@features/auth/pages/forgot-password'
 import { DashboardPage }     from '@features/dashboard/pages/dashboard'
 import { SelfAppraisalPage } from '@features/appraisal/pages/self-appraisal'
 import { MyAccountPage }     from '@features/account/pages/my-account'

@@ -6,7 +6,7 @@ import {
   useReturnAppraisal,
   useSubmitAppraisal,
 } from '@features/appraisal/hooks/use-appraisal'
-import { useAuth } from '../../../auth/auth-context'
+import { useAuth } from '@features/auth/context/auth-context'
 import { Avatar } from '@shared/layouts/avatar'
 import { Badge } from '@shared/layouts/sidebar-badge'
 import { Icon } from '@shared/layouts/icon'

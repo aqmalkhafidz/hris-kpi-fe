@@ -1,6 +1,6 @@
 import { FormEvent, useRef, useState } from 'react'
-import { useAuth } from '../../../auth/auth-context'
-import { ROLE_LABELS } from '../../../auth/mock-users'
+import { useAuth } from '@features/auth/context/auth-context'
+import { ROLE_LABELS } from '@features/auth/data/mock-users'
 import { Avatar } from '@shared/layouts/avatar'
 import { Badge } from '@shared/layouts/sidebar-badge'
 import { PageShell } from '@shared/layouts/page-shell'

@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { Avatar } from './avatar'
 import { Icon } from './icon'
-import { useAuth } from '../../auth/auth-context'
+import { useAuth } from '@features/auth/context/auth-context'
 import { applyTheme, getInitialTheme, toggleTheme, ThemeMode } from '@shared/lib/theme'
 
 export function Header() {

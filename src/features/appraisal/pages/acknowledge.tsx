@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from '@tanstack/react-router'
 import { useAppraisalById, useAcknowledgeAppraisal } from '../hooks/use-appraisal'
-import { useAuth } from '../../../auth/auth-context'
+import { useAuth } from '@features/auth/context/auth-context'
 import { PageShell } from '@shared/layouts/page-shell'
 import { Icon } from '@shared/layouts/icon'
 import { Button } from '@shared/ui/button'

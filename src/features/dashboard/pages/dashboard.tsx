@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { useAuth } from '../../../auth/auth-context'
+import { useAuth } from '@features/auth/context/auth-context'
 import { useMyAppraisals } from '@features/appraisal/hooks/use-appraisal'
 import { useReviewQueue } from '@features/review/hooks/use-reviews'
 import { Avatar } from '@shared/layouts/avatar'

@@ -1,6 +1,6 @@
 import { FormEvent, useMemo, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
-import { useAuth } from '../../../auth/auth-context'
+import { useAuth } from '@features/auth/context/auth-context'
 import { useAdvanceAppraisal, useMyAppraisals, useSubmitAppraisal } from '../hooks/use-appraisal'
 import { Badge } from '@shared/layouts/sidebar-badge'
 import { Icon } from '@shared/layouts/icon'

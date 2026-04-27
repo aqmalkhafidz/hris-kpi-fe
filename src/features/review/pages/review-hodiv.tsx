@@ -6,7 +6,7 @@ import {
   useReturnAppraisal,
   useSubmitAppraisal,
 } from '@features/appraisal/hooks/use-appraisal'
-import { useAuth } from '../../../auth/auth-context'
+import { useAuth } from '@features/auth/context/auth-context'
 import { PageShell } from '@shared/layouts/page-shell'
 import { Icon } from '@shared/layouts/icon'
 import { Button } from '@shared/ui/button'

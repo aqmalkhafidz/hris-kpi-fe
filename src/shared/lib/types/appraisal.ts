@@ -1,4 +1,4 @@
-import type { UserRole } from '../../../auth/mock-users'
+import type { UserRole } from '@features/auth/data/mock-users'
 
 export type AppraisalStatus =
   | 'draft'

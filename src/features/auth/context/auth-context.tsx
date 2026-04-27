@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, ReactNode } from 'react'
-import { MockUser, MOCK_USERS } from './mock-users'
+import { MockUser, MOCK_USERS } from '@features/auth/data/mock-users'
 
 export interface AuthState {
   user: MockUser | null
