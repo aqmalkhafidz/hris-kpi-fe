@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react'
 import { PageShell } from '@shared/layouts/page-shell'
-import { Badge } from '@shared/layouts/sidebar-badge'
+import { Badge } from '@shared/ui/badge'
 import { Avatar } from '@shared/layouts/avatar'
 import { Icon } from '@shared/layouts/icon'
 import { CYCLES } from '@features/cycles/data/mock-cycles'

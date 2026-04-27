@@ -2,7 +2,7 @@ import { FormEvent, useMemo, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@features/auth/context/auth-context'
 import { useAdvanceAppraisal, useMyAppraisals, useSubmitAppraisal } from '../hooks/use-appraisal'
-import { Badge } from '@shared/layouts/sidebar-badge'
+import { Badge } from '@shared/ui/badge'
 import { Icon } from '@shared/layouts/icon'
 import { PageShell } from '@shared/layouts/page-shell'
 import { Avatar } from '@shared/layouts/avatar'
@@ -200,7 +200,6 @@ export function SelfAppraisalPage() {
     await submitMut.mutateAsync({ appraisalId: appraisal.id, updates: { kras: collectKras(), reflection: currentReflection, submittedAt: 'Today' } })
     await advanceMut.mutateAsync({
       appraisalId: appraisal.id,
-      userRole: user.role,
       actor: { userId: user.id, name: user.name, role: user.role },
     })
     setSaving(false)

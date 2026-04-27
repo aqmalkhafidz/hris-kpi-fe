@@ -1,4 +1,4 @@
-import { Badge } from '@shared/layouts/sidebar-badge'
+import { Badge } from '@shared/ui/badge'
 
 export type Grade = 'A' | 'B+' | 'B' | 'C' | 'D'
 

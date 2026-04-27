@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
 import { Link } from '@tanstack/react-router'
 import { PageShell } from '@shared/layouts/page-shell'
-import { Badge } from '@shared/layouts/sidebar-badge'
+import { Badge } from '@shared/ui/badge'
 import { Icon } from '@shared/layouts/icon'
 import { Modal } from '@shared/ui/modal'
 import { CYCLES, Cycle, CycleStatus } from '../data/mock-cycles'

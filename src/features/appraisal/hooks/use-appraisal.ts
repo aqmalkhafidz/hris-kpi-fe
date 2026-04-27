@@ -1,21 +1,35 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import {
-  getAppraisalsByUserId,
+  acknowledgeAppraisal,
+  advanceAppraisal,
   getAppraisalById,
-  advanceStatusFor,
-  returnTargetFor,
-  appendAudit,
-  MOCK_APPRAISALS,
-  type Appraisal,
-  type AppraisalStatus,
+  getAppraisalsByUserId,
+  returnAppraisal,
+  updateAppraisal,
+  type ActorInfo,
 } from '../data/mock-appraisals'
-import { UserRole } from '@features/auth/data/mock-users'
+import type { Appraisal } from '@shared/lib/types/appraisal'
 
-const delay = <T>(val: T, ms = 300) => new Promise<T>(res => setTimeout(() => res(val), ms))
+const SIMULATED_LATENCY_MS = 300
+const delay = <T>(value: T, ms = SIMULATED_LATENCY_MS) =>
+  new Promise<T>(resolve => setTimeout(() => resolve(value), ms))
+
+const appraisalKeys = {
+  all:     ['appraisals'] as const,
+  byUser:  (userId: string) => ['appraisals', userId] as const,
+  byId:    (id: string)     => ['appraisal', id] as const,
+  reviewQueue: ['review-queue'] as const,
+}
+
+function invalidateAppraisal(qc: QueryClient, appraisal: Appraisal) {
+  qc.invalidateQueries({ queryKey: appraisalKeys.byUser(appraisal.userId) })
+  qc.invalidateQueries({ queryKey: appraisalKeys.byId(appraisal.id) })
+  qc.invalidateQueries({ queryKey: appraisalKeys.reviewQueue })
+}
 
 export function useMyAppraisals(userId: string) {
   return useQuery({
-    queryKey: ['appraisals', userId],
+    queryKey: appraisalKeys.byUser(userId),
     queryFn: () => delay(getAppraisalsByUserId(userId)),
     enabled: !!userId,
   })
@@ -23,142 +37,44 @@ export function useMyAppraisals(userId: string) {
 
 export function useAppraisalById(id: string) {
   return useQuery({
-    queryKey: ['appraisal', id],
+    queryKey: appraisalKeys.byId(id),
     queryFn: () => delay(getAppraisalById(id) ?? null),
     enabled: !!id,
   })
 }
 
-function persist(updated: Appraisal) {
-  const idx = MOCK_APPRAISALS.findIndex(a => a.id === updated.id)
-  if (idx === -1) throw new Error('Appraisal not found')
-  MOCK_APPRAISALS[idx] = updated
-  return updated
-}
-
 export function useSubmitAppraisal() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ appraisalId, updates }: { appraisalId: string; updates: Partial<Appraisal> }) => {
-      const idx = MOCK_APPRAISALS.findIndex(a => a.id === appraisalId)
-      if (idx === -1) throw new Error('Appraisal not found')
-      const updated = { ...MOCK_APPRAISALS[idx], ...updates }
-      MOCK_APPRAISALS[idx] = updated
-      return delay(updated)
-    },
-    onSuccess: data => {
-      qc.invalidateQueries({ queryKey: ['appraisals', data.userId] })
-      qc.invalidateQueries({ queryKey: ['appraisal', data.id] })
-      qc.invalidateQueries({ queryKey: ['review-queue'] })
-    },
+    mutationFn: ({ appraisalId, updates }: { appraisalId: string; updates: Partial<Appraisal> }) =>
+      delay(updateAppraisal(appraisalId, updates)),
+    onSuccess: data => invalidateAppraisal(qc, data),
   })
-}
-
-interface Actor {
-  userId: string
-  name: string
-  role: UserRole
-}
-
-interface AdvanceArgs {
-  appraisalId: string
-  userRole?: UserRole
-  actor: Actor
 }
 
 export function useAdvanceAppraisal() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ appraisalId, userRole = 'staff', actor }: AdvanceArgs) => {
-      const current = getAppraisalById(appraisalId)
-      if (!current) throw new Error('Not found')
-      const fromStatus = current.status
-      const toStatus = advanceStatusFor(current, userRole)
-      const action = fromStatus === 'draft' ? 'submit' : 'approve'
-      const next = appendAudit({ ...current, status: toStatus }, {
-        actor_user_id: actor.userId,
-        actor_name: actor.name,
-        actor_role: actor.role,
-        action,
-        from_status: fromStatus,
-        to_status: toStatus,
-      })
-      persist(next)
-      return delay(next)
-    },
-    onSuccess: data => {
-      qc.invalidateQueries({ queryKey: ['appraisals', data.userId] })
-      qc.invalidateQueries({ queryKey: ['appraisal', data.id] })
-      qc.invalidateQueries({ queryKey: ['review-queue'] })
-    },
+    mutationFn: ({ appraisalId, actor }: { appraisalId: string; actor: ActorInfo }) =>
+      delay(advanceAppraisal(appraisalId, actor)),
+    onSuccess: data => invalidateAppraisal(qc, data),
   })
-}
-
-interface ReturnArgs {
-  appraisalId: string
-  reason: string
-  actor: Actor
 }
 
 export function useReturnAppraisal() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ appraisalId, reason, actor }: ReturnArgs) => {
-      const current = getAppraisalById(appraisalId)
-      if (!current) throw new Error('Not found')
-      const target: AppraisalStatus | null = returnTargetFor(actor.role)
-      if (!target) throw new Error('Role cannot return appraisal')
-      const fromStatus = current.status
-      const next = appendAudit({ ...current, status: target }, {
-        actor_user_id: actor.userId,
-        actor_name: actor.name,
-        actor_role: actor.role,
-        action: 'return',
-        from_status: fromStatus,
-        to_status: target,
-        reason,
-      })
-      persist(next)
-      return delay(next)
-    },
-    onSuccess: data => {
-      qc.invalidateQueries({ queryKey: ['appraisals', data.userId] })
-      qc.invalidateQueries({ queryKey: ['appraisal', data.id] })
-      qc.invalidateQueries({ queryKey: ['review-queue'] })
-    },
+    mutationFn: ({ appraisalId, reason, actor }: { appraisalId: string; reason: string; actor: ActorInfo }) =>
+      delay(returnAppraisal(appraisalId, reason, actor)),
+    onSuccess: data => invalidateAppraisal(qc, data),
   })
-}
-
-interface AcknowledgeArgs {
-  appraisalId: string
-  actor: Actor
 }
 
 export function useAcknowledgeAppraisal() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: async ({ appraisalId, actor }: AcknowledgeArgs) => {
-      const current = getAppraisalById(appraisalId)
-      if (!current) throw new Error('Not found')
-      if (current.status !== 'acknowledge') throw new Error('Not pending acknowledge')
-      const next = appendAudit(
-        { ...current, status: 'completed' as AppraisalStatus, acknowledged_at: new Date().toISOString() },
-        {
-          actor_user_id: actor.userId,
-          actor_name: actor.name,
-          actor_role: actor.role,
-          action: 'acknowledge',
-          from_status: 'acknowledge',
-          to_status: 'completed',
-        },
-      )
-      persist(next)
-      return delay(next)
-    },
-    onSuccess: data => {
-      qc.invalidateQueries({ queryKey: ['appraisals', data.userId] })
-      qc.invalidateQueries({ queryKey: ['appraisal', data.id] })
-      qc.invalidateQueries({ queryKey: ['review-queue'] })
-    },
+    mutationFn: ({ appraisalId, actor }: { appraisalId: string; actor: ActorInfo }) =>
+      delay(acknowledgeAppraisal(appraisalId, actor)),
+    onSuccess: data => invalidateAppraisal(qc, data),
   })
 }

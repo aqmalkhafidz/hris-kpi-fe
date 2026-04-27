@@ -8,7 +8,7 @@ import {
 } from '@features/appraisal/hooks/use-appraisal'
 import { useAuth } from '@features/auth/context/auth-context'
 import { Avatar } from '@shared/layouts/avatar'
-import { Badge } from '@shared/layouts/sidebar-badge'
+import { Badge } from '@shared/ui/badge'
 import { Icon } from '@shared/layouts/icon'
 import { PageShell } from '@shared/layouts/page-shell'
 import { Button } from '@shared/ui/button'
@@ -81,7 +81,6 @@ export function SlReviewPage() {
     await submitMut.mutateAsync({ appraisalId: appraisal.id, updates: { kras: draftKras } })
     await advanceMut.mutateAsync({
       appraisalId: appraisal.id,
-      userRole: 'staff',
       actor: { userId: user.id, name: user.name, role: user.role },
     })
     setSubmitting(false)

@@ -57,9 +57,11 @@ function roleLabel(role: string) {
   return role
 }
 
-function reviewPath(role: 'sl' | 'hod' | 'hodiv', id: string) {
-  return `/review/${role}/${id}` as any
-}
+const reviewRoutes = {
+  sl: '/review/sl/$appraisalId',
+  hod: '/review/hod/$appraisalId',
+  hodiv: '/review/hodiv/$appraisalId',
+} as const
 
 // ── Mini SVG performance chart ────────────────────────────────────────────────
 function PerfChart() {
@@ -334,7 +336,7 @@ function TeamOverview({ role, items }: { role: string; items: ReviewItem[] }) {
                       </td>
                       <td className="px-5 py-3 text-right">
                         {needsAction ? (
-                          <button onClick={() => navigate({ to: reviewPath(r.reviewRole, r.id) })}
+                          <button onClick={() => navigate({ to: reviewRoutes[r.reviewRole], params: { appraisalId: r.id } })}
                             className="inline-flex items-center gap-1 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-600">
                             Review {Icon.chev}
                           </button>

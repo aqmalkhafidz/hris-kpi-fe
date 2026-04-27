@@ -1,23 +1,39 @@
-import { Link, useRouterState } from '@tanstack/react-router'
+import { Link, LinkProps, useRouterState } from '@tanstack/react-router'
+import { ReactNode } from 'react'
 import { Icon } from './icon'
 import { useAuth } from '@features/auth/context/auth-context'
-import { Badge } from './sidebar-badge'
+import { Badge } from '@shared/ui/badge'
 
-const ITEMS = [
-  { id: 'dashboard',      label: 'Dashboard',      icon: Icon.dash,   to: '/dashboard' as const },
-  { id: 'self-appraisal', label: 'Self-Appraisal', icon: Icon.target, to: '/self-appraisal' as const },
-  { id: 'my-account',     label: 'My Account',     icon: Icon.user,   to: '/my-account' as const },
+type SidebarItem = {
+  id: string
+  label: string
+  icon: ReactNode
+  link: LinkProps
+  badge?: string
+}
+
+const STATIC_ITEMS: SidebarItem[] = [
+  { id: 'dashboard',      label: 'Dashboard',      icon: Icon.dash,   link: { to: '/dashboard' } },
+  { id: 'self-appraisal', label: 'Self-Appraisal', icon: Icon.target, link: { to: '/self-appraisal' } },
+  { id: 'my-account',     label: 'My Account',     icon: Icon.user,   link: { to: '/my-account' } },
 ]
+
+function teamReviewItem(role: 'sl' | 'hodept' | 'hodiv'): SidebarItem {
+  const link: LinkProps =
+    role === 'sl'     ? { to: '/review/sl/$appraisalId',    params: { appraisalId: 'a3' } } :
+    role === 'hodept' ? { to: '/review/hod/$appraisalId',   params: { appraisalId: 'a1' } } :
+                        { to: '/review/hodiv/$appraisalId', params: { appraisalId: 'a1' } }
+  return { id: 'team-reviews', label: 'Team Reviews', icon: Icon.team, link, badge: '2' }
+}
 
 export function EmployeeSidebar() {
   const { location } = useRouterState()
   const path = location.pathname
   const { user } = useAuth()
   const canReview = user?.role === 'sl' || user?.role === 'hodept' || user?.role === 'hodiv'
-  const reviewTo = user?.role === 'sl' ? '/review/sl/a3' : user?.role === 'hodept' ? '/review/hod/a1' : '/review/hodiv/a1'
-  const items = canReview
-    ? [...ITEMS.slice(0, 2), { id: 'team-reviews', label: 'Team Reviews', icon: Icon.team, to: reviewTo as any, badge: '2' }, ITEMS[2]]
-    : ITEMS
+  const items: SidebarItem[] = canReview && user
+    ? [...STATIC_ITEMS.slice(0, 2), teamReviewItem(user.role as 'sl' | 'hodept' | 'hodiv'), STATIC_ITEMS[2]]
+    : STATIC_ITEMS
 
   return (
     <aside className="sticky top-0 hidden h-screen w-64 shrink-0 flex-col border-r border-gray-200 bg-white px-5 py-6 dark:border-gray-800 dark:bg-gray-900 lg:flex">
@@ -36,9 +52,10 @@ export function EmployeeSidebar() {
       <p className="mt-8 px-3 text-[10px] font-semibold uppercase tracking-[0.08em] text-gray-400 dark:text-gray-500">Menu</p>
       <nav className="mt-2 flex flex-col gap-1">
         {items.map(item => {
-          const isActive = path === item.to || path.startsWith(item.to + '/')
+          const target = String(item.link.to ?? '')
+          const isActive = path === target || (target.length > 0 && path.startsWith(target + '/'))
           return (
-            <Link key={item.id} to={item.to}
+            <Link key={item.id} {...item.link}
               className={`group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors ${
                 isActive
                   ? 'bg-brand-50 text-brand-700 dark:bg-brand-500/10 dark:text-brand-300'
@@ -48,7 +65,7 @@ export function EmployeeSidebar() {
                 {item.icon}
               </span>
               <span className="flex-1">{item.label}</span>
-              {'badge' in item && <Badge tone="brand">{item.badge}</Badge>}
+              {item.badge && <Badge tone="brand">{item.badge}</Badge>}
             </Link>
           )
         })}

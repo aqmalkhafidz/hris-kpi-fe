@@ -1,6 +1,6 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import { Icon } from './icon'
-import { Badge } from './sidebar-badge'
+import { Badge } from '@shared/ui/badge'
 
 const ITEMS = [
   { id: 'hr_dashboard',  label: 'Dashboard',     icon: Icon.dash,     to: '/hr/dashboard' as const },

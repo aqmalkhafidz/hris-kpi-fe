@@ -1,5 +1,5 @@
 import { type AuditEntry, type AuditAction } from '@shared/lib/types/appraisal'
-import { statusLabel } from '@shared/layouts/sidebar-badge'
+import { statusLabel } from '@shared/ui/badge'
 
 const ACTION_LABEL: Record<AuditAction, string> = {
   submit: 'Submitted',

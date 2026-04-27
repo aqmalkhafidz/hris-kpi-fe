@@ -87,3 +87,75 @@ export const EMPLOYEES: Employee[] = [
   { id: 'e11', nip: 'EMP-2024-0903', name: 'Kirana Andini',  initials: 'KA', email: 'kirana@performa.id',  position: 'Accountant',               dept: 'Finance',     div: 'Corporate',  division: 'Corporate',  manager: 'Maya S.',      squad: null,              grade: 'IC2', status: 'probation',  joined: 'Nov 2024' },
   { id: 'e12', nip: 'EMP-2025-1102', name: 'Levi Pranata',   initials: 'LP', email: 'levi@performa.id',    position: 'Software Engineer',        dept: 'Engineering', div: 'Technology', division: 'Technology', manager: 'Citra Dewi',   squad: 'Infra',           grade: 'IC1', status: 'onboarding', joined: 'Jan 2026' },
 ]
+
+function genId(prefix: string) {
+  return `${prefix}${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+}
+
+function initialsOf(name: string): string {
+  return name.split(' ').map(part => part[0]).filter(Boolean).slice(0, 2).join('').toUpperCase()
+}
+
+export function upsertDivision(form: Omit<Division, 'id'>, id?: string): Division[] {
+  if (id) {
+    const idx = DIVISIONS.findIndex(d => d.id === id)
+    if (idx !== -1) DIVISIONS[idx] = { ...DIVISIONS[idx], ...form, id }
+  } else {
+    DIVISIONS.push({ ...form, id: genId('div') })
+  }
+  return [...DIVISIONS]
+}
+
+export function deleteDivision(id: string): Division[] {
+  const idx = DIVISIONS.findIndex(d => d.id === id)
+  if (idx !== -1) DIVISIONS.splice(idx, 1)
+  return [...DIVISIONS]
+}
+
+export function upsertDepartment(form: Omit<Department, 'id'>, id?: string): Department[] {
+  if (id) {
+    const idx = DEPARTMENTS.findIndex(d => d.id === id)
+    if (idx !== -1) DEPARTMENTS[idx] = { ...DEPARTMENTS[idx], ...form, id }
+  } else {
+    DEPARTMENTS.push({ ...form, id: genId('dept') })
+  }
+  return [...DEPARTMENTS]
+}
+
+export function deleteDepartment(id: string): Department[] {
+  const idx = DEPARTMENTS.findIndex(d => d.id === id)
+  if (idx !== -1) DEPARTMENTS.splice(idx, 1)
+  return [...DEPARTMENTS]
+}
+
+export function upsertPosition(form: Omit<Position, 'id'>, id?: string): Position[] {
+  if (id) {
+    const idx = POSITIONS.findIndex(p => p.id === id)
+    if (idx !== -1) POSITIONS[idx] = { ...POSITIONS[idx], ...form, id }
+  } else {
+    POSITIONS.push({ ...form, id: genId('pos') })
+  }
+  return [...POSITIONS]
+}
+
+export function deletePosition(id: string): Position[] {
+  const idx = POSITIONS.findIndex(p => p.id === id)
+  if (idx !== -1) POSITIONS.splice(idx, 1)
+  return [...POSITIONS]
+}
+
+export function upsertEmployee(form: Omit<Employee, 'id' | 'initials'>, id?: string): Employee[] {
+  if (id) {
+    const idx = EMPLOYEES.findIndex(e => e.id === id)
+    if (idx !== -1) EMPLOYEES[idx] = { ...EMPLOYEES[idx], ...form, id, initials: initialsOf(form.name) }
+  } else {
+    EMPLOYEES.push({ ...form, id: genId('emp'), initials: initialsOf(form.name) })
+  }
+  return [...EMPLOYEES]
+}
+
+export function deleteEmployee(id: string): Employee[] {
+  const idx = EMPLOYEES.findIndex(e => e.id === id)
+  if (idx !== -1) EMPLOYEES.splice(idx, 1)
+  return [...EMPLOYEES]
+}

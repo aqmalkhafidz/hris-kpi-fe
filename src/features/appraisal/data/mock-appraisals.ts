@@ -16,7 +16,19 @@ export {
   lastReturnEntry,
 } from '@shared/lib/types/appraisal'
 
-import type { Appraisal, Kra, ReviewerRole } from '@shared/lib/types/appraisal'
+import type {
+  Appraisal,
+  AppraisalStatus,
+  AuditEntry,
+  Kra,
+  ReviewerRole,
+} from '@shared/lib/types/appraisal'
+import {
+  advanceStatusFor,
+  appendAudit,
+  returnTargetFor,
+} from '@shared/lib/types/appraisal'
+import type { UserRole } from '@features/auth/data/mock-users'
 
 const baseKras: Kra[] = [
   {
@@ -161,4 +173,74 @@ export function getAppraisalsForReviewer(reviewerUserId: string, role: ReviewerR
 
 export function getAppraisalById(id: string) {
   return MOCK_APPRAISALS.find(a => a.id === id)
+}
+
+export interface ActorInfo {
+  userId: string
+  name: string
+  role: UserRole
+}
+
+function persist(updated: Appraisal): Appraisal {
+  const idx = MOCK_APPRAISALS.findIndex(a => a.id === updated.id)
+  if (idx === -1) throw new Error('Appraisal not found')
+  MOCK_APPRAISALS[idx] = updated
+  return updated
+}
+
+function requireById(id: string): Appraisal {
+  const found = getAppraisalById(id)
+  if (!found) throw new Error('Appraisal not found')
+  return found
+}
+
+export function updateAppraisal(id: string, updates: Partial<Appraisal>): Appraisal {
+  const current = requireById(id)
+  return persist({ ...current, ...updates })
+}
+
+export function advanceAppraisal(id: string, actor: ActorInfo): Appraisal {
+  const current = requireById(id)
+  const fromStatus = current.status
+  const toStatus = advanceStatusFor(current, actor.role)
+  const action: AuditEntry['action'] = fromStatus === 'draft' ? 'submit' : 'approve'
+  return persist(appendAudit({ ...current, status: toStatus }, {
+    actor_user_id: actor.userId,
+    actor_name: actor.name,
+    actor_role: actor.role,
+    action,
+    from_status: fromStatus,
+    to_status: toStatus,
+  }))
+}
+
+export function returnAppraisal(id: string, reason: string, actor: ActorInfo): Appraisal {
+  const current = requireById(id)
+  const target: AppraisalStatus | null = returnTargetFor(actor.role)
+  if (!target) throw new Error('Role cannot return appraisal')
+  return persist(appendAudit({ ...current, status: target }, {
+    actor_user_id: actor.userId,
+    actor_name: actor.name,
+    actor_role: actor.role,
+    action: 'return',
+    from_status: current.status,
+    to_status: target,
+    reason,
+  }))
+}
+
+export function acknowledgeAppraisal(id: string, actor: ActorInfo): Appraisal {
+  const current = requireById(id)
+  if (current.status !== 'acknowledge') throw new Error('Not pending acknowledge')
+  return persist(appendAudit(
+    { ...current, status: 'completed', acknowledged_at: new Date().toISOString() },
+    {
+      actor_user_id: actor.userId,
+      actor_name: actor.name,
+      actor_role: actor.role,
+      action: 'acknowledge',
+      from_status: 'acknowledge',
+      to_status: 'completed',
+    },
+  ))
 }

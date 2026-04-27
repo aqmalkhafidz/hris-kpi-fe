@@ -93,7 +93,6 @@ export function HodivReviewPage() {
     await submitMut.mutateAsync({ appraisalId: appraisal.id, updates: { kras: draftKras } })
     await advanceMut.mutateAsync({
       appraisalId: appraisal.id,
-      userRole: 'staff',
       actor: { userId: user.id, name: user.name, role: user.role },
     })
     setSubmitting(false)

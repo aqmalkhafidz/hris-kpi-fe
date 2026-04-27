@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
 import { PageShell } from '@shared/layouts/page-shell'
-import { Badge } from '@shared/layouts/sidebar-badge'
+import { Badge } from '@shared/ui/badge'
 import { Icon } from '@shared/layouts/icon'
 import { KRA_TEMPLATES, KraTemplateV2, KraItem, TemplateStatus } from '../data/mock-kras'
 

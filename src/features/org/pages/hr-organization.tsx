@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useOrgStore } from '../hooks/use-org'
 import { PageShell } from '@shared/layouts/page-shell'
-import { Badge } from '@shared/layouts/sidebar-badge'
+import { Badge } from '@shared/ui/badge'
 import { Avatar } from '@shared/layouts/avatar'
 import { Modal } from '@shared/ui/modal'
 import { Icon } from '@shared/layouts/icon'
