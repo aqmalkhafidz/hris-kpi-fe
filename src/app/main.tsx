@@ -2,10 +2,10 @@ import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { RouterProvider } from '@tanstack/react-router'
-import { AuthProvider, useAuth } from './auth/auth-context'
+import { AuthProvider, useAuth } from '../auth/auth-context'
 import { router } from './router'
-import { applyTheme, getInitialTheme } from './utils/theme'
-import './styles/friendly.css'
+import { applyTheme, getInitialTheme } from '../utils/theme'
+import '../styles/friendly.css'
 
 applyTheme(getInitialTheme())
 
