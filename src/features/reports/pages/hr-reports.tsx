@@ -3,7 +3,7 @@ import { PageShell } from '@shared/layouts/page-shell'
 import { Badge } from '@shared/layouts/sidebar-badge'
 import { Avatar } from '@shared/layouts/avatar'
 import { Icon } from '@shared/layouts/icon'
-import { CYCLES } from '../data/mock-cycles'
+import { CYCLES } from '@features/cycles/data/mock-cycles'
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
