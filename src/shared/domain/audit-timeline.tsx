@@ -1,5 +1,5 @@
 import { type AuditEntry, type AuditAction } from '../../data/mock-appraisals'
-import { statusLabel } from '../shell/badge'
+import { statusLabel } from '@shared/layouts/sidebar-badge'
 
 const ACTION_LABEL: Record<AuditAction, string> = {
   submit: 'Submitted',

@@ -1,10 +1,10 @@
 import { useState, useMemo } from 'react'
 import { Link, useParams } from '@tanstack/react-router'
-import { PageShell } from '../components/shell/page-shell'
-import { Badge } from '../components/shell/badge'
-import { Icon } from '../components/shell/icon'
-import { Avatar } from '../components/shell/avatar'
-import { Modal } from '../components/ui/modal'
+import { PageShell } from '@shared/layouts/page-shell'
+import { Badge } from '@shared/layouts/sidebar-badge'
+import { Icon } from '@shared/layouts/icon'
+import { Avatar } from '@shared/layouts/avatar'
+import { Modal } from '@shared/ui/modal'
 import {
   CYCLES, DIST_TEMPLATES, DIST_EMPLOYEES, INITIAL_DISTRIBUTED,
   Cycle, CycleStatus, DistEmployee, DistTemplate,

@@ -1,5 +1,5 @@
 import { AppraisalStatus } from '../../data/mock-appraisals'
-import { Icon } from '../shell/icon'
+import { Icon } from '@shared/layouts/icon'
 
 const steps: { id: AppraisalStatus; label: string }[] = [
   { id: 'draft', label: 'Draft' },

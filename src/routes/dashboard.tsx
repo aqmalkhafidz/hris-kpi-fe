@@ -3,8 +3,8 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '../auth/auth-context'
 import { useMyAppraisals } from '../hooks/use-appraisal'
 import { useReviewQueue } from '../hooks/use-reviews'
-import { Avatar } from '../components/shell/avatar'
-import { Icon } from '../components/shell/icon'
+import { Avatar } from '@shared/layouts/avatar'
+import { Icon } from '@shared/layouts/icon'
 import { Appraisal } from '../data/mock-appraisals'
 
 // ── Status config ─────────────────────────────────────────────────────────────

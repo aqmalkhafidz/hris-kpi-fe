@@ -1,8 +1,8 @@
 import { FormEvent, useState } from 'react'
 import { Link } from '@tanstack/react-router'
-import { Button } from '../components/ui/button'
-import { FormField, Input } from '../components/ui/form-field'
-import { Icon } from '../components/shell/icon'
+import { Button } from '@shared/ui/button'
+import { FormField, Input } from '@shared/ui/form-field'
+import { Icon } from '@shared/layouts/icon'
 
 function BrandMark() {
   return (

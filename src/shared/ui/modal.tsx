@@ -1,5 +1,5 @@
 import { ReactNode, useEffect } from 'react'
-import { Icon } from '../shell/icon'
+import { Icon } from '@shared/layouts/icon'
 
 export function Modal({ open, title, children, footer, onClose }: { open: boolean; title: ReactNode; children: ReactNode; footer?: ReactNode; onClose: () => void }) {
   useEffect(() => {

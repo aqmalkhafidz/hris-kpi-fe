@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react'
-import { Icon } from '../components/shell/icon'
-import { Avatar } from '../components/shell/avatar'
-import { Badge } from '../components/shell/badge'
+import { Icon } from '@shared/layouts/icon'
+import { Avatar } from '@shared/layouts/avatar'
+import { Badge } from '@shared/layouts/sidebar-badge'
 
 // ── Mock data (mirrors hr-dashboard.jsx mockup) ──────────────────────────────
 const CYCLE = {

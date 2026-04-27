@@ -23,8 +23,8 @@ import { HrKraTemplatesPage } from '../routes/hr-kra-templates'
 import { HrCyclesPage }      from '../routes/hr-cycles'
 import { HrCycleDetailPage } from '../routes/hr-cycle-detail'
 import { HrReportsPage }     from '../routes/hr-reports'
-import { HrLayout }          from '../routes/hr-layout'
-import { EmployeeLayout }    from '../routes/employee-layout'
+import { HrLayout }          from '@shared/layouts/hr-layout'
+import { EmployeeLayout }    from '@shared/layouts/employee-layout'
 
 // ─── Router context ───
 export interface RouterContext {

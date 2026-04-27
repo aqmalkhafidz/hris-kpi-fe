@@ -1,7 +1,7 @@
 import { Link, useRouterState } from '@tanstack/react-router'
 import { Icon } from './icon'
 import { useAuth } from '../../auth/auth-context'
-import { Badge } from './badge'
+import { Badge } from './sidebar-badge'
 
 const ITEMS = [
   { id: 'dashboard',      label: 'Dashboard',      icon: Icon.dash,   to: '/dashboard' as const },

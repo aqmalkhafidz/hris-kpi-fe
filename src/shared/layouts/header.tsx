@@ -3,7 +3,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { Avatar } from './avatar'
 import { Icon } from './icon'
 import { useAuth } from '../../auth/auth-context'
-import { applyTheme, getInitialTheme, toggleTheme, ThemeMode } from '../../utils/theme'
+import { applyTheme, getInitialTheme, toggleTheme, ThemeMode } from '@shared/lib/theme'
 
 export function Header() {
   const { user, logout } = useAuth()

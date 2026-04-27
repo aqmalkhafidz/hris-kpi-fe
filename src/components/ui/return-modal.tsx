@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
-import { Modal } from './modal'
-import { Button } from './button'
-import { FormField, Textarea } from './form-field'
+import { Modal } from '@shared/ui/modal'
+import { Button } from '@shared/ui/button'
+import { FormField, Textarea } from '@shared/ui/form-field'
 
 interface ReturnModalProps {
   open: boolean

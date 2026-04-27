@@ -1,11 +1,11 @@
 import { Outlet } from '@tanstack/react-router'
-import { EmployeeSidebar } from '../components/shell/employee-sidebar'
-import { Header } from '../components/shell/header'
+import { HRSidebar } from '@shared/layouts/hr-sidebar'
+import { Header } from '@shared/layouts/header'
 
-export function EmployeeLayout() {
+export function HrLayout() {
   return (
     <div className="flex min-h-screen bg-[var(--bg-page,#f4f1ea)] dark:bg-gray-950">
-      <EmployeeSidebar />
+      <HRSidebar />
       <div className="flex flex-1 flex-col min-w-0">
         <Header />
         <Outlet />

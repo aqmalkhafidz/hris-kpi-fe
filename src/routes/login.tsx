@@ -3,9 +3,9 @@ import { Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useAuth } from '../auth/auth-context'
 import { MOCK_USERS } from '../auth/mock-users'
-import { Button } from '../components/ui/button'
-import { FormField, Input, Select } from '../components/ui/form-field'
-import { Icon } from '../components/shell/icon'
+import { Button } from '@shared/ui/button'
+import { FormField, Input, Select } from '@shared/ui/form-field'
+import { Icon } from '@shared/layouts/icon'
 
 function BrandMark({ mobile = false }: { mobile?: boolean }) {
   return (

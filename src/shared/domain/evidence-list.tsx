@@ -1,5 +1,5 @@
 import { Evidence } from '../../data/mock-appraisals'
-import { Icon } from '../shell/icon'
+import { Icon } from '@shared/layouts/icon'
 
 export type EvidenceItem = Evidence
 
