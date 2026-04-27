@@ -6,7 +6,7 @@ import {
   useReturnAppraisal,
   useSubmitAppraisal,
 } from '@features/appraisal/hooks/use-appraisal'
-import { useAuth } from '../auth/auth-context'
+import { useAuth } from '../../../auth/auth-context'
 import { Avatar } from '@shared/layouts/avatar'
 import { Badge } from '@shared/layouts/sidebar-badge'
 import { Icon } from '@shared/layouts/icon'
@@ -21,7 +21,7 @@ import { ScorePicker } from '@shared/domain/score-picker'
 import { SectionCard } from '@shared/ui/section-card'
 import { StatusBadge } from '@shared/ui/status-badge'
 import { AuditTimeline } from '@shared/domain/audit-timeline'
-import { ReturnModal } from '../components/ui/return-modal'
+import { ReturnModal } from '../components/return-modal'
 import { Kra } from '@features/appraisal/data/mock-appraisals'
 
 const SCORE_LABELS: Record<number, string> = {
