@@ -34,7 +34,7 @@ const RECENT_SUBMISSIONS = [
   { who: 'Bagas Widodo',   team: 'Operations · Logistics', to: 'Squad Leader review', when: '38 min ago', initials: 'BW', tone: 'warning' as const },
   { who: 'Citra Pertiwi',  team: 'Marketing · Growth',     to: 'HoDiv review',        when: '1 h ago',    initials: 'CP', tone: 'brand'   as const },
   { who: 'Reno Saputra',   team: 'Engineering · Mobile',   to: 'Completed',           when: '2 h ago',    initials: 'RS', tone: 'success' as const },
-  { who: 'Mira Lestari',   team: 'Finance · Reporting',    to: 'Squad Leader review', when: '3 h ago',    initials: 'ML', tone: 'neutral' as const },
+  { who: 'Mira Lestari',   team: 'Finance · Reporting',    to: 'Squad Leader review', when: '3 h ago',    initials: 'ML', tone: 'gray'    as const },
 ]
 
 const ATTENTION = [
