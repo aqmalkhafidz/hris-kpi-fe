@@ -20,7 +20,8 @@ import { AuditTimeline } from '@shared/domain/audit-timeline'
 import { ReturnModal } from '../components/return-modal'
 import { ScoreComparison } from '@shared/domain/score-comparison'
 import { BellCurve } from '../components/bell-curve'
-import { getAppraisalsForReviewer, type Kra } from '@features/appraisal/data/mock-appraisals'
+import type { Kra } from '@shared/lib/types/appraisal'
+import { useReviewQueue } from '../hooks/use-reviews'
 
 const SCORE_LABELS: Record<number, string> = { 1: 'Far Below', 2: 'Below', 3: 'Meet', 4: 'Exceed', 5: 'Far Exceed' }
 
@@ -31,12 +32,14 @@ interface ReviewDraft {
 
 export function HodReviewPage() {
   const { appraisalId } = useParams({ strict: false }) as { appraisalId: string }
+  const numericAppraisalId = Number(appraisalId)
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { data: appraisal, isLoading } = useAppraisalById(appraisalId)
+  const { data: appraisal, isLoading } = useAppraisalById(numericAppraisalId)
   const submitMut = useSubmitAppraisal()
   const advanceMut = useAdvanceAppraisal()
   const returnMut = useReturnAppraisal()
+  const { data: queue = [] } = useReviewQueue(user?.id, 'hod')
 
   const [scores, setScores] = useState<Record<string, ReviewDraft>>({})
   const [submitting, setSubmitting] = useState(false)
@@ -55,7 +58,6 @@ export function HodReviewPage() {
     if (!user) return [
       { label: '1', count: 0 }, { label: '2', count: 0 }, { label: '3', count: 0 }, { label: '4', count: 0 }, { label: '5', count: 0 },
     ]
-    const queue = getAppraisalsForReviewer(user.id, 'hod')
     const buckets = [0, 0, 0, 0, 0]
     for (const a of queue) {
       for (const k of a.kras) {
@@ -70,7 +72,7 @@ export function HodReviewPage() {
       { label: '4', count: buckets[3] },
       { label: '5', count: buckets[4] },
     ]
-  }, [user, appraisal])
+  }, [user, appraisal, queue])
 
   const canSubmit = appraisal?.status === 'hod_review'
   const completed = draftKras.filter(kra => (kra.hod_score ?? 0) > 0)

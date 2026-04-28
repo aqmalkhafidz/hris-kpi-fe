@@ -2,7 +2,8 @@ import { useState, useMemo } from 'react'
 import { PageShell } from '@shared/layouts/page-shell'
 import { Badge } from '@shared/ui/badge'
 import { Icon } from '@shared/layouts/icon'
-import { KRA_TEMPLATES, KraTemplateV2, KraItem, TemplateStatus } from '../data/mock-kras'
+import type { KraTemplateV2, KraItem, TemplateStatus } from '../types'
+import { useKraTemplates, useUpdateKraItems, useUpsertKraTemplate } from '../hooks/use-kra-templates'
 
 const inputCls = 'w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90'
 
@@ -454,8 +455,10 @@ function KraItemForm({ initial, otherWeight, templateName, onSave, onCancel }: {
 }
 
 export function HrKraTemplatesPage() {
-  const [templates, setTemplates] = useState<KraTemplateV2[]>(KRA_TEMPLATES)
-  const [activeId, setActiveId] = useState<string>(KRA_TEMPLATES[0]?.id ?? '')
+  const { data: templates = [] } = useKraTemplates()
+  const upsertTemplate = useUpsertKraTemplate()
+  const updateItems = useUpdateKraItems()
+  const [activeId, setActiveId] = useState<number | null>(null)
   const [filter, setFilter] = useState<TemplateStatus | 'all'>('all')
   const [search, setSearch] = useState('')
   const [view, setView] = useState<View>({ mode: 'list' })
@@ -475,34 +478,50 @@ export function HrKraTemplatesPage() {
     { id: 'archived',  label: 'Archived',  count: templates.filter(t => t.status === 'archived').length },
   ]
 
+  if (!active) {
+    return (
+      <PageShell>
+        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-white/[0.02] dark:text-gray-400">
+          No KRA templates available.
+        </div>
+      </PageShell>
+    )
+  }
+
   function saveTemplate(data: TplFormData) {
+    const next: Omit<KraTemplateV2, 'id'> = {
+      ...data,
+      version: view.mode === 'edit-template' ? active.version : 'v1',
+      updated: 'today',
+      usedBy: view.mode === 'edit-template' ? active.usedBy : 0,
+      items: view.mode === 'edit-template' ? active.items : [],
+    }
     if (view.mode === 'edit-template') {
-      setTemplates(prev => prev.map(t => t.id === active.id ? { ...t, ...data } : t))
+      upsertTemplate.mutate({ id: active.id, template: next })
     } else {
-      const nid = `tpl-${Date.now()}`
-      setTemplates(prev => [...prev, { ...data, id: nid, version: 'v1', updated: 'today', usedBy: 0, items: [] }])
-      setActiveId(nid)
+      upsertTemplate.mutate({ template: next }, { onSuccess: created => setActiveId(created.id) })
     }
     setView({ mode: 'list' })
   }
 
   function saveKraItem(data: KraFormData) {
-    setTemplates(prev => prev.map(t => {
-      if (t.id !== active.id) return t
+    if (!active) return
+    let nextItems: KraItem[]
       if (view.mode === 'edit-kra') {
-        return { ...t, items: t.items.map(it => it.code === (view as { mode: 'edit-kra'; kraCode: string }).kraCode ? { ...it, ...data } : it) }
+      nextItems = active.items.map(it => it.code === (view as { mode: 'edit-kra'; kraCode: string }).kraCode ? { ...it, ...data } : it)
+    } else {
+      const exists = active.items.some(it => it.code === data.code)
+      nextItems = exists
+        ? active.items.map(it => it.code === data.code ? { ...it, ...data } : it)
+        : [...active.items, data]
       }
-      const exists = t.items.some(it => it.code === data.code)
-      if (exists) return { ...t, items: t.items.map(it => it.code === data.code ? { ...it, ...data } : it) }
-      return { ...t, items: [...t.items, data] }
-    }))
+    updateItems.mutate({ templateId: active.id, items: nextItems })
     setView({ mode: 'list' })
   }
 
   function deleteKraItem(kraCode: string) {
-    setTemplates(prev => prev.map(t =>
-      t.id === active.id ? { ...t, items: t.items.filter(it => it.code !== kraCode) } : t
-    ))
+    if (!active) return
+    updateItems.mutate({ templateId: active.id, items: active.items.filter(it => it.code !== kraCode) })
   }
 
   // ── Full-page form views ──

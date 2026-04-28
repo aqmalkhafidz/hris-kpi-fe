@@ -1,4 +1,4 @@
-import { AppraisalStatus } from '../data/mock-appraisals'
+import type { AppraisalStatus } from '@shared/lib/types/appraisal'
 import { Icon } from '@shared/layouts/icon'
 
 const steps: { id: AppraisalStatus; label: string }[] = [

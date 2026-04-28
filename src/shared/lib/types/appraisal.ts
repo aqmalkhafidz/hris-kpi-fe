@@ -1,4 +1,4 @@
-import type { UserRole } from '@features/auth/data/mock-users'
+import type { UserRole } from '@features/auth/types'
 
 export type AppraisalStatus =
   | 'draft'
@@ -27,7 +27,7 @@ export interface Evidence {
 }
 
 export interface Kra {
-  id: string
+  id: number
   title: string
   description: string
   target: string
@@ -45,28 +45,28 @@ export interface Kra {
 
 export interface AuditEntry {
   timestamp: string
-  actor_user_id: string
+  actor_user_id: number
   actor_name: string
   actor_role: UserRole
   action: AuditAction
   from_status?: AppraisalStatus
   to_status?: AppraisalStatus
   reason?: string
-  kra_id?: string
+  kra_id?: number
 }
 
 export interface Appraisal {
-  id: string
-  userId: string
+  id: number
+  userId: number
   cycleName: string
   cycleShort: string
   status: AppraisalStatus
   reflection: string
   kras: Kra[]
   reviewers: {
-    sl: { userId: string; name: string; initials: string }
-    hod: { userId: string; name: string; initials: string }
-    hodiv: { userId: string; name: string; initials: string }
+    sl: { userId: number; name: string; initials: string }
+    hod: { userId: number; name: string; initials: string }
+    hodiv: { userId: number; name: string; initials: string }
   }
   audit_log: AuditEntry[]
   submittedAt?: string

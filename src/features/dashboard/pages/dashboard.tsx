@@ -1,12 +1,15 @@
 import { useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
+import Chart from 'react-apexcharts'
+import type { ApexOptions } from 'apexcharts'
 import { useAuth } from '@features/auth/context/auth-context'
 import { useMyAppraisals } from '@features/appraisal/hooks/use-appraisal'
 import { useReviewQueue } from '@features/review/hooks/use-reviews'
+import { usePerfHistory, useMyActivity, type PerfHistory } from '../hooks/use-my-dashboard'
 import { Avatar } from '@shared/layouts/avatar'
 import { Icon } from '@shared/layouts/icon'
 import { PageShell } from '@shared/layouts/page-shell'
-import { Appraisal } from '@features/appraisal/data/mock-appraisals'
+import type { Appraisal } from '@shared/lib/types/appraisal'
 
 // ── Status config ─────────────────────────────────────────────────────────────
 const STATUS_FLOW = [
@@ -26,21 +29,6 @@ const STATUS_BADGE: Record<string, string> = {
   acknowledge:  'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300',
   completed:    'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400',
 }
-
-// Static 4-quarter performance history
-const PERF_HISTORY = {
-  quarters:   ["Q2 '25", "Q3 '25", "Q4 '25", "Q1 '26"],
-  self:       [3.6, 3.9, 4.1, 4.0] as number[],
-  reviewer:   [3.4, 3.7, 3.9, null] as (number | null)[],
-  calibrated: [3.5, 3.6, 3.7, null] as (number | null)[],
-}
-
-const ACTIVITIES = [
-  { avatar: 'DA', who: 'Dewi Anggraeni',  what: 'left a note on',       target: 'KRA: Indonesia payment rails',  when: '2h ago',    tone: 'success' as const },
-  { avatar: 'AP', who: 'You',             what: 'attached evidence to', target: 'KRA: Migrate auth to OIDC',     when: 'Yesterday', tone: 'brand'   as const },
-  { avatar: 'HR', who: 'HR Console',      what: 'reminded you about',   target: 'cycle deadline',                when: 'Mar 20',    tone: 'warning' as const },
-  { avatar: 'RO', who: 'Rifky Oktaviano', what: 'reminded you to submit',target: 'self-appraisal · Mar 28',     when: '2d ago',    tone: 'gray'    as const },
-]
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function weightedScore(a: Appraisal) {
@@ -64,49 +52,54 @@ const reviewRoutes = {
   hodiv: '/review/hodiv/$appraisalId',
 } as const
 
-// ── Mini SVG performance chart ────────────────────────────────────────────────
-function PerfChart() {
-  const xs = [40, 140, 240, 340]
-  const sy = (v: number) => 155 - (v / 5) * 130
-
-  function pts(data: (number | null)[]) {
-    return data.map((v, i) => v !== null ? `${xs[i]},${sy(v)}` : null).filter(Boolean).join(' ')
+// ── ApexCharts performance line chart ─────────────────────────────────────────
+function PerfChart({ data }: { data: PerfHistory }) {
+  const options: ApexOptions = {
+    chart: {
+      type: 'line',
+      toolbar: { show: false },
+      zoom: { enabled: false },
+      animations: { enabled: true },
+      fontFamily: 'inherit',
+    },
+    colors: ['#465fff', '#12b76a', '#94a3b8'],
+    stroke: { curve: 'smooth', width: [3, 3, 2], dashArray: [0, 0, 6] },
+    markers: { size: 5, strokeWidth: 2, hover: { sizeOffset: 2 } },
+    xaxis: {
+      categories: data.quarters,
+      axisBorder: { show: false },
+      axisTicks: { show: false },
+      labels: { style: { colors: '#94a3b8', fontSize: '12px' } },
+    },
+    yaxis: {
+      min: 0,
+      max: 5,
+      tickAmount: 5,
+      labels: {
+        style: { colors: '#94a3b8', fontSize: '12px' },
+        formatter: v => v.toFixed(1),
+      },
+    },
+    legend: {
+      position: 'top',
+      horizontalAlign: 'left',
+      fontSize: '12px',
+      labels: { colors: '#64748b' },
+      markers: { size: 6, strokeWidth: 0 },
+      itemMargin: { horizontal: 12 },
+    },
+    grid: { borderColor: '#e5e7eb', strokeDashArray: 4, padding: { left: 8, right: 8 } },
+    tooltip: { y: { formatter: v => (v == null ? '—' : `${v.toFixed(1)} / 5`) } },
+    dataLabels: { enabled: false },
   }
-
+  const series = [
+    { name: 'Self score',     data: data.self },
+    { name: 'Reviewer final', data: data.reviewer },
+    { name: 'Calibrated',     data: data.calibrated },
+  ]
   return (
-    <div>
-      <div className="mb-3 flex flex-wrap gap-4">
-        {[
-          { label: 'Self score',     color: '#465fff' },
-          { label: 'Reviewer final', color: '#12b76a' },
-          { label: 'Calibrated',     color: '#94a3b8' },
-        ].map(s => (
-          <span key={s.label} className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400">
-            <span className="inline-block h-0.5 w-5 rounded" style={{ background: s.color }} />
-            {s.label}
-          </span>
-        ))}
-      </div>
-      <svg viewBox="0 0 380 185" className="w-full" style={{ height: 175 }}>
-        {[0, 1, 2, 3, 4, 5].map(v => (
-          <g key={v}>
-            <line x1={40} y1={sy(v)} x2={345} y2={sy(v)} stroke="#e5e7eb" strokeWidth={0.8} strokeDasharray="4 3" />
-            <text x={32} y={sy(v) + 4} textAnchor="end" fontSize={10} fill="#94a3b8">{v.toFixed(1)}</text>
-          </g>
-        ))}
-        {PERF_HISTORY.quarters.map((q, i) => (
-          <text key={q} x={xs[i]} y={175} textAnchor="middle" fontSize={11} fill="#94a3b8">{q}</text>
-        ))}
-        <polyline points={pts(PERF_HISTORY.self)}       fill="none" stroke="#465fff" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-        <polyline points={pts(PERF_HISTORY.reviewer)}   fill="none" stroke="#12b76a" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
-        <polyline points={pts(PERF_HISTORY.calibrated)} fill="none" stroke="#94a3b8" strokeWidth={2} strokeDasharray="5 3" strokeLinecap="round" strokeLinejoin="round" />
-        {PERF_HISTORY.self.map((v, i) => (
-          <circle key={i} cx={xs[i]} cy={sy(v)} r={4} fill="#fff" stroke="#465fff" strokeWidth={2} />
-        ))}
-        {PERF_HISTORY.reviewer.map((v, i) => v !== null && (
-          <circle key={i} cx={xs[i]} cy={sy(v)} r={4} fill="#fff" stroke="#12b76a" strokeWidth={2} />
-        ))}
-      </svg>
+    <div className="h-full w-full">
+      <Chart options={options} series={series} type="line" height="100%" width="100%" />
     </div>
   )
 }
@@ -235,7 +228,7 @@ function KRARow({ kra, expanded, onToggle }: {
 }
 
 // ── Team overview (SL / HoD / HoDiv) ─────────────────────────────────────────
-type ReviewItem = { id: string; cycleName: string; userId: string; status: string; reviewRole: 'sl' | 'hod' | 'hodiv' }
+type ReviewItem = { id: number; cycleName: string; userId: number; status: string; reviewRole: 'sl' | 'hod' | 'hodiv' }
 
 function TeamOverview({ role, items }: { role: string; items: ReviewItem[] }) {
   const navigate = useNavigate()
@@ -325,7 +318,7 @@ function TeamOverview({ role, items }: { role: string; items: ReviewItem[] }) {
                     <tr key={`${r.id}-${r.reviewRole}`} className="hover:bg-gray-50/60 dark:hover:bg-white/[0.02]">
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
-                          <Avatar initials={r.userId.slice(0, 2).toUpperCase()} tone="brand" size="sm" />
+                          <Avatar initials={`U${r.userId}`} tone="brand" size="sm" />
                           <p className="font-semibold text-gray-800 dark:text-white/90">{r.userId}</p>
                         </div>
                       </td>
@@ -337,7 +330,7 @@ function TeamOverview({ role, items }: { role: string; items: ReviewItem[] }) {
                       </td>
                       <td className="px-5 py-3 text-right">
                         {needsAction ? (
-                          <button onClick={() => navigate({ to: reviewRoutes[r.reviewRole], params: { appraisalId: r.id } })}
+                          <button onClick={() => navigate({ to: reviewRoutes[r.reviewRole], params: { appraisalId: String(r.id) } })}
                             className="inline-flex items-center gap-1 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-600">
                             Review {Icon.chev}
                           </button>
@@ -362,12 +355,14 @@ function TeamOverview({ role, items }: { role: string; items: ReviewItem[] }) {
 // ── Page ──────────────────────────────────────────────────────────────────────
 export function DashboardPage() {
   const { user } = useAuth()
-  const { data: appraisals, isLoading } = useMyAppraisals(user?.id ?? '')
-  const { data: slQueue }    = useReviewQueue(user?.id ?? '', 'sl')
-  const { data: hodQueue }   = useReviewQueue(user?.id ?? '', 'hod')
-  const { data: hodivQueue } = useReviewQueue(user?.id ?? '', 'hodiv')
+  const { data: appraisals, isLoading } = useMyAppraisals(user?.id ?? 0)
+  const { data: slQueue }    = useReviewQueue(user?.id, 'sl')
+  const { data: hodQueue }   = useReviewQueue(user?.id, 'hod')
+  const { data: hodivQueue } = useReviewQueue(user?.id, 'hodiv')
+  const { data: perfHistory } = usePerfHistory(user?.id)
+  const { data: activities = [] } = useMyActivity(user?.id)
 
-  const [expandedKra, setExpandedKra] = useState<string | null>(null)
+  const [expandedKra, setExpandedKra] = useState<number | null>(null)
 
   const appraisal = appraisals?.[0]
   const canReview = user?.role === 'sl' || user?.role === 'hodept' || user?.role === 'hodiv'
@@ -475,7 +470,7 @@ export function DashboardPage() {
                     <p className="mt-1 text-sm text-blue-700 dark:text-blue-400">HoDiv has signed off. Review final scores and acknowledge.</p>
                   </div>
                 </div>
-                <Link to="/acknowledge/$appraisalId" params={{ appraisalId: appraisal.id }}
+                <Link to="/acknowledge/$appraisalId" params={{ appraisalId: String(appraisal.id) }}
                   className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700">
                   Review &amp; acknowledge {Icon.chev}
                 </Link>
@@ -534,10 +529,14 @@ export function DashboardPage() {
 
           {/* ── Performance chart + Approval flow ── */}
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-            <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03] lg:col-span-2">
+            <div className="flex h-full flex-col rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03] lg:col-span-2">
               <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Performance history</h3>
               <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Self vs reviewer-final vs HR-calibrated, last 4 quarters.</p>
-              <div className="mt-4"><PerfChart /></div>
+              <div className="mt-4 min-h-[260px] flex-1">
+                {perfHistory && perfHistory.quarters.length > 0
+                  ? <PerfChart data={perfHistory} />
+                  : <div className="grid h-full place-items-center text-sm text-gray-400">Belum ada riwayat appraisal completed.</div>}
+              </div>
             </div>
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">
               <div className="flex items-start justify-between">
@@ -585,20 +584,26 @@ export function DashboardPage() {
                 <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90">Recent activity</h3>
                 <button className="text-sm font-semibold text-brand-600 dark:text-brand-300">View all</button>
               </div>
-              <ol className="mt-4 space-y-4">
-                {ACTIVITIES.map((a, i) => (
-                  <li key={i} className="flex gap-3">
-                    <Avatar initials={a.avatar} tone={a.tone} size="md" />
-                    <div className="min-w-0 flex-1 border-b border-gray-100 pb-4 last:border-0 last:pb-0 dark:border-gray-800">
-                      <p className="text-sm text-gray-700 dark:text-gray-300">
-                        <span className="font-semibold text-gray-800 dark:text-white/90">{a.who}</span>{' '}{a.what}{' '}
-                        <span className="font-medium text-brand-600 dark:text-brand-300">{a.target}</span>
-                      </p>
-                      <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{a.when}</p>
-                    </div>
-                  </li>
-                ))}
-              </ol>
+              {activities.length === 0 ? (
+                <p className="mt-4 rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-white/[0.02] dark:text-gray-400">
+                  Belum ada aktivitas.
+                </p>
+              ) : (
+                <ol className="mt-4 space-y-4">
+                  {activities.map((a, i) => (
+                    <li key={i} className="flex gap-3">
+                      <Avatar initials={a.avatar} tone={a.tone} size="md" />
+                      <div className="min-w-0 flex-1 border-b border-gray-100 pb-4 last:border-0 last:pb-0 dark:border-gray-800">
+                        <p className="text-sm text-gray-700 dark:text-gray-300">
+                          <span className="font-semibold text-gray-800 dark:text-white/90">{a.who}</span>{' '}{a.what}{' '}
+                          <span className="font-medium text-brand-600 dark:text-brand-300">{a.target}</span>
+                        </p>
+                        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{a.when}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              )}
             </div>
 
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03]">

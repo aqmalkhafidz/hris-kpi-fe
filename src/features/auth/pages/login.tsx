@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Link, useNavigate } from '@tanstack/react-router'
 import { useForm } from '@tanstack/react-form'
 import { useAuth } from '@features/auth/context/auth-context'
-import { MOCK_USERS } from '@features/auth/data/mock-users'
+import { fetchDemoUsers } from '@features/auth/api/auth-api'
+import type { AppUser } from '@features/auth/types'
 import { Button } from '@shared/ui/button'
 import { FormField, Input, Select } from '@shared/ui/form-field'
 import { Icon } from '@shared/layouts/icon'
@@ -48,20 +49,28 @@ export function LoginPage() {
   const [showPass, setShowPass] = useState(false)
   const [remember, setRemember] = useState(false)
   const [loginError, setLoginError] = useState('')
+  const [demoUsers, setDemoUsers] = useState<AppUser[]>([])
+
+  useEffect(() => {
+    fetchDemoUsers().then(setDemoUsers).catch(() => setDemoUsers([]))
+  }, [])
 
   const form = useForm({
     defaultValues: { email: '', password: '', quickUserId: '' },
     onSubmit: async ({ value }) => {
       setLoginError('')
-      const email = value.quickUserId
-        ? MOCK_USERS.find(u => u.id === value.quickUserId)?.email ?? value.email
+      const quickUserId = value.quickUserId ? Number(value.quickUserId) : null
+      const email = quickUserId
+        ? demoUsers.find(u => u.id === quickUserId)?.email ?? value.email
         : value.email
-      const found = MOCK_USERS.find(u => u.email === email)
-      if (!found) { setLoginError('Email not found in demo users.'); return }
+      if (!email) { setLoginError('Email is required.'); return }
       if (!value.quickUserId && !value.password) { setLoginError('Password is required.'); return }
-      await new Promise(resolve => setTimeout(resolve, 600))
-      login(found.id)
-      navigate({ to: found.role === 'hr' ? '/hr/dashboard' : '/dashboard' })
+      try {
+        const found = await login(email, value.password || 'demo1234')
+        navigate({ to: found.role === 'hr' ? '/hr/dashboard' : '/dashboard' })
+      } catch (error) {
+        setLoginError(error instanceof Error ? error.message : 'Login failed.')
+      }
     },
   })
 
@@ -123,7 +132,7 @@ export function LoginPage() {
                     value={field.state.value}
                     onChange={(event) => {
                       field.handleChange(event.target.value)
-                      const found = MOCK_USERS.find(u => u.id === event.target.value)
+                      const found = demoUsers.find(u => u.id === Number(event.target.value))
                       if (found) {
                         form.setFieldValue('email', found.email)
                         form.setFieldValue('password', 'demo1234')
@@ -131,8 +140,8 @@ export function LoginPage() {
                     }}
                   >
                     <option value="">Select a role</option>
-                    {MOCK_USERS.map(user => (
-                      <option key={user.id} value={user.id}>{user.name} ({user.position})</option>
+                    {demoUsers.map(user => (
+                      <option key={user.id} value={String(user.id)}>{user.name} ({user.position})</option>
                     ))}
                   </Select>
                 </FormField>

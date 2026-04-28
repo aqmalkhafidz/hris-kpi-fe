@@ -5,37 +5,10 @@ import { Badge } from '@shared/ui/badge'
 import { Icon } from '@shared/layouts/icon'
 import { Avatar } from '@shared/layouts/avatar'
 import { Modal } from '@shared/ui/modal'
-import {
-  CYCLES, DIST_TEMPLATES, DIST_EMPLOYEES, INITIAL_DISTRIBUTED,
-  Cycle, CycleStatus, DistEmployee, DistTemplate,
-} from '../data/mock-cycles'
+import type { Cycle, CycleStatus, DistEmployee } from '../types'
+import { useCycleDistribution, useCycles, useDistributeCycle, useUpsertCycle, type DistStatus } from '../hooks/use-cycles'
 
 const inputCls = 'w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90'
-
-type DistStatus = 'matched' | 'skipped_already' | 'skipped_no_template' | 'skipped_no_reviewer'
-
-interface DistRow {
-  employee: DistEmployee
-  status: DistStatus
-  template: DistTemplate | null
-  reason: string | null
-}
-
-function simulate(cycle: Cycle, distributedIds: Set<string>): DistRow[] {
-  return DIST_EMPLOYEES.map(emp => {
-    if (distributedIds.has(emp.id)) {
-      return { employee: emp, status: 'skipped_already', template: null, reason: `Sudah punya appraisal di ${cycle.name}` }
-    }
-    const tpl = DIST_TEMPLATES.find(t => t.division === emp.division && t.position === emp.position) ?? null
-    if (!tpl) {
-      return { employee: emp, status: 'skipped_no_template', template: null, reason: `Belum ada template untuk ${emp.division} · ${emp.position}` }
-    }
-    if (!emp.sl && !emp.hod && !emp.hodiv) {
-      return { employee: emp, status: 'skipped_no_reviewer', template: tpl, reason: 'Tidak ada reviewer valid (SL/HoD/HoDiv kosong)' }
-    }
-    return { employee: emp, status: 'matched', template: tpl, reason: null }
-  })
-}
 
 function CycleStatusBadge({ status }: { status: CycleStatus }) {
   if (status === 'active') return <Badge tone="success">Active</Badge>
@@ -159,20 +132,19 @@ function EditModal({ open, onClose, cycle, onSave }: { open: boolean; onClose: (
 
 export function HrCycleDetailPage() {
   const { cycleId } = useParams({ strict: false }) as { cycleId: string }
+  const numericCycleId = Number(cycleId)
 
-  const [cycles, setCycles] = useState<Cycle[]>(CYCLES)
-  const [distributed, setDistributed] = useState<Record<string, Set<string>>>(() => {
-    const m: Record<string, Set<string>> = {}
-    Object.entries(INITIAL_DISTRIBUTED).forEach(([k, v]) => { m[k] = new Set(v) })
-    return m
-  })
+  const { data: cycles = [] } = useCycles()
+  const upsertCycle = useUpsertCycle()
+  const distributeCycle = useDistributeCycle()
+  const { data: preview = [] } = useCycleDistribution(Number.isInteger(numericCycleId) ? numericCycleId : null)
   const [distFilter, setDistFilter] = useState<'all' | DistStatus>('all')
   const [search, setSearch] = useState('')
   const [running, setRunning] = useState(false)
   const [lastRun, setLastRun] = useState<{ when: string; matched: number; skipped: number } | null>(null)
   const [editing, setEditing] = useState(false)
 
-  const cycle = cycles.find(c => c.id === cycleId)
+  const cycle = cycles.find(c => c.id === numericCycleId)
 
   if (!cycle) {
     return (
@@ -182,9 +154,6 @@ export function HrCycleDetailPage() {
       </PageShell>
     )
   }
-
-  const distributedSet = distributed[cycle.id] ?? new Set<string>()
-  const preview = useMemo(() => simulate(cycle, distributedSet), [cycle, distributedSet])
 
   const distStats = useMemo(() => {
     let matched = 0, no_template = 0, already = 0, no_reviewer = 0
@@ -213,26 +182,21 @@ export function HrCycleDetailPage() {
   const runDistribution = () => {
     if (!canDistribute) return
     setRunning(true)
-    setTimeout(() => {
-      setDistributed(prev => {
-        const next = { ...prev }
-        const set = new Set(next[cycle.id] ?? [])
-        preview.forEach(r => { if (r.status === 'matched') set.add(r.employee.id) })
-        next[cycle.id] = set
-        return next
-      })
-      setLastRun({ when: new Date().toLocaleString('id-ID'), matched: distStats.matched, skipped: distStats.no_template + distStats.no_reviewer })
-      setRunning(false)
-    }, 800)
+    distributeCycle.mutate(cycle.id, {
+      onSuccess: result => {
+        setLastRun({ when: new Date().toLocaleString('id-ID'), matched: result.created, skipped: result.skipped })
+      },
+      onSettled: () => setRunning(false),
+    })
   }
 
-  const activate   = () => setCycles(prev => prev.map(c => c.id === cycle.id ? { ...c, status: 'active'  } : c))
+  const activate   = () => upsertCycle.mutate({ id: cycle.id, form: { ...cycle, status: 'active' } })
   const closeCycle = () => {
     if (!confirm('Tutup cycle ini? Appraisal yang belum selesai tetap tersimpan.')) return
-    setCycles(prev => prev.map(c => c.id === cycle.id ? { ...c, status: 'closed' } : c))
+    upsertCycle.mutate({ id: cycle.id, form: { ...cycle, status: 'closed' } })
   }
   const saveEdit = (form: CycleForm) =>
-    setCycles(prev => prev.map(c => c.id === cycle.id ? { ...c, ...form, selfDeadline: form.selfDeadline || null } : c))
+    upsertCycle.mutate({ id: cycle.id, form: { ...cycle, ...form, selfDeadline: form.selfDeadline || null } })
 
   const distFilterItems = [
     { id: 'all'                  as const, label: 'Semua',        count: distStats.total       },

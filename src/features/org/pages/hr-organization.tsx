@@ -5,7 +5,7 @@ import { Badge } from '@shared/ui/badge'
 import { Avatar } from '@shared/layouts/avatar'
 import { Modal } from '@shared/ui/modal'
 import { Icon } from '@shared/layouts/icon'
-import type { Division, Department, Position, Employee } from '../data/mock-org'
+import type { Division, Department, Position, Employee } from '../types'
 
 const inp = 'w-full rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90'
 
@@ -57,10 +57,10 @@ function Toolbar({ search, onSearch, addLabel, onAdd }: { search: string; onSear
 
 function DivisionModal({ open, onClose, onSave, initial }: {
   open: boolean; onClose: () => void
-  onSave: (form: Omit<Division, 'id'>, id?: string) => void
+  onSave: (form: Omit<Division, 'id'>, id?: number) => void
   initial?: Division | null
 }) {
-  const blank: Omit<Division, 'id'> = { name: '', head: '', headId: '', headcount: 0, departments: [] }
+  const blank: Omit<Division, 'id'> = { name: '', head: '', headId: 0, headcount: 0, departments: [] }
   const [form, setForm] = useState<Omit<Division, 'id'>>(
     initial
       ? { name: initial.name, head: initial.head, headId: initial.headId, headcount: initial.headcount, departments: [...initial.departments] }
@@ -88,11 +88,11 @@ function DivisionModal({ open, onClose, onSave, initial }: {
 
 function DepartmentModal({ open, onClose, onSave, initial, divisionNames }: {
   open: boolean; onClose: () => void
-  onSave: (form: Omit<Department, 'id'>, id?: string) => void
+  onSave: (form: Omit<Department, 'id'>, id?: number) => void
   initial?: Department | null
   divisionNames: string[]
 }) {
-  const blank: Omit<Department, 'id'> = { name: '', division: divisionNames[0] ?? '', divId: '', headId: '', hod: '', positions: 0, headcount: 0 }
+  const blank: Omit<Department, 'id'> = { name: '', division: divisionNames[0] ?? '', divId: 0, headId: 0, hod: '', positions: 0, headcount: 0 }
   const [form, setForm] = useState<Omit<Department, 'id'>>(
     initial ? { name: initial.name, division: initial.division, divId: initial.divId, headId: initial.headId, hod: initial.hod, positions: initial.positions, headcount: initial.headcount } : blank
   )
@@ -124,7 +124,7 @@ function DepartmentModal({ open, onClose, onSave, initial, divisionNames }: {
 
 function PositionModal({ open, onClose, onSave, initial, deptNames }: {
   open: boolean; onClose: () => void
-  onSave: (form: Omit<Position, 'id'>, id?: string) => void
+  onSave: (form: Omit<Position, 'id'>, id?: number) => void
   initial?: Position | null
   deptNames: string[]
 }) {
@@ -177,7 +177,7 @@ const DEPT_DIV: Record<string, string> = {
 
 function EmployeeModal({ open, onClose, onSave, initial, deptNames, employees }: {
   open: boolean; onClose: () => void
-  onSave: (form: Omit<Employee, 'id' | 'initials'>, id?: string) => void
+  onSave: (form: Omit<Employee, 'id' | 'initials'>, id?: number) => void
   initial?: Employee | null
   deptNames: string[]
   employees: Employee[]
@@ -253,7 +253,7 @@ function EmployeeModal({ open, onClose, onSave, initial, deptNames, employees }:
   )
 }
 
-function DivisionsView({ search, divisions, onEdit, onDelete }: { search: string; divisions: Division[]; onEdit: (d: Division) => void; onDelete: (id: string) => void }) {
+function DivisionsView({ search, divisions, onEdit, onDelete }: { search: string; divisions: Division[]; onEdit: (d: Division) => void; onDelete: (id: number) => void }) {
   const rows = divisions.filter(d => (d.name + d.head).toLowerCase().includes(search.toLowerCase()))
   return (
     <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2">
@@ -293,7 +293,7 @@ function DivisionsView({ search, divisions, onEdit, onDelete }: { search: string
   )
 }
 
-function DepartmentsView({ search, departments, onEdit, onDelete }: { search: string; departments: Department[]; onEdit: (d: Department) => void; onDelete: (id: string) => void }) {
+function DepartmentsView({ search, departments, onEdit, onDelete }: { search: string; departments: Department[]; onEdit: (d: Department) => void; onDelete: (id: number) => void }) {
   const rows = departments.filter(d => (d.name + d.division + d.hod).toLowerCase().includes(search.toLowerCase()))
   return (
     <div className="overflow-x-auto">
@@ -337,7 +337,7 @@ function DepartmentsView({ search, departments, onEdit, onDelete }: { search: st
   )
 }
 
-function PositionsView({ search, positions, onEdit, onDelete }: { search: string; positions: Position[]; onEdit: (p: Position) => void; onDelete: (id: string) => void }) {
+function PositionsView({ search, positions, onEdit, onDelete }: { search: string; positions: Position[]; onEdit: (p: Position) => void; onDelete: (id: number) => void }) {
   const rows = positions.filter(p => (p.title + p.code + p.dept).toLowerCase().includes(search.toLowerCase()))
   return (
     <div className="overflow-x-auto">
@@ -372,7 +372,7 @@ function PositionsView({ search, positions, onEdit, onDelete }: { search: string
   )
 }
 
-function EmployeesView({ search, employees, onEdit, onDelete }: { search: string; employees: Employee[]; onEdit: (e: Employee) => void; onDelete: (id: string) => void }) {
+function EmployeesView({ search, employees, onEdit, onDelete }: { search: string; employees: Employee[]; onEdit: (e: Employee) => void; onDelete: (id: number) => void }) {
   const rows = employees.filter(e => (e.name + e.nip + e.position + e.dept + e.manager).toLowerCase().includes(search.toLowerCase()))
   return (
     <div className="overflow-x-auto">

@@ -1,6 +1,7 @@
 import { FormEvent, useMemo, useState } from 'react'
 import { useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@features/auth/context/auth-context'
+import { uploadEvidenceFile } from '../api/upload-api'
 import { useAdvanceAppraisal, useMyAppraisals, useSubmitAppraisal } from '../hooks/use-appraisal'
 import { Badge } from '@shared/ui/badge'
 import { Icon } from '@shared/layouts/icon'
@@ -16,7 +17,7 @@ import { SectionCard } from '@shared/ui/section-card'
 import { StatusBadge } from '@shared/ui/status-badge'
 import { ApprovalStepper } from '../components/stepper'
 import { AuditTimeline } from '@shared/domain/audit-timeline'
-import { Evidence, Kra, lastReturnEntry } from '../data/mock-appraisals'
+import { lastReturnEntry, type Evidence, type Kra } from '@shared/lib/types/appraisal'
 
 const SCORE_LABELS: Record<number, string> = {
   1: 'Far Below Expectation',
@@ -37,12 +38,14 @@ function EvidenceAdder({ onAdd, disabled }: { onAdd: (item: Evidence) => void; d
   const [url, setUrl] = useState('')
   const [description, setDescription] = useState('')
   const [fileName, setFileName] = useState('')
+  const [file, setFile] = useState<File | null>(null)
+  const [uploading, setUploading] = useState(false)
 
   const canAdd = kind === 'url'
     ? url.trim().length > 0 && description.trim().length > 0
     : fileName.trim().length > 0 && description.trim().length > 0
 
-  const add = (event: FormEvent<HTMLFormElement>) => {
+  const add = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (!canAdd) return
 
@@ -56,13 +59,13 @@ function EvidenceAdder({ onAdd, disabled }: { onAdd: (item: Evidence) => void; d
       })
       setUrl('')
     } else {
-      onAdd({
-        kind,
-        name: fileName.trim(),
-        description: description.trim(),
-        date: 'Today',
-      })
+      if (!file) return
+      setUploading(true)
+      const uploaded = await uploadEvidenceFile(file)
+      onAdd({ ...uploaded, description: description.trim() })
+      setUploading(false)
       setFileName('')
+      setFile(null)
     }
     setDescription('')
     event.currentTarget.reset()
@@ -97,14 +100,18 @@ function EvidenceAdder({ onAdd, disabled }: { onAdd: (item: Evidence) => void; d
             <Input
               type="file"
               disabled={disabled}
-              onChange={event => setFileName(event.target.files?.[0]?.name ?? '')}
+              onChange={event => {
+                const next = event.target.files?.[0] ?? null
+                setFile(next)
+                setFileName(next?.name ?? '')
+              }}
               className="cursor-pointer file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-xs file:font-semibold file:text-brand-700 dark:file:bg-brand-500/15 dark:file:text-brand-300"
             />
           </FormField>
         )}
 
         <div className="flex items-end">
-          <Button type="submit" size="sm" disabled={disabled || !canAdd} icon={Icon.plus}>Add</Button>
+          <Button type="submit" size="sm" disabled={disabled || !canAdd || uploading} icon={Icon.plus}>{uploading ? 'Uploading' : 'Add'}</Button>
         </div>
       </div>
 
@@ -138,19 +145,19 @@ function ChecklistItem({ done, children }: { done: boolean; children: string }) 
 export function SelfAppraisalPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const { data: appraisals, isLoading } = useMyAppraisals(user?.id ?? '')
+  const { data: appraisals, isLoading } = useMyAppraisals(user?.id ?? 0)
   const submitMut = useSubmitAppraisal()
   const advanceMut = useAdvanceAppraisal()
   const appraisal = appraisals?.[0]
 
-  const [activeKraId, setActiveKraId] = useState('')
+  const [activeKraId, setActiveKraId] = useState<number | null>(null)
   const [showReflection, setShowReflection] = useState(false)
-  const [kraDrafts, setKraDrafts] = useState<Record<string, KraDraft>>({})
+  const [kraDrafts, setKraDrafts] = useState<Record<number, KraDraft>>({})
   const [reflection, setReflection] = useState('')
   const [saving, setSaving] = useState(false)
   const [savedMessage, setSavedMessage] = useState('')
 
-  const activeId = activeKraId || appraisal?.kras[0]?.id || ''
+  const activeId = activeKraId ?? appraisal?.kras[0]?.id ?? null
   const draftKras = useMemo(() => {
     if (!appraisal) return []
     return appraisal.kras.map(kra => ({
@@ -216,7 +223,7 @@ export function SelfAppraisalPage() {
   const goPrev = () => {
     if (showReflection) {
       setShowReflection(false)
-      setActiveKraId(draftKras[draftKras.length - 1]?.id ?? '')
+      setActiveKraId(draftKras[draftKras.length - 1]?.id ?? null)
       return
     }
     if (!active) return

@@ -1,6 +1,6 @@
 import { FormEvent, useRef, useState } from 'react'
 import { useAuth } from '@features/auth/context/auth-context'
-import { ROLE_LABELS } from '@features/auth/data/mock-users'
+import { ROLE_LABELS } from '@features/auth/types'
 import { Avatar } from '@shared/layouts/avatar'
 import { Badge } from '@shared/ui/badge'
 import { PageShell } from '@shared/layouts/page-shell'
@@ -11,7 +11,7 @@ import { PageHeader } from '@shared/ui/page-header'
 import { SectionCard } from '@shared/ui/section-card'
 import { TabStrip } from '@shared/ui/tab-strip'
 
-type Tab = 'personal' | 'security' | 'preferences'
+type Tab = 'personal' | 'security'
 
 function SavedNote({ children }: { children: string }) {
   return (
@@ -93,70 +93,28 @@ function SecurityPanel() {
   }
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_380px]">
-      <SectionCard title="Change password" description="Use letters, numbers, and symbols for a strong password.">
-        <form onSubmit={save} className="space-y-4">
-          {error && <div className="rounded-xl border border-error-400 bg-error-50 px-4 py-3 text-sm text-error-700">{error}</div>}
-          <PasswordInput label="Current password" value={current} onChange={setCurrent} />
-          <PasswordInput label="New password" value={next} onChange={setNext} />
-          {next && (
-            <div className="flex items-center gap-3">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
-                <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${strength * 25}%` }} />
-              </div>
-              <span className="w-14 text-xs font-medium text-gray-500">{['', 'Weak', 'Fair', 'Good', 'Strong'][strength]}</span>
-            </div>
-          )}
-          <PasswordInput label="Confirm new password" value={confirm} onChange={setConfirm} />
+    <SectionCard title="Change password" description="Use letters, numbers, and symbols for a strong password.">
+      <form onSubmit={save} className="space-y-4">
+        {error && <div className="rounded-xl border border-error-400 bg-error-50 px-4 py-3 text-sm text-error-700">{error}</div>}
+        <PasswordInput label="Current password" value={current} onChange={setCurrent} />
+        <PasswordInput label="New password" value={next} onChange={setNext} />
+        {next && (
           <div className="flex items-center gap-3">
-            <Button type="submit" disabled={loading}>
-              {loading && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />}
-              {loading ? 'Updating…' : 'Update password'}
-            </Button>
-            {saved && <SavedNote>Password updated</SavedNote>}
-          </div>
-        </form>
-      </SectionCard>
-
-      <SectionCard title="Active sessions">
-        <div className="space-y-4">
-          {[
-            { device: 'MacBook Pro · Chrome', location: 'Jakarta, Indonesia', time: 'Now', current: true },
-            { device: 'iPhone 15 · Safari', location: 'Jakarta, Indonesia', time: '2 hours ago', current: false },
-          ].map(session => (
-            <div key={session.device} className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400">{Icon.dash}</div>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-gray-800 dark:text-gray-100">{session.device} {session.current && <Badge tone="success">Current</Badge>}</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">{session.location} · {session.time}</p>
-              </div>
-              {!session.current && <Button type="button" variant="secondary" size="sm">Sign out</Button>}
+            <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-gray-100 dark:bg-gray-800">
+              <div className="h-full rounded-full bg-brand-500 transition-all" style={{ width: `${strength * 25}%` }} />
             </div>
-          ))}
+            <span className="w-14 text-xs font-medium text-gray-500">{['', 'Weak', 'Fair', 'Good', 'Strong'][strength]}</span>
+          </div>
+        )}
+        <PasswordInput label="Confirm new password" value={confirm} onChange={setConfirm} />
+        <div className="flex items-center gap-3">
+          <Button type="submit" disabled={loading}>
+            {loading && <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />}
+            {loading ? 'Updating…' : 'Update password'}
+          </Button>
+          {saved && <SavedNote>Password updated</SavedNote>}
         </div>
-      </SectionCard>
-    </div>
-  )
-}
-
-function PreferencesPanel() {
-  return (
-    <SectionCard title="Preferences" description="Demo-only settings for notification and interface preferences.">
-      <div className="space-y-4">
-        {[
-          ['Email reminders', 'Cycle deadline and reviewer queue reminders'],
-          ['Weekly digest', 'Summary of appraisal progress every Monday'],
-          ['Dark mode follows device', 'Use system preference on first visit'],
-        ].map(([title, description], index) => (
-          <label key={title} className="flex items-start justify-between gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-            <span>
-              <span className="block text-sm font-semibold text-gray-800 dark:text-gray-100">{title}</span>
-              <span className="mt-1 block text-xs text-gray-500 dark:text-gray-400">{description}</span>
-            </span>
-            <input type="checkbox" defaultChecked={index < 2} className="mt-1 h-5 w-5 rounded-md border-gray-300 text-brand-500 focus:ring-brand-500" />
-          </label>
-        ))}
-      </div>
+      </form>
     </SectionCard>
   )
 }
@@ -172,7 +130,7 @@ export function MyAccountPage() {
 
   const readonly = [
     ['Full name', user.name],
-    ['Employee ID', `EMP-${user.id.toUpperCase()}847`],
+    ['Employee ID', `EMP-${String(user.id).padStart(4, '0')}`],
     ['Email', user.email],
     ['Department', user.dept],
     ['Division', user.div ?? '—'],
@@ -204,7 +162,6 @@ export function MyAccountPage() {
             options={[
               { value: 'personal', label: 'Personal' },
               { value: 'security', label: 'Security' },
-              { value: 'preferences', label: 'Preferences' },
             ]}
           />
         </div>
@@ -255,7 +212,6 @@ export function MyAccountPage() {
       )}
 
       {tab === 'security' && <SecurityPanel />}
-      {tab === 'preferences' && <PreferencesPanel />}
     </PageShell>
   )
 }

@@ -22,7 +22,7 @@ import { SectionCard } from '@shared/ui/section-card'
 import { StatusBadge } from '@shared/ui/status-badge'
 import { AuditTimeline } from '@shared/domain/audit-timeline'
 import { ReturnModal } from '../components/return-modal'
-import { Kra } from '@features/appraisal/data/mock-appraisals'
+import type { Kra } from '@shared/lib/types/appraisal'
 
 const SCORE_LABELS: Record<number, string> = {
   1: 'Far Below',
@@ -39,13 +39,14 @@ interface ReviewDraft {
 
 export function SlReviewPage() {
   const { appraisalId } = useParams({ strict: false }) as { appraisalId: string }
+  const numericAppraisalId = Number(appraisalId)
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { data: appraisal, isLoading } = useAppraisalById(appraisalId)
+  const { data: appraisal, isLoading } = useAppraisalById(numericAppraisalId)
   const submitMut = useSubmitAppraisal()
   const advanceMut = useAdvanceAppraisal()
   const returnMut = useReturnAppraisal()
-  const [activeKraId, setActiveKraId] = useState('')
+  const [activeKraId, setActiveKraId] = useState<number | null>(null)
   const [scores, setScores] = useState<Record<string, ReviewDraft>>({})
   const [submitting, setSubmitting] = useState(false)
   const [returnOpen, setReturnOpen] = useState(false)
@@ -59,7 +60,7 @@ export function SlReviewPage() {
     }))
   }, [appraisal, scores])
 
-  const active = draftKras.find(kra => kra.id === (activeKraId || draftKras[0]?.id)) ?? draftKras[0]
+  const active = draftKras.find(kra => kra.id === (activeKraId ?? draftKras[0]?.id)) ?? draftKras[0]
   const canSubmit = appraisal?.status === 'sl_review'
   const completed = draftKras.filter(kra => (kra.sl_score ?? 0) > 0)
   const allScored = draftKras.length > 0 && completed.length === draftKras.length
@@ -132,7 +133,7 @@ export function SlReviewPage() {
           <aside className="space-y-4 lg:col-span-4 xl:col-span-3">
             <SectionCard>
               <div className="mb-4 flex items-center gap-3">
-                <Avatar initials={appraisal.userId.slice(0, 2).toUpperCase()} size="lg" tone="brand" />
+                  <Avatar initials={`U${appraisal.userId}`} size="lg" tone="brand" />
                 <div>
                   <p className="text-sm font-semibold text-gray-900 dark:text-white">Member appraisal</p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">Employee ID {appraisal.userId}</p>

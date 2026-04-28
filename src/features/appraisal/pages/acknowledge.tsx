@@ -15,9 +15,10 @@ import { StatusBadge } from '@shared/ui/status-badge'
 
 export function AcknowledgePage() {
   const { appraisalId } = useParams({ strict: false }) as { appraisalId: string }
+  const numericAppraisalId = Number(appraisalId)
   const navigate = useNavigate()
   const { user } = useAuth()
-  const { data: appraisal, isLoading } = useAppraisalById(appraisalId)
+  const { data: appraisal, isLoading } = useAppraisalById(numericAppraisalId)
   const ackMut = useAcknowledgeAppraisal()
   const [submitting, setSubmitting] = useState(false)
 

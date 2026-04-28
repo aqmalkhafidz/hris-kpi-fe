@@ -12,6 +12,7 @@ import { LoginPage }         from '@features/auth/pages/login'
 import { ForgotPasswordPage } from '@features/auth/pages/forgot-password'
 import { DashboardPage }     from '@features/dashboard/pages/dashboard'
 import { SelfAppraisalPage } from '@features/appraisal/pages/self-appraisal'
+import { HistoryAppraisalPage } from '@features/appraisal/pages/history-appraisal'
 import { MyAccountPage }     from '@features/account/pages/my-account'
 import { SlReviewPage }      from '@features/review/pages/review-sl'
 import { HodReviewPage }     from '@features/review/pages/review-hod'
@@ -23,8 +24,7 @@ import { HrKraTemplatesPage } from '@features/kra/pages/hr-kra-templates'
 import { HrCyclesPage }      from '@features/cycles/pages/hr-cycles'
 import { HrCycleDetailPage } from '@features/cycles/pages/hr-cycle-detail'
 import { HrReportsPage }     from '@features/reports/pages/hr-reports'
-import { HrLayout }          from '@shared/layouts/hr-layout'
-import { EmployeeLayout }    from '@shared/layouts/employee-layout'
+import { AppLayout }         from '@shared/layouts/app-layout'
 
 // ─── Router context ───
 export interface RouterContext {
@@ -63,7 +63,7 @@ const authRoute = createRoute({
 const employeeLayoutRoute = createRoute({
   getParentRoute: () => authRoute,
   id: '_employee',
-  component: EmployeeLayout,
+  component: AppLayout,
 })
 
 // ─── Employee routes ───
@@ -80,6 +80,16 @@ const selfAppraisalRoute = createRoute({
   getParentRoute: () => employeeLayoutRoute,
   path: '/self-appraisal',
   component: SelfAppraisalPage,
+  beforeLoad: ({ context }) => {
+    const role = context.auth.user?.role
+    if (role !== 'staff' && role !== 'sl') throw redirect({ to: '/dashboard' })
+  },
+})
+
+const historyAppraisalRoute = createRoute({
+  getParentRoute: () => employeeLayoutRoute,
+  path: '/history-appraisal',
+  component: HistoryAppraisalPage,
 })
 
 const myAccountRoute = createRoute({
@@ -132,7 +142,7 @@ const hrLayoutRoute = createRoute({
   beforeLoad: ({ context }) => {
     if (context.auth.user?.role !== 'hr') throw redirect({ to: '/dashboard' })
   },
-  component: HrLayout,
+  component: AppLayout,
 })
 
 const hrDashboardRoute = createRoute({
@@ -192,6 +202,7 @@ const routeTree = rootRoute.addChildren([
     employeeLayoutRoute.addChildren([
       dashboardRoute,
       selfAppraisalRoute,
+      historyAppraisalRoute,
       myAccountRoute,
       slReviewRoute,
       hodReviewRoute,

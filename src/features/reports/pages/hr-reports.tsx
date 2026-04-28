@@ -3,43 +3,8 @@ import { PageShell } from '@shared/layouts/page-shell'
 import { Badge } from '@shared/ui/badge'
 import { Avatar } from '@shared/layouts/avatar'
 import { Icon } from '@shared/layouts/icon'
-import { CYCLES } from '@features/cycles/data/mock-cycles'
-
-// ── Types ────────────────────────────────────────────────────────────────────
-
-interface CompletedAppraisal {
-  id: string
-  cycleId: string
-  employee: string
-  nip: string
-  dept: string
-  division: string
-  position: string
-  finalScore: number
-  calibratedScore: number | null
-  finalGrade: string | null
-  isCalibrated: boolean
-  completedAt: string
-}
-
-// ── Mock data ────────────────────────────────────────────────────────────────
-
-const COMPLETED: CompletedAppraisal[] = [
-  { id:'a1',  cycleId:'cyc1', employee:'Aqmal Hidayat',   nip:'EMP-2021-0341', dept:'Engineering',   division:'Technology', position:'Software Engineer',          finalScore:4.32, calibratedScore:4.30, finalGrade:'B+', isCalibrated:true,  completedAt:'2026-04-02' },
-  { id:'a2',  cycleId:'cyc1', employee:'Reno Saputra',    nip:'EMP-2023-0701', dept:'Engineering',   division:'Technology', position:'Software Engineer',          finalScore:3.88, calibratedScore:null, finalGrade:null, isCalibrated:false, completedAt:'2026-04-04' },
-  { id:'a3',  cycleId:'cyc1', employee:'Rifky Oktaviano', nip:'EMP-2020-0218', dept:'Engineering',   division:'Technology', position:'Senior Software Engineer',   finalScore:4.65, calibratedScore:4.60, finalGrade:'A',  isCalibrated:true,  completedAt:'2026-04-05' },
-  { id:'a4',  cycleId:'cyc1', employee:'Kirana Andini',   nip:'EMP-2022-0512', dept:'Design',        division:'Technology', position:'Product Designer',           finalScore:4.12, calibratedScore:null, finalGrade:null, isCalibrated:false, completedAt:'2026-04-06' },
-  { id:'a5',  cycleId:'cyc1', employee:'Hendra Wijoyo',   nip:'EMP-2019-0188', dept:'Product',       division:'Technology', position:'Product Manager',            finalScore:4.04, calibratedScore:null, finalGrade:null, isCalibrated:false, completedAt:'2026-04-07' },
-  { id:'a6',  cycleId:'cyc1', employee:'Citra Pertiwi',   nip:'EMP-2023-0815', dept:'Marketing',     division:'Business',   position:'Growth Marketer',            finalScore:3.45, calibratedScore:null, finalGrade:null, isCalibrated:false, completedAt:'2026-04-08' },
-  { id:'a7',  cycleId:'cyc1', employee:'Bagas Widodo',    nip:'EMP-2022-0420', dept:'Customer Care', division:'Business',   position:'Customer Success Associate', finalScore:3.20, calibratedScore:null, finalGrade:null, isCalibrated:false, completedAt:'2026-04-08' },
-  { id:'a8',  cycleId:'cyc1', employee:'Yoga Pradana',    nip:'EMP-2025-1102', dept:'Engineering',   division:'Technology', position:'Software Engineer',          finalScore:2.85, calibratedScore:null, finalGrade:null, isCalibrated:false, completedAt:'2026-04-09' },
-  { id:'a9',  cycleId:'cyc1', employee:'Putri Anggraeni', nip:'EMP-2025-0303', dept:'Logistics',     division:'Operations', position:'Logistics Coordinator',      finalScore:3.95, calibratedScore:null, finalGrade:null, isCalibrated:false, completedAt:'2026-04-09' },
-  { id:'a10', cycleId:'cyc1', employee:'Rangga Permana',  nip:'EMP-2024-0411', dept:'Sales',         division:'Business',   position:'Sales Lead',                 finalScore:4.45, calibratedScore:4.40, finalGrade:'A',  isCalibrated:true,  completedAt:'2026-04-10' },
-  { id:'a11', cycleId:'cyc1', employee:'Mira Lestari',    nip:'EMP-2024-0903', dept:'Finance',       division:'Corporate',  position:'Accountant',                 finalScore:3.62, calibratedScore:null, finalGrade:null, isCalibrated:false, completedAt:'2026-04-10' },
-  { id:'a12', cycleId:'cyc1', employee:'Dewi Larasati',   nip:'EMP-2018-0042', dept:'Engineering',   division:'Technology', position:'Engineering Manager',        finalScore:4.78, calibratedScore:4.75, finalGrade:'A',  isCalibrated:true,  completedAt:'2026-04-11' },
-  { id:'a13', cycleId:'cyc2', employee:'Aqmal Hidayat',   nip:'EMP-2021-0341', dept:'Engineering',   division:'Technology', position:'Software Engineer',          finalScore:4.10, calibratedScore:4.10, finalGrade:'B+', isCalibrated:true,  completedAt:'2026-01-12' },
-  { id:'a14', cycleId:'cyc2', employee:'Reno Saputra',    nip:'EMP-2023-0701', dept:'Engineering',   division:'Technology', position:'Software Engineer',          finalScore:3.55, calibratedScore:3.55, finalGrade:'B',  isCalibrated:true,  completedAt:'2026-01-12' },
-]
+import { useCycles } from '@features/cycles/hooks/use-cycles'
+import { useCompletedAppraisals, useSaveCalibration, type CompletedAppraisal } from '../hooks/use-reports'
 
 const GRADE_OPTIONS = ['A', 'B+', 'B', 'C', 'D'] as const
 
@@ -132,7 +97,7 @@ interface CalibrationModalProps {
   open: boolean
   appraisal: CompletedAppraisal | null
   onClose: () => void
-  onSave: (id: string, score: number | null, grade: string | null) => void
+  onSave: (id: number, score: number | null, grade: string | null) => void
 }
 
 const inputCls = 'w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90'
@@ -257,14 +222,19 @@ function CalibrationModal({ open, appraisal, onClose, onSave }: CalibrationModal
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export function HrReportsPage() {
-  const [appraisals, setAppraisals] = useState<CompletedAppraisal[]>(COMPLETED)
-  const [cycleId, setCycleId] = useState('cyc1')
+  const { data: cycles = [] } = useCycles()
+  const [cycleId, setCycleId] = useState<number | null>(null)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState<'all' | 'pending' | 'calibrated'>('all')
   const [editing, setEditing] = useState<CompletedAppraisal | null>(null)
 
-  const cycle = CYCLES.find(c => c.id === cycleId)
-  const inCycle = useMemo(() => appraisals.filter(a => a.cycleId === cycleId), [appraisals, cycleId])
+  useEffect(() => {
+    if (cycleId == null && cycles.length) setCycleId(cycles[0].id)
+  }, [cycles, cycleId])
+
+  const { data: inCycle = [], isLoading } = useCompletedAppraisals(cycleId)
+  const saveMutation = useSaveCalibration()
+  const cycle = cycles.find(c => c.id === cycleId)
 
   const buckets = useMemo(() => {
     const labels = ['1.0–1.9', '2.0–2.9', '3.0–3.9', '4.0–4.4', '4.5–5.0']
@@ -297,23 +267,20 @@ export function HrReportsPage() {
     return true
   }), [inCycle, filter, search])
 
-  const saveCalibration = (id: string, score: number | null, grade: string | null) => {
-    setAppraisals(prev => prev.map(a => a.id === id
-      ? { ...a, calibratedScore: score, finalGrade: grade, isCalibrated: score !== null }
-      : a
-    ))
+  const saveCalibration = (id: number, score: number | null, grade: string | null) => {
+    saveMutation.mutate({ id, input: { calibratedScore: score, finalGrade: grade } })
   }
 
   const exportCsv = () => {
     const header = ['Employee ID', 'Name', 'Department', 'Job Title', 'Cycle', 'Original Final Score', 'Calibrated Score', 'Final Grade', 'Calibration Status']
     const rows = [header, ...inCycle.map(a => [
-      a.nip, a.employee, a.dept, a.position, cycle?.name ?? cycleId,
+      a.nip, a.employee, a.dept, a.position, cycle?.name ?? String(cycleId ?? ''),
       a.finalScore.toFixed(2),
       a.calibratedScore !== null ? a.calibratedScore.toFixed(2) : '',
       a.finalGrade ?? '',
       a.isCalibrated ? 'calibrated' : 'pending',
     ])]
-    downloadCSV(`appraisal-report-${cycleId}-${new Date().toISOString().slice(0, 10)}.csv`, rows)
+    downloadCSV(`appraisal-report-${cycleId ?? 'all'}-${new Date().toISOString().slice(0, 10)}.csv`, rows)
   }
 
   const filterTabs = [
@@ -348,11 +315,11 @@ export function HrReportsPage() {
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <select
-              value={cycleId}
-              onChange={e => { setCycleId(e.target.value); setFilter('all') }}
+              value={cycleId ?? ''}
+              onChange={e => { setCycleId(Number(e.target.value)); setFilter('all') }}
               className="h-10 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-800 focus:border-brand-300 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-800 dark:bg-white/[0.02] dark:text-gray-200"
             >
-              {CYCLES.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+              {cycles.map(c => <option key={c.id} value={String(c.id)}>{c.name}</option>)}
             </select>
             <button onClick={() => window.print()} className="inline-flex h-10 items-center gap-2 rounded-xl border border-gray-200 bg-white px-3 text-sm font-semibold text-gray-700 hover:bg-gray-50 md:hidden dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-200">
               {Icon.print}<span>Print</span>
@@ -398,9 +365,11 @@ export function HrReportsPage() {
             <p className="text-[11px] text-gray-500 dark:text-gray-400">Pakai calibrated score kalau ada</p>
           </div>
           <div className="mt-5">
-            {stats.total === 0
-              ? <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-white/[0.02] dark:text-gray-400">Belum ada appraisal completed di cycle ini.</div>
-              : <BellCurve data={buckets} />
+            {isLoading
+              ? <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-white/[0.02] dark:text-gray-400">Loading appraisal completed…</div>
+              : stats.total === 0
+                ? <div className="rounded-xl border border-dashed border-gray-300 bg-gray-50 p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-white/[0.02] dark:text-gray-400">Belum ada appraisal completed di cycle ini.</div>
+                : <BellCurve data={buckets} />
             }
           </div>
         </div>

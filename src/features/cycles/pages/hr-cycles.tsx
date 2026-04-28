@@ -4,7 +4,8 @@ import { PageShell } from '@shared/layouts/page-shell'
 import { Badge } from '@shared/ui/badge'
 import { Icon } from '@shared/layouts/icon'
 import { Modal } from '@shared/ui/modal'
-import { CYCLES, Cycle, CycleStatus } from '../data/mock-cycles'
+import type { Cycle, CycleStatus } from '../types'
+import { useCycles, useDeleteCycle, useUpsertCycle } from '../hooks/use-cycles'
 
 const inputCls = 'w-full rounded-xl border border-gray-300 bg-white px-3.5 py-2.5 text-sm text-gray-900 placeholder:text-gray-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90'
 
@@ -108,9 +109,9 @@ function CycleModal({ open, onClose, onSave, initial }: { open: boolean; onClose
 function CycleCard({ c, onEdit, onActivate, onClose, onDelete }: {
   c: Cycle
   onEdit: (c: Cycle) => void
-  onActivate: (id: string) => void
-  onClose: (id: string) => void
-  onDelete: (id: string) => void
+  onActivate: (id: number) => void
+  onClose: (id: number) => void
+  onDelete: (id: number) => void
 }) {
   const completionPct = c.totalAppraisals > 0 ? Math.round((c.completed / c.totalAppraisals) * 100) : 0
   const inProgress = c.status === 'active' && c.totalAppraisals > 0
@@ -175,7 +176,7 @@ function CycleCard({ c, onEdit, onActivate, onClose, onDelete }: {
       )}
 
       <div className="mt-4 border-t border-gray-100 pt-3 dark:border-gray-800">
-        <Link to="/hr/cycles/$cycleId" params={{ cycleId: c.id }}
+        <Link to="/hr/cycles/$cycleId" params={{ cycleId: String(c.id) }}
           className="text-xs font-semibold text-brand-600 hover:text-brand-700 dark:text-brand-400">
           Lihat detail &amp; distribusi →
         </Link>
@@ -185,7 +186,9 @@ function CycleCard({ c, onEdit, onActivate, onClose, onDelete }: {
 }
 
 export function HrCyclesPage() {
-  const [cycles, setCycles] = useState<Cycle[]>(CYCLES)
+  const { data: cycles = [] } = useCycles()
+  const upsertCycle = useUpsertCycle()
+  const deleteCycle = useDeleteCycle()
   const [filter, setFilter] = useState<'all' | CycleStatus>('all')
   const [search, setSearch] = useState('')
   const [creating, setCreating] = useState(false)
@@ -205,26 +208,32 @@ export function HrCyclesPage() {
   }), [cycles, filter, search])
 
   const upsert = (form: CycleForm) => {
-    setCycles(prev => {
-      if (editing) return prev.map(c => c.id === editing.id ? { ...c, ...form, selfDeadline: form.selfDeadline || null } : c)
-      const created: Cycle = {
-        ...form, id: `cyc${Date.now()}`,
+    upsertCycle.mutate({
+      id: editing?.id,
+      form: {
+        ...form,
         selfDeadline: form.selfDeadline || null,
-        distributedAt: null, totalAppraisals: 0,
-        completed: 0, inReview: 0, draft: 0,
-      }
-      return [created, ...prev]
+        distributedAt: editing?.distributedAt ?? null,
+        totalAppraisals: editing?.totalAppraisals ?? 0,
+        completed: editing?.completed ?? 0,
+        inReview: editing?.inReview ?? 0,
+        draft: editing?.draft ?? 0,
+      },
     })
   }
 
-  const activate  = (id: string) => setCycles(prev => prev.map(c => c.id === id ? { ...c, status: 'active' } : c))
-  const closeCycle = (id: string) => {
-    if (!confirm('Tutup cycle ini? Appraisal yang belum selesai tetap tersimpan.')) return
-    setCycles(prev => prev.map(c => c.id === id ? { ...c, status: 'closed' } : c))
+  const activate  = (id: number) => {
+    const cycle = cycles.find(c => c.id === id)
+    if (cycle) upsertCycle.mutate({ id, form: { ...cycle, status: 'active' } })
   }
-  const remove = (id: string) => {
+  const closeCycle = (id: number) => {
+    if (!confirm('Tutup cycle ini? Appraisal yang belum selesai tetap tersimpan.')) return
+    const cycle = cycles.find(c => c.id === id)
+    if (cycle) upsertCycle.mutate({ id, form: { ...cycle, status: 'closed' } })
+  }
+  const remove = (id: number) => {
     if (!confirm('Hapus cycle draft ini? Tidak bisa di-undo.')) return
-    setCycles(prev => prev.filter(c => c.id !== id))
+    deleteCycle.mutate(id)
   }
 
   const filterItems = [

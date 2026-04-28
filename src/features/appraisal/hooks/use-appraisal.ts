@@ -1,23 +1,12 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
-import {
-  acknowledgeAppraisal,
-  advanceAppraisal,
-  getAppraisalById,
-  getAppraisalsByUserId,
-  returnAppraisal,
-  updateAppraisal,
-  type ActorInfo,
-} from '../data/mock-appraisals'
+import { appraisalApi, type ActorInfo } from '../api/appraisal-api'
 import type { Appraisal } from '@shared/lib/types/appraisal'
-
-const SIMULATED_LATENCY_MS = 300
-const delay = <T>(value: T, ms = SIMULATED_LATENCY_MS) =>
-  new Promise<T>(resolve => setTimeout(() => resolve(value), ms))
 
 const appraisalKeys = {
   all:     ['appraisals'] as const,
-  byUser:  (userId: string) => ['appraisals', userId] as const,
-  byId:    (id: string)     => ['appraisal', id] as const,
+  byUser:  (userId: number) => ['appraisals', userId] as const,
+  byId:    (id: number)     => ['appraisal', id] as const,
+  scopedHistory: (userIds: number[]) => ['appraisals', 'scoped-history', [...userIds].sort((a, b) => a - b).join(',')] as const,
   reviewQueue: ['review-queue'] as const,
 }
 
@@ -27,18 +16,26 @@ function invalidateAppraisal(qc: QueryClient, appraisal: Appraisal) {
   qc.invalidateQueries({ queryKey: appraisalKeys.reviewQueue })
 }
 
-export function useMyAppraisals(userId: string) {
+export function useMyAppraisals(userId: number) {
   return useQuery({
     queryKey: appraisalKeys.byUser(userId),
-    queryFn: () => delay(getAppraisalsByUserId(userId)),
+    queryFn: () => appraisalApi.byUser(userId),
     enabled: !!userId,
   })
 }
 
-export function useAppraisalById(id: string) {
+export function useScopedHistory(userIds: number[]) {
+  return useQuery({
+    queryKey: appraisalKeys.scopedHistory(userIds),
+    queryFn: () => appraisalApi.history(userIds),
+    enabled: userIds.length > 0,
+  })
+}
+
+export function useAppraisalById(id: number) {
   return useQuery({
     queryKey: appraisalKeys.byId(id),
-    queryFn: () => delay(getAppraisalById(id) ?? null),
+    queryFn: () => appraisalApi.byId(id),
     enabled: !!id,
   })
 }
@@ -46,8 +43,8 @@ export function useAppraisalById(id: string) {
 export function useSubmitAppraisal() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ appraisalId, updates }: { appraisalId: string; updates: Partial<Appraisal> }) =>
-      delay(updateAppraisal(appraisalId, updates)),
+    mutationFn: ({ appraisalId, updates }: { appraisalId: number; updates: Partial<Appraisal> }) =>
+      appraisalApi.update(appraisalId, updates),
     onSuccess: data => invalidateAppraisal(qc, data),
   })
 }
@@ -55,8 +52,8 @@ export function useSubmitAppraisal() {
 export function useAdvanceAppraisal() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ appraisalId, actor }: { appraisalId: string; actor: ActorInfo }) =>
-      delay(advanceAppraisal(appraisalId, actor)),
+    mutationFn: ({ appraisalId, actor }: { appraisalId: number; actor: ActorInfo }) =>
+      appraisalApi.advance(appraisalId),
     onSuccess: data => invalidateAppraisal(qc, data),
   })
 }
@@ -64,8 +61,8 @@ export function useAdvanceAppraisal() {
 export function useReturnAppraisal() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ appraisalId, reason, actor }: { appraisalId: string; reason: string; actor: ActorInfo }) =>
-      delay(returnAppraisal(appraisalId, reason, actor)),
+    mutationFn: ({ appraisalId, reason, actor }: { appraisalId: number; reason: string; actor: ActorInfo }) =>
+      appraisalApi.return(appraisalId, reason),
     onSuccess: data => invalidateAppraisal(qc, data),
   })
 }
@@ -73,8 +70,8 @@ export function useReturnAppraisal() {
 export function useAcknowledgeAppraisal() {
   const qc = useQueryClient()
   return useMutation({
-    mutationFn: ({ appraisalId, actor }: { appraisalId: string; actor: ActorInfo }) =>
-      delay(acknowledgeAppraisal(appraisalId, actor)),
+    mutationFn: ({ appraisalId, actor }: { appraisalId: number; actor: ActorInfo }) =>
+      appraisalApi.acknowledge(appraisalId),
     onSuccess: data => invalidateAppraisal(qc, data),
   })
 }

@@ -1,12 +1,10 @@
 import { useQuery } from '@tanstack/react-query'
-import { getAppraisalsForReviewer } from '@features/appraisal/data/mock-appraisals'
+import { getReviewQueue } from '../api/review-api'
 
-const delay = <T>(val: T, ms = 300) => new Promise<T>(res => setTimeout(() => res(val), ms))
-
-export function useReviewQueue(reviewerUserId: string, role: 'sl' | 'hod' | 'hodiv') {
+export function useReviewQueue(reviewerUserId: number | null | undefined, role: 'sl' | 'hod' | 'hodiv') {
   return useQuery({
     queryKey: ['review-queue', reviewerUserId, role],
-    queryFn: () => delay(getAppraisalsForReviewer(reviewerUserId, role)),
-    enabled: !!reviewerUserId,
+    queryFn: () => getReviewQueue(reviewerUserId as number, role),
+    enabled: typeof reviewerUserId === 'number',
   })
 }
