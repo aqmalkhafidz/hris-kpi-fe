@@ -1,45 +1,49 @@
-import { useRef, useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
-import { Avatar } from './avatar'
-import { Icon } from './icon'
-import { useAuth } from '@features/auth/context/auth-context'
-import { applyTheme, getInitialTheme, toggleTheme, ThemeMode } from '@shared/lib/theme'
+import { useAuth } from '@features/auth/context/auth-context';
+import {
+  applyTheme,
+  getInitialTheme,
+  toggleTheme,
+  ThemeMode,
+} from '@shared/lib/theme';
+import { useNavigate } from '@tanstack/react-router';
+import { useRef, useState } from 'react';
+import { Avatar } from './avatar';
+import { Icon } from './icon';
 
 interface HeaderProps {
-  onMenuClick?: () => void
+  onMenuClick?: () => void;
 }
 
 export function Header({ onMenuClick }: HeaderProps = {}) {
-  const { user, logout } = useAuth()
-  const navigate = useNavigate()
-  const [menuOpen, setMenuOpen] = useState(false)
-  const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme())
-  const menuRef = useRef<HTMLDivElement>(null)
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme());
+  const menuRef = useRef<HTMLDivElement>(null);
 
   const handleLogout = () => {
-    setMenuOpen(false)
-    logout()
-    navigate({ to: '/login' })
-  }
+    setMenuOpen(false);
+    logout();
+    navigate({ to: '/login' });
+  };
 
   const handleThemeToggle = () => {
-    const next = toggleTheme(theme)
-    setTheme(next)
-    applyTheme(next)
-  }
+    const next = toggleTheme(theme);
+    setTheme(next);
+    applyTheme(next);
+  };
 
-  if (!user) return null
+  if (!user) return null;
 
   return (
     <header className="sticky top-0 z-30 border-b border-gray-100 bg-white/90 backdrop-blur-md dark:border-gray-800/60 dark:bg-gray-950/80">
       <div className="flex h-14 items-center gap-3 px-6">
-
-        {/* Mobile menu toggle */}
+        {/* Sidebar toggle */}
         <button
           type="button"
           onClick={onMenuClick}
-          aria-label="Open menu"
-          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.04] dark:text-gray-300 dark:hover:border-gray-700 dark:hover:bg-white/[0.08] lg:hidden"
+          aria-label="Toggle sidebar"
+          className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-600 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.04] dark:text-gray-300 dark:hover:border-gray-700 dark:hover:bg-white/[0.08]"
         >
           {Icon.menu}
         </button>
@@ -60,42 +64,48 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-
           {/* Dark mode toggle */}
           <button
             type="button"
             onClick={handleThemeToggle}
             aria-label="Toggle dark mode"
-            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-gray-200 bg-white text-gray-500 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.04] dark:text-gray-400 dark:hover:border-gray-700 dark:hover:bg-white/[0.08]"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/[0.08]"
           >
-            <span className="text-base leading-none">{theme === 'dark' ? '☾' : '☼'}</span>
+            <span className="text-base leading-none">
+              {theme === 'dark' ? '☾' : '☼'}
+            </span>
           </button>
 
           {/* Profile */}
           <div ref={menuRef} className="relative">
             <button
-              onClick={() => setMenuOpen(o => !o)}
-              className="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-1.5 py-1 transition hover:border-gray-300 hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.04] dark:hover:border-gray-700 dark:hover:bg-white/[0.08]"
+              onClick={() => setMenuOpen((o) => !o)}
+              aria-label="Profile menu"
             >
               <Avatar initials={user.initials} size="sm" tone="brand" />
-              <div className="hidden pr-1 text-left lg:block">
-                <p className="text-sm font-semibold leading-tight text-gray-800 dark:text-white/90">{user.name}</p>
-                <p className="text-[11px] leading-tight text-gray-500 dark:text-gray-400">{user.position}</p>
-              </div>
-              <span className="hidden pr-0.5 text-gray-400 lg:block">{Icon.chevDown}</span>
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-[calc(100%+6px)] z-50 w-52 rounded-xl border border-gray-200 bg-white p-1 shadow-lg shadow-gray-200/60 dark:border-gray-800 dark:bg-gray-900 dark:shadow-black/30">
+              <div className="absolute right-0 top-[calc(100%+6px)] z-50 w-56 rounded-xl border border-gray-200 bg-white p-1 shadow-lg shadow-gray-200/60 dark:border-gray-800 dark:bg-gray-900 dark:shadow-black/30">
                 <div className="mb-1 border-b border-gray-100 px-3 py-2 dark:border-gray-800">
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white">{user.name}</p>
-                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">{user.position}</p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                    {user.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+                    {user.email}
+                  </p>
+                  <p className="mt-1 text-xs font-medium text-gray-600 dark:text-gray-300">
+                    {user.position}
+                  </p>
                 </div>
                 <button
-                  onClick={() => { setMenuOpen(false); navigate({ to: '/my-account' }) }}
-                  className="flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-100 dark:text-gray-200 dark:hover:bg-white/[0.05]"
+                  onClick={() => {
+                    setMenuOpen(false);
+                    navigate({ to: '/my-account' });
+                  }}
+                  className="w-full rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-white/[0.08]"
                 >
-                  {Icon.user} My Account
+                  My Account
                 </button>
                 <div className="my-1 h-px bg-gray-100 dark:bg-gray-800" />
                 <button
@@ -107,9 +117,8 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
               </div>
             )}
           </div>
-
         </div>
       </div>
     </header>
-  )
+  );
 }

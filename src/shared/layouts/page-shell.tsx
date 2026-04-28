@@ -1,21 +1,21 @@
-import { ReactNode } from 'react'
+import { ReactNode } from 'react';
 
-type MaxWidth = '5xl' | '6xl' | '7xl' | 'full'
+type MaxWidth = '5xl' | '6xl' | '7xl' | 'full';
 
 interface PageShellProps {
-  children: ReactNode
-  breadcrumb?: string
-  primary?: ReactNode
-  sidebar?: ReactNode
-  maxWidth?: MaxWidth
+  children: ReactNode;
+  breadcrumb?: string;
+  primary?: ReactNode;
+  sidebar?: ReactNode;
+  maxWidth?: MaxWidth;
 }
 
 const WIDTH: Record<MaxWidth, string> = {
   '5xl': 'max-w-5xl',
   '6xl': 'max-w-6xl',
   '7xl': 'max-w-7xl',
-  full:  'max-w-none',
-}
+  full: 'max-w-none',
+};
 
 export function PageShell({ children, maxWidth = '7xl' }: PageShellProps) {
   return (
@@ -24,5 +24,5 @@ export function PageShell({ children, maxWidth = '7xl' }: PageShellProps) {
         {children}
       </div>
     </main>
-  )
+  );
 }

@@ -1,8 +1,16 @@
-export function ScorePicker({ value, onChange, disabled }: { value: number; onChange: (value: number) => void; disabled?: boolean }) {
+export function ScorePicker({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: number;
+  onChange: (value: number) => void;
+  disabled?: boolean;
+}) {
   return (
     <div className="grid grid-cols-5 gap-2">
-      {[1, 2, 3, 4, 5].map(score => {
-        const selected = value === score
+      {[1, 2, 3, 4, 5].map((score) => {
+        const selected = value === score;
         return (
           <button
             key={score}
@@ -17,8 +25,8 @@ export function ScorePicker({ value, onChange, disabled }: { value: number; onCh
           >
             {score}
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

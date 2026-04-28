@@ -1,14 +1,22 @@
-import { ReactNode } from 'react'
+import { ReactNode } from 'react';
 
 export interface TabOption<T extends string> {
-  value: T
-  label: ReactNode
+  value: T;
+  label: ReactNode;
 }
 
-export function TabStrip<T extends string>({ options, value, onChange }: { options: TabOption<T>[]; value: T; onChange: (value: T) => void }) {
+export function TabStrip<T extends string>({
+  options,
+  value,
+  onChange,
+}: {
+  options: TabOption<T>[];
+  value: T;
+  onChange: (value: T) => void;
+}) {
   return (
     <div className="inline-flex rounded-xl border border-gray-200 bg-gray-100 p-1 dark:border-gray-800 dark:bg-white/[0.03]">
-      {options.map(option => (
+      {options.map((option) => (
         <button
           key={option.value}
           type="button"
@@ -23,7 +31,7 @@ export function TabStrip<T extends string>({ options, value, onChange }: { optio
         </button>
       ))}
     </div>
-  )
+  );
 }
 
-export const SegmentedControl = TabStrip
+export const SegmentedControl = TabStrip;
