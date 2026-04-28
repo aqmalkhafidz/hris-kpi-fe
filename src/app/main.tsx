@@ -18,6 +18,20 @@ const queryClient = new QueryClient({
 
 function InnerApp() {
   const auth = useAuth();
+
+  if (auth.loading) {
+    return (
+      <div className="flex h-screen w-screen items-center justify-center bg-gray-50 dark:bg-[#0b0e14]">
+        <div className="flex flex-col items-center gap-4">
+          <div className="h-10 w-10 animate-spin rounded-full border-4 border-brand-200 border-t-brand-600" />
+          <p className="text-sm font-medium text-gray-500 animate-pulse">
+            Authenticating...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return <RouterProvider router={router} context={{ auth }} />;
 }
 

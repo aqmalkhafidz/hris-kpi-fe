@@ -249,7 +249,7 @@ export function HrOrganizationPage() {
         onClose={() => setAddingPos(false)}
         onSave={(f) => store.upsertPosition(f)}
         initial={null}
-        deptNames={deptNames}
+        departments={store.departments}
         kraTemplateNames={kraTemplateNames}
       />
       <PositionModal
@@ -257,7 +257,7 @@ export function HrOrganizationPage() {
         onClose={() => setEditingPos(null)}
         onSave={(f, id) => store.upsertPosition(f, id)}
         initial={editingPos}
-        deptNames={deptNames}
+        departments={store.departments}
         kraTemplateNames={kraTemplateNames}
       />
       <EmployeeModal

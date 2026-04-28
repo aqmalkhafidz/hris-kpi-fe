@@ -33,10 +33,10 @@ export function DivisionsView({
       <div className="grid grid-cols-1 gap-4 p-6 sm:grid-cols-2">
         {rows.map((d) => {
           const headcount = employees.filter(
-            (e) => e.division === d.name
+            (e) => e.divId === d.id
           ).length;
           const depts = departments
-            .filter((dp) => dp.division === d.name)
+            .filter((dp) => dp.divId === d.id)
             .map((dp) => dp.name);
           return (
             <div

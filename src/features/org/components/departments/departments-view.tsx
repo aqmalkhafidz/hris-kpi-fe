@@ -44,8 +44,8 @@ export function DepartmentsView({
         </thead>
         <tbody>
           {rows.map((d) => {
-            const headcount = employees.filter((e) => e.dept === d.name).length;
-            const posCount = positions.filter((p) => p.dept === d.name).length;
+            const headcount = employees.filter((e) => e.deptId === d.id).length;
+            const posCount = positions.filter((p) => p.deptId === d.id).length;
             return (
               <tr
                 key={d.id}

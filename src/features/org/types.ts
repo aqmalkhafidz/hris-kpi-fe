@@ -6,7 +6,9 @@ export interface Employee {
   nip: string;
   position: string;
   dept: string;
+  deptId: number;
   div: string;
+  divId: number;
   division: string;
   manager: string;
   squad: string | null;
@@ -46,6 +48,7 @@ export interface Position {
   title: string;
   level: string;
   dept: string;
+  deptId: number;
   template: string;
   headcount: number;
 }
@@ -56,6 +59,7 @@ export interface JobTitle {
   name: string;
   level: string;
   department: string;
+  deptId: number;
   description: string;
   headcount: number;
 }

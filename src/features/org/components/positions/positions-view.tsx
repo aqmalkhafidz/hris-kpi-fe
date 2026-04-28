@@ -42,7 +42,7 @@ export function PositionsView({
         <tbody>
           {rows.map((p) => {
             const filled = employees.filter(
-              (e) => e.position === p.title
+              (e) => e.position === p.title && e.deptId === p.deptId
             ).length;
             return (
               <tr

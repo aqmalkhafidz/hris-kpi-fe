@@ -9,21 +9,22 @@ export function PositionModal({
   onClose,
   onSave,
   initial,
-  deptNames,
+  departments,
   kraTemplateNames,
 }: {
   open: boolean;
   onClose: () => void;
   onSave: (form: Omit<Position, 'id'>, id?: number) => void;
   initial?: Position | null;
-  deptNames: string[];
+  departments: Department[];
   kraTemplateNames: string[];
 }) {
   const blank: Omit<Position, 'id'> = {
     code: '',
     title: '',
     level: 'IC2',
-    dept: deptNames[0] ?? '',
+    dept: departments[0]?.name ?? '',
+    deptId: departments[0]?.id ?? 0,
     template: kraTemplateNames[0] ?? '',
     headcount: 0,
   };
@@ -34,12 +35,18 @@ export function PositionModal({
           title: initial.title,
           level: initial.level,
           dept: initial.dept,
+          deptId: initial.deptId,
           template: initial.template,
           headcount: initial.headcount,
         }
       : blank
   );
   const update = (p: Partial<typeof form>) => setForm((f) => ({ ...f, ...p }));
+
+  const onDeptChange = (name: string) => {
+    const dept = departments.find((d) => d.name === name);
+    update({ dept: name, deptId: dept?.id ?? 0 });
+  };
   return (
     <Modal
       open={open}
@@ -90,12 +97,12 @@ export function PositionModal({
         <Field label="Department" required>
           <select
             value={form.dept}
-            onChange={(e) => update({ dept: e.target.value })}
+            onChange={(e) => onDeptChange(e.target.value)}
             className={inp}
           >
-            {deptNames.map((d) => (
-              <option key={d} value={d}>
-                {d}
+            {departments.map((d) => (
+              <option key={d.id} value={d.name}>
+                {d.name}
               </option>
             ))}
           </select>

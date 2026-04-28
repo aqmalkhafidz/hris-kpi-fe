@@ -39,7 +39,9 @@ export function EmployeeModal({
     email: '',
     position: positions[0]?.title ?? '',
     dept: deptNames[0] ?? '',
+    deptId: departments[0]?.id ?? 0,
     div: 'Technology',
+    divId: 0,
     division: 'Technology',
     manager: '',
     squad: null,
@@ -60,7 +62,9 @@ export function EmployeeModal({
           email: initial.email,
           position: initial.position,
           dept: initial.dept,
+          deptId: initial.deptId,
           div: initial.div,
+          divId: initial.divId,
           division: initial.division,
           manager: initial.manager,
           squad: initial.squad,
@@ -79,14 +83,17 @@ export function EmployeeModal({
 
   const onDeptChange = (v: string) => {
     const dept = departments.find((d) => d.name === v);
+    const div = divisions.find((d) => d.id === dept?.divId);
     const divName =
-      divisions.find((d) => d.id === dept?.divId)?.name ??
+      div?.name ??
       DEPT_DIV[v] ??
       form.division;
     const divHead = divisions.find((d) => d.name === divName)?.head ?? '';
     update({
       dept: v,
+      deptId: dept?.id ?? 0,
       div: divName,
+      divId: div?.id ?? 0,
       division: divName,
       reviewerHod: dept?.hod ?? form.reviewerHod,
       reviewerHodiv: divHead || form.reviewerHodiv,
@@ -101,12 +108,12 @@ export function EmployeeModal({
     update({ squad: v || null });
   };
 
-  const positionsForDept = positions.filter((p) => p.dept === form.dept);
+  const positionsForDept = positions.filter((p) => p.deptId === form.deptId);
   const squadsForDept = squads.filter(
-    (s) => !form.dept || s.department === form.dept
+    (s) => !form.deptId || s.deptId === form.deptId
   );
   const managers = employees
-    .filter((e) => e.dept === form.dept && e.name !== form.name)
+    .filter((e) => e.deptId === form.deptId && e.name !== form.name)
     .map((e) => e.name);
 
   const needsSquad = NEEDS_SQUAD(form.orgRole);
