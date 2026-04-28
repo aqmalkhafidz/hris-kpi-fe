@@ -1,25 +1,31 @@
-import { useEffect, useState } from 'react'
-import { Modal } from '@shared/ui/modal'
-import { Button } from '@shared/ui/button'
-import { FormField, Textarea } from '@shared/ui/form-field'
+import { Button } from '@shared/ui/button';
+import { FormField, Textarea } from '@shared/ui/form-field';
+import { Modal } from '@shared/ui/modal';
+import { useEffect, useState } from 'react';
 
 interface ReturnModalProps {
-  open: boolean
-  targetStageLabel: string
-  submitting?: boolean
-  onClose: () => void
-  onConfirm: (reason: string) => void
+  open: boolean;
+  targetStageLabel: string;
+  submitting?: boolean;
+  onClose: () => void;
+  onConfirm: (reason: string) => void;
 }
 
-export function ReturnModal({ open, targetStageLabel, submitting, onClose, onConfirm }: ReturnModalProps) {
-  const [reason, setReason] = useState('')
+export function ReturnModal({
+  open,
+  targetStageLabel,
+  submitting,
+  onClose,
+  onConfirm,
+}: ReturnModalProps) {
+  const [reason, setReason] = useState('');
 
   useEffect(() => {
-    if (!open) setReason('')
-  }, [open])
+    if (!open) setReason('');
+  }, [open]);
 
-  const trimmed = reason.trim()
-  const canSubmit = trimmed.length >= 10 && !submitting
+  const trimmed = reason.trim();
+  const canSubmit = trimmed.length >= 10 && !submitting;
 
   return (
     <Modal
@@ -28,7 +34,12 @@ export function ReturnModal({ open, targetStageLabel, submitting, onClose, onCon
       title="Return for revision"
       footer={
         <>
-          <Button type="button" variant="secondary" onClick={onClose} disabled={submitting}>
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={onClose}
+            disabled={submitting}
+          >
             Cancel
           </Button>
           <Button
@@ -43,8 +54,9 @@ export function ReturnModal({ open, targetStageLabel, submitting, onClose, onCon
       }
     >
       <p className="mb-4 text-sm text-gray-600 dark:text-gray-300">
-        Send this appraisal back to <span className="font-semibold">{targetStageLabel}</span>. The reviewee sees this
-        reason on their dashboard and self-appraisal page.
+        Send this appraisal back to{' '}
+        <span className="font-semibold">{targetStageLabel}</span>. The reviewee
+        sees this reason on their dashboard and self-appraisal page.
       </p>
       <FormField
         label="Reason"
@@ -53,10 +65,10 @@ export function ReturnModal({ open, targetStageLabel, submitting, onClose, onCon
         <Textarea
           rows={5}
           value={reason}
-          onChange={e => setReason(e.target.value)}
+          onChange={(e) => setReason(e.target.value)}
           placeholder="e.g. KRA-2 evidence missing the rollout dashboard link. Please attach and resubmit."
         />
       </FormField>
     </Modal>
-  )
+  );
 }
