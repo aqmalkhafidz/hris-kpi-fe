@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { Toaster } from 'sonner';
 import { router } from './router';
 import '../styles/friendly.css';
 
@@ -25,6 +26,7 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <InnerApp />
+        <Toaster position="top-right" richColors />
       </AuthProvider>
     </QueryClientProvider>
   </React.StrictMode>

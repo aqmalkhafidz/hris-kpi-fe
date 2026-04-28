@@ -1,11 +1,6 @@
 import { clearToken, getToken } from '@shared/api/client';
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  ReactNode,
-} from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { createContext, useContext, useState, ReactNode } from 'react';
 import { fetchMe, loginWithPassword, logoutApi } from '../api/auth-api';
 import type { AppUser } from '../types';
 
@@ -18,45 +13,39 @@ export interface AuthState {
 
 const AuthContext = createContext<AuthState | null>(null);
 
-const STORAGE_KEY = 'hris_auth';
-
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AppUser | null>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? (JSON.parse(stored) as AppUser) : null;
-  });
-  const [loading, setLoading] = useState(() => !!getToken());
+  const [hasToken, setHasToken] = useState(() => !!getToken());
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    if (!getToken()) return;
-    fetchMe()
-      .then((next) => {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        setUser(next);
-      })
-      .catch(() => {
+  const { data: user = null, isLoading } = useQuery({
+    queryKey: ['me'],
+    queryFn: () =>
+      fetchMe().catch(() => {
         clearToken();
-        localStorage.removeItem(STORAGE_KEY);
-        setUser(null);
-      })
-      .finally(() => setLoading(false));
-  }, []);
+        setHasToken(false);
+        return null;
+      }),
+    enabled: hasToken,
+    retry: false,
+  });
 
   const login = async (email: string, password: string) => {
     const next = await loginWithPassword(email, password);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-    setUser(next);
+    queryClient.setQueryData(['me'], next);
+    setHasToken(true);
     return next;
   };
 
   const logout = () => {
     logoutApi();
-    localStorage.removeItem(STORAGE_KEY);
-    setUser(null);
+    setHasToken(false);
+    queryClient.removeQueries({ queryKey: ['me'] });
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, login, logout }}>
+    <AuthContext.Provider
+      value={{ user, loading: hasToken && isLoading, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

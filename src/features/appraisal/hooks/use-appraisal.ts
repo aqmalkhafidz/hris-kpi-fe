@@ -5,6 +5,7 @@ import {
   useQueryClient,
   type QueryClient,
 } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { appraisalApi } from '../api/appraisal-api';
 
 const appraisalKeys = {
@@ -60,7 +61,11 @@ export function useSubmitAppraisal() {
       appraisalId: number;
       updates: Partial<Appraisal>;
     }) => appraisalApi.update(appraisalId, updates),
-    onSuccess: (data) => invalidateAppraisal(qc, data),
+    onSuccess: (data) => {
+      invalidateAppraisal(qc, data);
+      toast.success('Data berhasil disimpan');
+    },
+    onError: () => toast.error('Gagal menyimpan data'),
   });
 }
 
@@ -69,7 +74,11 @@ export function useAdvanceAppraisal() {
   return useMutation({
     mutationFn: ({ appraisalId }: { appraisalId: number }) =>
       appraisalApi.advance(appraisalId),
-    onSuccess: (data) => invalidateAppraisal(qc, data),
+    onSuccess: (data) => {
+      invalidateAppraisal(qc, data);
+      toast.success('Appraisal berhasil diteruskan');
+    },
+    onError: () => toast.error('Gagal meneruskan appraisal'),
   });
 }
 
@@ -83,7 +92,11 @@ export function useReturnAppraisal() {
       appraisalId: number;
       reason: string;
     }) => appraisalApi.return(appraisalId, reason),
-    onSuccess: (data) => invalidateAppraisal(qc, data),
+    onSuccess: (data) => {
+      invalidateAppraisal(qc, data);
+      toast.success('Appraisal berhasil dikembalikan');
+    },
+    onError: () => toast.error('Gagal mengembalikan appraisal'),
   });
 }
 
@@ -92,6 +105,10 @@ export function useAcknowledgeAppraisal() {
   return useMutation({
     mutationFn: ({ appraisalId }: { appraisalId: number }) =>
       appraisalApi.acknowledge(appraisalId),
-    onSuccess: (data) => invalidateAppraisal(qc, data),
+    onSuccess: (data) => {
+      invalidateAppraisal(qc, data);
+      toast.success('Appraisal berhasil diakui');
+    },
+    onError: () => toast.error('Gagal mengakui appraisal'),
   });
 }

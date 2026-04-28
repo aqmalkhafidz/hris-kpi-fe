@@ -4,6 +4,7 @@ import {
   useQueryClient,
   type QueryClient,
 } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import { orgApi } from '../api/org-api';
 import type {
   Department,
@@ -83,31 +84,55 @@ export function useOrgStore() {
   const upsertDivisionMut = useMutation({
     mutationFn: ({ form, id }: { form: Omit<Division, 'id'>; id?: number }) =>
       orgApi.divisions.upsert(form, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.divisions }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.divisions });
+      toast.success('Data berhasil disimpan');
+    },
+    onError: () => toast.error('Gagal menyimpan data'),
   });
   const deleteDivisionMut = useMutation({
     mutationFn: (id: number) => orgApi.divisions.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.divisions }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.divisions });
+      toast.success('Data berhasil dihapus');
+    },
+    onError: () => toast.error('Gagal menghapus data'),
   });
 
   const upsertDepartmentMut = useMutation({
     mutationFn: ({ form, id }: { form: Omit<Department, 'id'>; id?: number }) =>
       orgApi.departments.upsert(form, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.departments }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.departments });
+      toast.success('Data berhasil disimpan');
+    },
+    onError: () => toast.error('Gagal menyimpan data'),
   });
   const deleteDepartmentMut = useMutation({
     mutationFn: (id: number) => orgApi.departments.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.departments }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.departments });
+      toast.success('Data berhasil dihapus');
+    },
+    onError: () => toast.error('Gagal menghapus data'),
   });
 
   const upsertPositionMut = useMutation({
     mutationFn: ({ form, id }: { form: Omit<Position, 'id'>; id?: number }) =>
       orgApi.positions.upsert(form, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.positions }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.positions });
+      toast.success('Data berhasil disimpan');
+    },
+    onError: () => toast.error('Gagal menyimpan data'),
   });
   const deletePositionMut = useMutation({
     mutationFn: (id: number) => orgApi.positions.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.positions }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.positions });
+      toast.success('Data berhasil dihapus');
+    },
+    onError: () => toast.error('Gagal menghapus data'),
   });
 
   const upsertEmployeeMut = useMutation({
@@ -118,31 +143,55 @@ export function useOrgStore() {
       form: Omit<Employee, 'id' | 'initials'>;
       id?: number;
     }) => orgApi.employees.upsert(form as Omit<Employee, 'id'>, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.employees }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.employees });
+      toast.success('Data berhasil disimpan');
+    },
+    onError: () => toast.error('Gagal menyimpan data'),
   });
   const deleteEmployeeMut = useMutation({
     mutationFn: (id: number) => orgApi.employees.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.employees }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.employees });
+      toast.success('Data berhasil dihapus');
+    },
+    onError: () => toast.error('Gagal menghapus data'),
   });
 
   const upsertJobTitleMut = useMutation({
     mutationFn: ({ form, id }: { form: Omit<JobTitle, 'id'>; id?: number }) =>
       orgApi.jobTitles.upsert(form, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.jobTitles }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.jobTitles });
+      toast.success('Data berhasil disimpan');
+    },
+    onError: () => toast.error('Gagal menyimpan data'),
   });
   const deleteJobTitleMut = useMutation({
     mutationFn: (id: number) => orgApi.jobTitles.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.jobTitles }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.jobTitles });
+      toast.success('Data berhasil dihapus');
+    },
+    onError: () => toast.error('Gagal menghapus data'),
   });
 
   const upsertSquadMut = useMutation({
     mutationFn: ({ form, id }: { form: Omit<Squad, 'id'>; id?: number }) =>
       orgApi.squads.upsert(form, id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.squads }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.squads });
+      toast.success('Data berhasil disimpan');
+    },
+    onError: () => toast.error('Gagal menyimpan data'),
   });
   const deleteSquadMut = useMutation({
     mutationFn: (id: number) => orgApi.squads.delete(id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: orgKeys.squads }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: orgKeys.squads });
+      toast.success('Data berhasil dihapus');
+    },
+    onError: () => toast.error('Gagal menghapus data'),
   });
 
   return {

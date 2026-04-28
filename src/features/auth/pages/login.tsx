@@ -1,9 +1,7 @@
-import { fetchDemoUsers } from '@features/auth/api/auth-api';
 import { useAuth } from '@features/auth/context/auth-context';
-import type { AppUser } from '@features/auth/types';
 import { Icon } from '@shared/layouts/icon';
 import { Button } from '@shared/ui/button';
-import { FormField, Input, Select } from '@shared/ui/form-field';
+import { FormField, Input } from '@shared/ui/form-field';
 import { useForm } from '@tanstack/react-form';
 import { Link, useNavigate } from '@tanstack/react-router';
 import { useEffect, useState } from 'react';
@@ -96,32 +94,21 @@ export function LoginPage() {
   const [showPass, setShowPass] = useState(false);
   const [remember, setRemember] = useState(false);
   const [loginError, setLoginError] = useState('');
-  const [demoUsers, setDemoUsers] = useState<AppUser[]>([]);
-
-  useEffect(() => {
-    fetchDemoUsers()
-      .then(setDemoUsers)
-      .catch(() => setDemoUsers([]));
-  }, []);
 
   const form = useForm({
-    defaultValues: { email: '', password: '', quickUserId: '' },
+    defaultValues: { email: '', password: '' },
     onSubmit: async ({ value }) => {
       setLoginError('');
-      const quickUserId = value.quickUserId ? Number(value.quickUserId) : null;
-      const email = quickUserId
-        ? (demoUsers.find((u) => u.id === quickUserId)?.email ?? value.email)
-        : value.email;
-      if (!email) {
+      if (!value.email) {
         setLoginError('Email is required.');
         return;
       }
-      if (!value.quickUserId && !value.password) {
+      if (!value.password) {
         setLoginError('Password is required.');
         return;
       }
       try {
-        const found = await login(email, value.password || 'demo1234');
+        const found = await login(value.email, value.password);
         navigate({ to: found.role === 'hr' ? '/hr/dashboard' : '/dashboard' });
       } catch (error) {
         setLoginError(error instanceof Error ? error.message : 'Login failed.');
@@ -210,39 +197,6 @@ export function LoginPage() {
               </div>
             )}
 
-            <form.Field name="quickUserId">
-              {(field) => (
-                <FormField label="Quick Login (Demo)">
-                  <Select
-                    value={field.state.value}
-                    onChange={(event) => {
-                      field.handleChange(event.target.value);
-                      const found = demoUsers.find(
-                        (u) => u.id === Number(event.target.value)
-                      );
-                      if (found) {
-                        form.setFieldValue('email', found.email);
-                        form.setFieldValue('password', 'demo1234');
-                      }
-                    }}
-                  >
-                    <option value="">Select a role</option>
-                    {demoUsers.map((user) => (
-                      <option key={user.id} value={String(user.id)}>
-                        {user.name} ({user.position})
-                      </option>
-                    ))}
-                  </Select>
-                </FormField>
-              )}
-            </form.Field>
-
-            <div className="flex items-center gap-3">
-              <div className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
-              <span className="text-xs text-gray-400">or enter manually</span>
-              <div className="h-px flex-1 bg-gray-200 dark:bg-gray-800" />
-            </div>
-
             <form.Field name="email">
               {(field) => (
                 <FormField label="Email address">
@@ -286,7 +240,7 @@ export function LoginPage() {
                     <button
                       type="button"
                       onClick={() => setShowPass((value) => !value)}
-                      className="absolute right-3 top-1/2 flex -translate-y-1/2 text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
+                      className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
                     >
                       <EyeIcon open={showPass} />
                     </button>

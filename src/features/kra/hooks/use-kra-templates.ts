@@ -1,5 +1,6 @@
 import { api } from '@shared/api/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import type { KraItem, KraTemplateV2 } from '../types';
 
 export const kraKeys = {
@@ -28,7 +29,11 @@ export function useUpsertKraTemplate() {
         method: id ? 'PUT' : 'POST',
         body: JSON.stringify(template),
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: kraKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: kraKeys.all });
+      toast.success('KRA template berhasil disimpan');
+    },
+    onError: () => toast.error('Gagal menyimpan template'),
   });
 }
 
@@ -46,6 +51,10 @@ export function useUpdateKraItems() {
         method: 'PUT',
         body: JSON.stringify(items),
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: kraKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: kraKeys.all });
+      toast.success('Item KRA berhasil diperbarui');
+    },
+    onError: () => toast.error('Gagal memperbarui item KRA'),
   });
 }

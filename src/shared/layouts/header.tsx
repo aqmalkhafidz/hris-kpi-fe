@@ -6,7 +6,7 @@ import {
   ThemeMode,
 } from '@shared/lib/theme';
 import { useNavigate } from '@tanstack/react-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Avatar } from './avatar';
 import { Icon } from './icon';
 
@@ -32,6 +32,21 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
     setTheme(next);
     applyTheme(next);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+
+    if (menuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [menuOpen]);
 
   if (!user) return null;
 
@@ -71,7 +86,7 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
             aria-label="Toggle dark mode"
             className="inline-flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/[0.08]"
           >
-            <span className="text-base leading-none">
+            <span className="text-xl leading-none">
               {theme === 'dark' ? '☾' : '☼'}
             </span>
           </button>

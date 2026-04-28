@@ -1,5 +1,6 @@
 import { Icon } from '@shared/layouts/icon';
 import { PageShell } from '@shared/layouts/page-shell';
+import { ConfirmModal } from '@shared/ui/confirm-modal';
 import { useState, useMemo } from 'react';
 import { CycleCard } from '../components/cycle-card';
 import { CycleModal } from '../components/cycle-modal';
@@ -15,6 +16,17 @@ export function HrCyclesPage() {
   const [search, setSearch] = useState('');
   const [creating, setCreating] = useState(false);
   const [editing, setEditing] = useState<Cycle | null>(null);
+  const [confirmModal, setConfirmModal] = useState<{
+    open: boolean;
+    title: string;
+    description: string;
+    onConfirm: () => void;
+  }>({
+    open: false,
+    title: '',
+    description: '',
+    onConfirm: () => {},
+  });
 
   const stats = useMemo(
     () => ({
@@ -60,16 +72,29 @@ export function HrCyclesPage() {
     if (cycle) upsertCycle.mutate({ id, form: { ...cycle, status: 'active' } });
   };
   const closeCycle = (id: number) => {
-    if (
-      !confirm('Tutup cycle ini? Appraisal yang belum selesai tetap tersimpan.')
-    )
-      return;
-    const cycle = cycles.find((c) => c.id === id);
-    if (cycle) upsertCycle.mutate({ id, form: { ...cycle, status: 'closed' } });
+    setConfirmModal({
+      open: true,
+      title: 'Tutup Cycle',
+      description:
+        'Tutup cycle ini? Appraisal yang belum selesai tetap tersimpan.',
+      onConfirm: () => {
+        const cycle = cycles.find((c) => c.id === id);
+        if (cycle)
+          upsertCycle.mutate({ id, form: { ...cycle, status: 'closed' } });
+        setConfirmModal((prev) => ({ ...prev, open: false }));
+      },
+    });
   };
   const remove = (id: number) => {
-    if (!confirm('Hapus cycle draft ini? Tidak bisa di-undo.')) return;
-    deleteCycle.mutate(id);
+    setConfirmModal({
+      open: true,
+      title: 'Hapus Cycle',
+      description: 'Hapus cycle draft ini? Tidak bisa di-undo.',
+      onConfirm: () => {
+        deleteCycle.mutate(id);
+        setConfirmModal((prev) => ({ ...prev, open: false }));
+      },
+    });
   };
 
   const filterItems = [
@@ -223,6 +248,14 @@ export function HrCyclesPage() {
         onClose={() => setEditing(null)}
         onSave={upsert}
         initial={editing}
+      />
+
+      <ConfirmModal
+        open={confirmModal.open}
+        title={confirmModal.title}
+        description={confirmModal.description}
+        onConfirm={confirmModal.onConfirm}
+        onClose={() => setConfirmModal((prev) => ({ ...prev, open: false }))}
       />
     </PageShell>
   );

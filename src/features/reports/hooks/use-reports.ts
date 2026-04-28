@@ -1,5 +1,6 @@
 import { api } from '@shared/api/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 
 export interface CompletedAppraisal {
   id: number;
@@ -48,6 +49,8 @@ export function useSaveCalibration() {
     onSuccess: (data) => {
       if (!data) return;
       qc.invalidateQueries({ queryKey: reportsKeys.byCycle(data.cycleId) });
+      toast.success('Kalibrasi berhasil disimpan');
     },
+    onError: () => toast.error('Gagal menyimpan kalibrasi'),
   });
 }

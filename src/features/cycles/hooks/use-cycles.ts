@@ -14,6 +14,8 @@ export function useCycles() {
   });
 }
 
+import { toast } from 'sonner';
+
 export function useUpsertCycle() {
   const qc = useQueryClient();
   return useMutation({
@@ -28,7 +30,11 @@ export function useUpsertCycle() {
         method: id ? 'PUT' : 'POST',
         body: JSON.stringify(form),
       }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: cyclesKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cyclesKeys.all });
+      toast.success('Cycle berhasil disimpan');
+    },
+    onError: () => toast.error('Gagal menyimpan cycle'),
   });
 }
 
@@ -37,7 +43,11 @@ export function useDeleteCycle() {
   return useMutation({
     mutationFn: (id: number) =>
       api<{ ok: boolean }>(`/cycles/${id}`, { method: 'DELETE' }),
-    onSuccess: () => qc.invalidateQueries({ queryKey: cyclesKeys.all }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: cyclesKeys.all });
+      toast.success('Cycle berhasil dihapus');
+    },
+    onError: () => toast.error('Gagal menghapus cycle'),
   });
 }
 
