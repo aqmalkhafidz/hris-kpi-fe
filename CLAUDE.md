@@ -24,9 +24,9 @@ npm run preview  # preview prod build
 
 Defined in `tsconfig.json` + `vite.config.ts`:
 
-- `@app/*`      → `src/app/*`
+- `@app/*` → `src/app/*`
 - `@features/*` → `src/features/*`
-- `@shared/*`   → `src/shared/*`
+- `@shared/*` → `src/shared/*`
 
 Use aliases. No deep relative imports across feature boundaries.
 
@@ -64,11 +64,13 @@ Each feature owns: `pages/`, `hooks/` (TanStack Query wrappers), optional `api/`
 Roles (`UserRole`): `staff | sl | hodept | hodiv | hr`.
 
 Appraisal status flow:
+
 ```
 draft → sl_review → hod_review → hodiv_review → acknowledge → completed
 ```
 
 Helpers in `src/shared/lib/types/appraisal.ts`:
+
 - `advanceStatusFor(appraisal, role)` — forward transition (SL on draft jumps to `hod_review`)
 - `returnTargetFor(actorRole)` — kickback target per reviewer role
 - `appendAudit(appraisal, entry)` — immutable audit log append
@@ -92,6 +94,7 @@ Index `/` redirects: HR → `/hr/dashboard`, others → `/dashboard`, unauth →
 Real BE via `shared/api/client.ts` (`api<T>(path, init)`). Auth token stored in `localStorage[hris_auth_token]` and auto-attached. Hooks in `features/*/hooks/` wrap fetch calls in `useQuery`/`useMutation`.
 
 Conventions:
+
 - Query keys: namespaced const objects (`appraisalKeys.byId(id)`, `appraisalKeys.byUser(userId)`).
 - Invalidation: shared helper per domain (e.g. `invalidateAppraisal(qc, data)`).
 - Default `QueryClient`: `staleTime: 30_000`, `retry: 1` (set in `main.tsx`).
