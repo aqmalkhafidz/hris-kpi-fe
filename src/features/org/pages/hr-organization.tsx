@@ -49,6 +49,7 @@ export function HrOrganizationPage() {
   const [addingSquad, setAddingSquad] = useState(false);
 
   const tabData: { id: TabId; label: string; count: number }[] = [
+    { id: 'employees', label: 'Employees', count: store.employees.length },
     { id: 'divisions', label: 'Divisions', count: store.divisions.length },
     {
       id: 'departments',
@@ -56,7 +57,6 @@ export function HrOrganizationPage() {
       count: store.departments.length,
     },
     { id: 'positions', label: 'Positions', count: store.positions.length },
-    { id: 'employees', label: 'Employees', count: store.employees.length },
     { id: 'jobTitles', label: 'Job Titles', count: store.jobTitles.length },
     { id: 'squads', label: 'Squads', count: store.squads.length },
   ];
@@ -80,10 +80,8 @@ export function HrOrganizationPage() {
     if (tab === 'squads') setAddingSquad(true);
   };
 
-  const divisionNames = store.divisions.map((d) => d.name);
-  const deptNames = store.departments.map((d) => d.name);
-
   const statCards = [
+    { label: 'Employees', value: store.employees.length, icon: Icon.team },
     { label: 'Divisions', value: store.divisions.length, icon: Icon.building },
     {
       label: 'Departments',
@@ -91,7 +89,6 @@ export function HrOrganizationPage() {
       icon: Icon.layers,
     },
     { label: 'Positions', value: store.positions.length, icon: Icon.paper },
-    { label: 'Employees', value: store.employees.length, icon: Icon.team },
     { label: 'Job Titles', value: store.jobTitles.length, icon: Icon.paper },
     { label: 'Squads', value: store.squads.length, icon: Icon.team },
   ] as const;
@@ -172,6 +169,7 @@ export function HrOrganizationPage() {
           <DepartmentsView
             search={search}
             departments={store.departments}
+            divisions={store.divisions}
             employees={store.employees}
             positions={store.positions}
             onEdit={setEditingDept}
@@ -182,6 +180,8 @@ export function HrOrganizationPage() {
           <PositionsView
             search={search}
             positions={store.positions}
+            departments={store.departments}
+            divisions={store.divisions}
             employees={store.employees}
             onEdit={setEditingPos}
             onDelete={store.deletePosition}
@@ -191,6 +191,9 @@ export function HrOrganizationPage() {
           <EmployeesView
             search={search}
             employees={store.employees}
+            divisions={store.divisions}
+            departments={store.departments}
+            squads={store.squads}
             onEdit={setEditingEmp}
             onDelete={store.deleteEmployee}
           />
@@ -207,6 +210,8 @@ export function HrOrganizationPage() {
           <SquadsView
             search={search}
             squads={store.squads}
+            divisions={store.divisions}
+            departments={store.departments}
             onEdit={setEditingSquad}
             onDelete={store.deleteSquad}
           />
@@ -235,14 +240,14 @@ export function HrOrganizationPage() {
         onClose={() => setAddingDept(false)}
         onSave={(f) => store.upsertDepartment(f)}
         initial={null}
-        divisionNames={divisionNames}
+        divisions={store.divisions}
       />
       <DepartmentModal
         open={!!editingDept}
         onClose={() => setEditingDept(null)}
         onSave={(f, id) => store.upsertDepartment(f, id)}
         initial={editingDept}
-        divisionNames={divisionNames}
+        divisions={store.divisions}
       />
       <PositionModal
         open={addingPos}
@@ -250,6 +255,7 @@ export function HrOrganizationPage() {
         onSave={(f) => store.upsertPosition(f)}
         initial={null}
         departments={store.departments}
+        divisions={store.divisions}
         kraTemplateNames={kraTemplateNames}
       />
       <PositionModal
@@ -258,6 +264,7 @@ export function HrOrganizationPage() {
         onSave={(f, id) => store.upsertPosition(f, id)}
         initial={editingPos}
         departments={store.departments}
+        divisions={store.divisions}
         kraTemplateNames={kraTemplateNames}
       />
       <EmployeeModal
@@ -270,6 +277,7 @@ export function HrOrganizationPage() {
         positions={store.positions}
         squads={store.squads}
         employees={store.employees}
+        jobTitles={store.jobTitles}
       />
       <EmployeeModal
         open={!!editingEmp}
@@ -281,6 +289,7 @@ export function HrOrganizationPage() {
         positions={store.positions}
         squads={store.squads}
         employees={store.employees}
+        jobTitles={store.jobTitles}
       />
       <JobTitleModal
         open={addingJT}

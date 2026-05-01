@@ -1,13 +1,13 @@
 import { usePaginate } from '@shared/hooks/use-paginate';
-import { Avatar } from '@shared/layouts/avatar';
 import { Icon } from '@shared/layouts/icon';
 import { useMemo } from 'react';
-import type { Department, Employee, Position } from '../../types';
+import type { Department, Division, Employee, Position } from '../../types';
 import { PaginationBar } from '../shared/pagination-bar';
 
 export function DepartmentsView({
   search,
   departments,
+  divisions,
   employees,
   positions,
   onEdit,
@@ -15,6 +15,7 @@ export function DepartmentsView({
 }: {
   search: string;
   departments: Department[];
+  divisions: Division[];
   employees: Employee[];
   positions: Position[];
   onEdit: (d: Department) => void;
@@ -22,10 +23,7 @@ export function DepartmentsView({
 }) {
   const q = search.toLowerCase();
   const filtered = useMemo(
-    () =>
-      departments.filter((d) =>
-        (d.name + d.division + d.hod).toLowerCase().includes(q)
-      ),
+    () => departments.filter((d) => d.name.toLowerCase().includes(q)),
     [departments, q]
   );
   const { rows, ...pagination } = usePaginate(filtered);
@@ -44,6 +42,7 @@ export function DepartmentsView({
         </thead>
         <tbody>
           {rows.map((d) => {
+            const div = divisions.find((div) => div.id === d.divId);
             const headcount = employees.filter((e) => e.deptId === d.id).length;
             const posCount = positions.filter((p) => p.deptId === d.id).length;
             return (
@@ -62,27 +61,10 @@ export function DepartmentsView({
                   </div>
                 </td>
                 <td className="px-3 py-3.5 text-gray-500 dark:text-gray-400">
-                  {d.division}
+                  {div?.name || '—'}
                 </td>
                 <td className="px-3 py-3.5">
-                  {d.hod ? (
-                    <div className="flex items-center gap-2">
-                      <Avatar
-                        initials={d.hod
-                          .split(' ')
-                          .map((s) => s[0])
-                          .slice(0, 2)
-                          .join('')}
-                        size="sm"
-                        tone="brand"
-                      />
-                      <span className="text-gray-700 dark:text-gray-200">
-                        {d.hod}
-                      </span>
-                    </div>
-                  ) : (
-                    <span className="text-gray-400">—</span>
-                  )}
+                  <span className="text-gray-400">—</span>
                 </td>
                 <td className="px-3 py-3.5 text-right tabular-nums text-gray-600 dark:text-gray-300">
                   {posCount}

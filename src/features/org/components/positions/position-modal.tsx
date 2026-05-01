@@ -1,7 +1,7 @@
 import { Modal } from '@shared/ui/modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { inp } from '../../constants';
-import type { Position } from '../../types';
+import type { Department, Division, Position } from '../../types';
 import { Field } from '../shared/field';
 
 export function PositionModal({
@@ -10,6 +10,7 @@ export function PositionModal({
   onSave,
   initial,
   departments,
+  divisions,
   kraTemplateNames,
 }: {
   open: boolean;
@@ -17,36 +18,48 @@ export function PositionModal({
   onSave: (form: Omit<Position, 'id'>, id?: number) => void;
   initial?: Position | null;
   departments: Department[];
+  divisions: Division[];
   kraTemplateNames: string[];
 }) {
+  const firstDivId = divisions[0]?.id ?? 0;
+  const firstDept =
+    departments.find((d) => d.divId === firstDivId) ?? departments[0];
   const blank: Omit<Position, 'id'> = {
     code: '',
     title: '',
     level: 'IC2',
-    dept: departments[0]?.name ?? '',
-    deptId: departments[0]?.id ?? 0,
+    deptId: firstDept?.id ?? 0,
+    divId: firstDivId,
     template: kraTemplateNames[0] ?? '',
     headcount: 0,
   };
-  const [form, setForm] = useState<Omit<Position, 'id'>>(
-    initial
-      ? {
-          code: initial.code,
-          title: initial.title,
-          level: initial.level,
-          dept: initial.dept,
-          deptId: initial.deptId,
-          template: initial.template,
-          headcount: initial.headcount,
-        }
-      : blank
-  );
+  const [form, setForm] = useState<Omit<Position, 'id'>>(blank);
+
+  useEffect(() => {
+    if (initial) {
+      setForm({
+        code: initial.code,
+        title: initial.title,
+        level: initial.level,
+        deptId: initial.deptId,
+        divId: initial.divId,
+        template: initial.template,
+        headcount: initial.headcount,
+      });
+    } else {
+      setForm(blank);
+    }
+  }, [initial, open]);
+
   const update = (p: Partial<typeof form>) => setForm((f) => ({ ...f, ...p }));
 
-  const onDeptChange = (name: string) => {
-    const dept = departments.find((d) => d.name === name);
-    update({ dept: name, deptId: dept?.id ?? 0 });
+  const onDivisionChange = (divId: number) => {
+    const firstDeptInDiv = departments.find((d) => d.divId === divId);
+    update({ divId, deptId: firstDeptInDiv?.id ?? 0 });
   };
+
+  const deptsForDiv = departments.filter((d) => d.divId === form.divId);
+
   return (
     <Modal
       open={open}
@@ -94,19 +107,36 @@ export function PositionModal({
             </Field>
           </div>
         </div>
-        <Field label="Department" required>
-          <select
-            value={form.dept}
-            onChange={(e) => onDeptChange(e.target.value)}
-            className={inp}
-          >
-            {departments.map((d) => (
-              <option key={d.id} value={d.name}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-        </Field>
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Division" required>
+            <select
+              value={form.divId}
+              onChange={(e) => onDivisionChange(Number(e.target.value))}
+              className={inp}
+            >
+              <option value="">— Select division —</option>
+              {divisions.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+          <Field label="Department" required>
+            <select
+              value={form.deptId}
+              onChange={(e) => update({ deptId: Number(e.target.value) })}
+              className={inp}
+            >
+              <option value="">— Select department —</option>
+              {deptsForDiv.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </Field>
+        </div>
         <Field label="KRA template">
           <select
             value={form.template}

@@ -1,7 +1,7 @@
 import { Modal } from '@shared/ui/modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { inp } from '../../constants';
-import type { Department } from '../../types';
+import type { Department, Division } from '../../types';
 import { Field } from '../shared/field';
 
 export function DepartmentModal({
@@ -9,36 +9,35 @@ export function DepartmentModal({
   onClose,
   onSave,
   initial,
-  divisionNames,
+  divisions,
 }: {
   open: boolean;
   onClose: () => void;
   onSave: (form: Omit<Department, 'id'>, id?: number) => void;
   initial?: Department | null;
-  divisionNames: string[];
+  divisions: Division[];
 }) {
   const blank: Omit<Department, 'id'> = {
     name: '',
-    division: divisionNames[0] ?? '',
-    divId: 0,
-    headId: 0,
-    hod: '',
+    divId: divisions[0]?.id ?? 0,
     positions: 0,
     headcount: 0,
   };
-  const [form, setForm] = useState<Omit<Department, 'id'>>(
-    initial
-      ? {
-          name: initial.name,
-          division: initial.division,
-          divId: initial.divId,
-          headId: initial.headId,
-          hod: initial.hod,
-          positions: initial.positions,
-          headcount: initial.headcount,
-        }
-      : blank
-  );
+  const [form, setForm] = useState<Omit<Department, 'id'>>(blank);
+
+  useEffect(() => {
+    if (initial) {
+      setForm({
+        name: initial.name,
+        divId: initial.divId,
+        positions: initial.positions,
+        headcount: initial.headcount,
+      });
+    } else {
+      setForm(blank);
+    }
+  }, [initial, open]);
+
   const update = (p: Partial<typeof form>) => setForm((f) => ({ ...f, ...p }));
   return (
     <Modal
@@ -77,13 +76,14 @@ export function DepartmentModal({
         </Field>
         <Field label="Division" required>
           <select
-            value={form.division}
-            onChange={(e) => update({ division: e.target.value })}
+            value={form.divId}
+            onChange={(e) => update({ divId: Number(e.target.value) })}
             className={inp}
           >
-            {divisionNames.map((d) => (
-              <option key={d} value={d}>
-                {d}
+            <option value="">— Select division —</option>
+            {divisions.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
               </option>
             ))}
           </select>

@@ -1,28 +1,29 @@
 import { usePaginate } from '@shared/hooks/use-paginate';
 import { Icon } from '@shared/layouts/icon';
 import { useMemo } from 'react';
-import type { Employee, Position } from '../../types';
+import type { Department, Division, Employee, Position } from '../../types';
 import { PaginationBar } from '../shared/pagination-bar';
 
 export function PositionsView({
   search,
   positions,
+  departments,
+  divisions,
   employees,
   onEdit,
   onDelete,
 }: {
   search: string;
   positions: Position[];
+  departments: Department[];
+  divisions: Division[];
   employees: Employee[];
   onEdit: (p: Position) => void;
   onDelete: (id: number) => void;
 }) {
   const q = search.toLowerCase();
   const filtered = useMemo(
-    () =>
-      positions.filter((p) =>
-        (p.title + p.code + p.dept).toLowerCase().includes(q)
-      ),
+    () => positions.filter((p) => (p.title + p.code).toLowerCase().includes(q)),
     [positions, q]
   );
   const { rows, ...pagination } = usePaginate(filtered);
@@ -33,6 +34,7 @@ export function PositionsView({
           <tr className="border-b border-gray-200 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:border-gray-800">
             <th className="px-6 py-3">Position</th>
             <th className="px-3 py-3">Code</th>
+            <th className="px-3 py-3">Division</th>
             <th className="px-3 py-3">Department</th>
             <th className="px-3 py-3">KRA Template</th>
             <th className="px-3 py-3 text-right">Filled</th>
@@ -41,6 +43,8 @@ export function PositionsView({
         </thead>
         <tbody>
           {rows.map((p) => {
+            const dept = departments.find((d) => d.id === p.deptId);
+            const div = divisions.find((d) => d.id === p.divId);
             const filled = employees.filter(
               (e) => e.position === p.title && e.deptId === p.deptId
             ).length;
@@ -58,7 +62,10 @@ export function PositionsView({
                   </code>
                 </td>
                 <td className="px-3 py-3.5 text-gray-500 dark:text-gray-400">
-                  {p.dept}
+                  {div?.name || '—'}
+                </td>
+                <td className="px-3 py-3.5 text-gray-500 dark:text-gray-400">
+                  {dept?.name || '—'}
                 </td>
                 <td className="px-3 py-3.5 max-w-[200px] truncate text-xs text-gray-500 dark:text-gray-400">
                   {p.template || '—'}

@@ -1,10 +1,11 @@
 import { Modal } from '@shared/ui/modal';
-import { useState } from 'react';
-import { DEPT_DIV, NEEDS_SQUAD, ORG_ROLES, inp } from '../../constants';
+import { useState, useEffect } from 'react';
+import { inp } from '../../constants';
 import type {
   Department,
   Division,
   Employee,
+  JobTitle,
   Position,
   Squad,
 } from '../../types';
@@ -20,6 +21,7 @@ export function EmployeeModal({
   positions,
   squads,
   employees,
+  jobTitles,
 }: {
   open: boolean;
   onClose: () => void;
@@ -30,98 +32,120 @@ export function EmployeeModal({
   positions: Position[];
   squads: Squad[];
   employees: Employee[];
+  jobTitles: JobTitle[];
 }) {
-  const deptNames = departments.map((d) => d.name);
+  const firstDivId = divisions[0]?.id ?? 0;
+  const firstDeptId = departments.find((d) => d.divId === firstDivId)?.id ?? 0;
+
+  function nextNip() {
+    const year = new Date().getFullYear();
+    const prefix = `EMP-${year}-`;
+    const taken = employees
+      .map((e) => e.nip)
+      .filter((n) => n.startsWith(prefix))
+      .map((n) => parseInt(n.slice(prefix.length), 10))
+      .filter((n) => !isNaN(n));
+    const next = taken.length > 0 ? Math.max(...taken) + 1 : 1;
+    return `${prefix}${String(next).padStart(4, '0')}`;
+  }
 
   const blank: Omit<Employee, 'id' | 'initials'> = {
-    nip: '',
+    nip: nextNip(),
     name: '',
     email: '',
-    position: positions[0]?.title ?? '',
-    dept: deptNames[0] ?? '',
-    deptId: departments[0]?.id ?? 0,
-    div: 'Technology',
-    divId: 0,
-    division: 'Technology',
+    posId: positions[0]?.id ?? null,
+    position: '',
+    deptId: firstDeptId,
+    divId: firstDivId,
+    squadId: null,
+    jobTitleId: null,
     manager: '',
-    squad: null,
     grade: 'IC2',
     status: 'active',
     joined: '',
-    orgRole: 'staff',
-    reviewerSl: null,
-    reviewerHod: null,
-    reviewerHodiv: null,
+    orgRole: 'STAFF',
+    reviewerSlId: null,
+    reviewerHodId: null,
+    reviewerHodivId: null,
   };
 
-  const [form, setForm] = useState<Omit<Employee, 'id' | 'initials'>>(
-    initial
-      ? {
-          nip: initial.nip,
-          name: initial.name,
-          email: initial.email,
-          position: initial.position,
-          dept: initial.dept,
-          deptId: initial.deptId,
-          div: initial.div,
-          divId: initial.divId,
-          division: initial.division,
-          manager: initial.manager,
-          squad: initial.squad,
-          grade: initial.grade,
-          status: initial.status,
-          joined: initial.joined,
-          orgRole: initial.orgRole ?? 'staff',
-          reviewerSl: initial.reviewerSl ?? null,
-          reviewerHod: initial.reviewerHod ?? null,
-          reviewerHodiv: initial.reviewerHodiv ?? null,
-        }
-      : blank
-  );
+  const [form, setForm] = useState<Omit<Employee, 'id' | 'initials'>>(blank);
+
+  useEffect(() => {
+    if (initial) {
+      setForm({
+        nip: initial.nip,
+        name: initial.name,
+        email: initial.email,
+        posId: initial.posId,
+        position: initial.position,
+        deptId: initial.deptId,
+        divId: initial.divId,
+        squadId: initial.squadId,
+        jobTitleId: initial.jobTitleId,
+        manager: initial.manager,
+        grade: initial.grade,
+        status: initial.status,
+        joined: initial.joined,
+        orgRole: initial.orgRole ?? 'STAFF',
+        reviewerSlId: initial.reviewerSlId ?? null,
+        reviewerHodId: initial.reviewerHodId ?? null,
+        reviewerHodivId: initial.reviewerHodivId ?? null,
+      });
+    } else {
+      setForm(blank);
+    }
+  }, [initial, open]);
 
   const update = (p: Partial<typeof form>) => setForm((f) => ({ ...f, ...p }));
 
-  const onDeptChange = (v: string) => {
-    const dept = departments.find((d) => d.name === v);
-    const div = divisions.find((d) => d.id === dept?.divId);
-    const divName =
-      div?.name ??
-      DEPT_DIV[v] ??
-      form.division;
-    const divHead = divisions.find((d) => d.name === divName)?.head ?? '';
+  const onDivisionChange = (divId: number) => {
+    const firstDeptInDiv = departments.find((d) => d.divId === divId);
+    const hodiv = employees.find(
+      (e) => e.orgRole.toLowerCase() === 'hodiv' && e.divId === divId
+    );
     update({
-      dept: v,
-      deptId: dept?.id ?? 0,
-      div: divName,
-      divId: div?.id ?? 0,
-      division: divName,
-      reviewerHod: dept?.hod ?? form.reviewerHod,
-      reviewerHodiv: divHead || form.reviewerHodiv,
+      divId,
+      deptId: firstDeptInDiv?.id ?? 0,
+      squadId: null,
+      reviewerHodivId: hodiv?.id ?? null,
     });
   };
 
-  const onManagerChange = (v: string) => {
-    update({ manager: v, reviewerSl: v || null });
+  const onDeptChange = (deptId: number) => {
+    const hod = employees.find(
+      (e) => e.orgRole.toLowerCase() === 'hodept' && e.deptId === deptId
+    );
+    update({
+      deptId,
+      squadId: null,
+      reviewerHodId: hod?.id ?? null,
+    });
   };
 
-  const onSquadChange = (v: string) => {
-    update({ squad: v || null });
+  const onSquadChange = (squadId: number | null) => {
+    const sl = squadId
+      ? employees.find(
+          (e) => e.orgRole.toLowerCase() === 'sl' && e.squadId === squadId
+        )
+      : null;
+    update({ squadId, reviewerSlId: sl?.id ?? null });
   };
 
+  const depsForDiv = departments.filter((d) => d.divId === form.divId);
   const positionsForDept = positions.filter((p) => p.deptId === form.deptId);
-  const squadsForDept = squads.filter(
-    (s) => !form.deptId || s.deptId === form.deptId
+  const squadsForDiv = squads.filter(
+    (s) => !form.divId || s.divId === form.divId
   );
-  const managers = employees
-    .filter((e) => e.deptId === form.deptId && e.name !== form.name)
-    .map((e) => e.name);
-
-  const needsSquad = NEEDS_SQUAD(form.orgRole);
   const showReviewers =
-    needsSquad && !!(form.squad || form.dept || form.division);
+    !!(form.divId && form.deptId) && form.orgRole.toUpperCase() === 'STAFF';
 
   const valid =
-    form.nip.trim() && form.name.trim() && form.position.trim() && form.dept;
+    form.nip.trim() &&
+    form.name.trim() &&
+    form.posId != null &&
+    form.divId &&
+    form.deptId;
 
   return (
     <Modal
@@ -151,11 +175,11 @@ export function EmployeeModal({
       }
     >
       <div className="grid grid-cols-2 gap-4">
-        <Field label="NIP / Employee ID" required hint="e.g. EMP-2026-1042">
+        <Field label="NIP / Employee ID" required hint="Auto-generated">
           <input
             value={form.nip}
-            onChange={(e) => update({ nip: e.target.value.toUpperCase() })}
-            className={inp + ' tabular-nums'}
+            disabled
+            className={inp + ' tabular-nums opacity-60 cursor-not-allowed'}
           />
         </Field>
         <Field label="Full name" required>
@@ -177,92 +201,84 @@ export function EmployeeModal({
         </Field>
         <Field label="Org role" required>
           <select
-            value={form.orgRole}
-            onChange={(e) => update({ orgRole: e.target.value })}
+            value={form.jobTitleId ?? ''}
+            onChange={(e) => {
+              const jt = jobTitles.find((j) => j.id === Number(e.target.value));
+              update({
+                jobTitleId: jt?.id ?? null,
+                orgRole: jt?.code ?? 'STAFF',
+              });
+            }}
             className={inp}
           >
-            {ORG_ROLES.map((r) => (
-              <option key={r.value} value={r.value}>
-                {r.label}
+            <option value="">— Select role —</option>
+            {jobTitles.map((jt) => (
+              <option key={jt.id} value={jt.id}>
+                {jt.name}
               </option>
             ))}
           </select>
         </Field>
-        <Field
-          label="Department"
-          required
-          hint="Division updates automatically"
-        >
+        <Field label="Division" required>
           <select
-            value={form.dept}
-            onChange={(e) => onDeptChange(e.target.value)}
+            value={form.divId}
+            onChange={(e) => onDivisionChange(Number(e.target.value))}
             className={inp}
           >
-            {deptNames.map((d) => (
-              <option key={d} value={d}>
-                {d}
+            <option value="">— Select division —</option>
+            {divisions.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
               </option>
             ))}
           </select>
         </Field>
-        <Field label="Division">
-          <input
-            value={form.division}
-            disabled
-            className={
-              inp +
-              ' cursor-not-allowed bg-gray-50 text-gray-400 dark:bg-white/[0.02]'
-            }
-          />
+        <Field label="Department" required>
+          <select
+            value={form.deptId}
+            onChange={(e) => onDeptChange(Number(e.target.value))}
+            className={inp}
+          >
+            <option value="">— Select department —</option>
+            {depsForDiv.map((d) => (
+              <option key={d.id} value={d.id}>
+                {d.name}
+              </option>
+            ))}
+          </select>
         </Field>
         <Field label="Position" required>
           <select
-            value={form.position}
-            onChange={(e) => update({ position: e.target.value })}
+            value={form.posId ?? ''}
+            onChange={(e) =>
+              update({ posId: e.target.value ? Number(e.target.value) : null })
+            }
             className={inp}
           >
             <option value="">— Select position —</option>
             {positionsForDept.map((p) => (
-              <option key={p.id} value={p.title}>
+              <option key={p.id} value={p.id}>
                 {p.title}
               </option>
             ))}
-            {form.position &&
-              !positionsForDept.find((p) => p.title === form.position) && (
-                <option value={form.position}>{form.position}</option>
-              )}
           </select>
         </Field>
-        <Field label="Reports to">
+        <Field label="Squad">
           <select
-            value={form.manager ?? ''}
-            onChange={(e) => onManagerChange(e.target.value)}
+            value={form.squadId ?? ''}
+            onChange={(e) =>
+              onSquadChange(e.target.value ? Number(e.target.value) : null)
+            }
             className={inp}
           >
-            <option value="">— Select manager —</option>
-            {managers.map((m) => (
-              <option key={m} value={m}>
-                {m}
+            <option value="">— No squad —</option>
+            {squadsForDiv.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.name}
               </option>
             ))}
           </select>
         </Field>
-        {needsSquad && (
-          <Field label="Squad">
-            <select
-              value={form.squad ?? ''}
-              onChange={(e) => onSquadChange(e.target.value)}
-              className={inp}
-            >
-              <option value="">— No squad —</option>
-              {squadsForDept.map((s) => (
-                <option key={s.id} value={s.name}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-          </Field>
-        )}
         <Field label="Employment status">
           <select
             value={form.status}
@@ -295,15 +311,21 @@ export function EmployeeModal({
           <div className="grid grid-cols-3 gap-3">
             <Field label="Squad Leader (SL)">
               <select
-                value={form.reviewerSl ?? ''}
-                onChange={(e) => update({ reviewerSl: e.target.value || null })}
+                value={form.reviewerSlId ?? ''}
+                onChange={(e) =>
+                  update({
+                    reviewerSlId: e.target.value
+                      ? Number(e.target.value)
+                      : null,
+                  })
+                }
                 className={inp}
               >
                 <option value="">— Select —</option>
                 {employees
                   .filter((e) => e.name !== form.name)
                   .map((e) => (
-                    <option key={e.id} value={e.name}>
+                    <option key={e.id} value={e.id}>
                       {e.name}
                     </option>
                   ))}
@@ -311,9 +333,13 @@ export function EmployeeModal({
             </Field>
             <Field label="Head of Dept (HOD)">
               <select
-                value={form.reviewerHod ?? ''}
+                value={form.reviewerHodId ?? ''}
                 onChange={(e) =>
-                  update({ reviewerHod: e.target.value || null })
+                  update({
+                    reviewerHodId: e.target.value
+                      ? Number(e.target.value)
+                      : null,
+                  })
                 }
                 className={inp}
               >
@@ -321,7 +347,7 @@ export function EmployeeModal({
                 {employees
                   .filter((e) => e.name !== form.name)
                   .map((e) => (
-                    <option key={e.id} value={e.name}>
+                    <option key={e.id} value={e.id}>
                       {e.name}
                     </option>
                   ))}
@@ -329,9 +355,13 @@ export function EmployeeModal({
             </Field>
             <Field label="Head of Division (HODiv)">
               <select
-                value={form.reviewerHodiv ?? ''}
+                value={form.reviewerHodivId ?? ''}
                 onChange={(e) =>
-                  update({ reviewerHodiv: e.target.value || null })
+                  update({
+                    reviewerHodivId: e.target.value
+                      ? Number(e.target.value)
+                      : null,
+                  })
                 }
                 className={inp}
               >
@@ -339,7 +369,7 @@ export function EmployeeModal({
                 {employees
                   .filter((e) => e.name !== form.name)
                   .map((e) => (
-                    <option key={e.id} value={e.name}>
+                    <option key={e.id} value={e.id}>
                       {e.name}
                     </option>
                   ))}

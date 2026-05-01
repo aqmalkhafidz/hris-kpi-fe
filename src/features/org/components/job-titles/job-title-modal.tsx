@@ -1,5 +1,5 @@
 import { Modal } from '@shared/ui/modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { inp } from '../../constants';
 import type { JobTitle } from '../../types';
 import { Field } from '../shared/field';
@@ -19,22 +19,27 @@ export function JobTitleModal({
     code: '',
     name: '',
     level: '',
-    department: '',
+    deptId: 0,
     description: '',
     headcount: 0,
   };
-  const [form, setForm] = useState<Omit<JobTitle, 'id'>>(
-    initial
-      ? {
-          code: initial.code,
-          name: initial.name,
-          level: initial.level,
-          department: initial.department,
-          description: initial.description,
-          headcount: initial.headcount,
-        }
-      : blank
-  );
+  const [form, setForm] = useState<Omit<JobTitle, 'id'>>(blank);
+
+  useEffect(() => {
+    if (initial) {
+      setForm({
+        code: initial.code,
+        name: initial.name,
+        level: initial.level,
+        deptId: initial.deptId,
+        description: initial.description,
+        headcount: initial.headcount,
+      });
+    } else {
+      setForm(blank);
+    }
+  }, [initial, open]);
+
   const update = (p: Partial<typeof form>) => setForm((f) => ({ ...f, ...p }));
   return (
     <Modal
@@ -68,6 +73,19 @@ export function JobTitleModal({
             value={form.name}
             onChange={(e) => update({ name: e.target.value })}
             placeholder="Software Engineer"
+            className={inp}
+          />
+        </Field>
+        <Field
+          label="Code"
+          hint="Internal role code, e.g. staff / sl / hodept / hodiv / hr"
+        >
+          <input
+            value={form.code}
+            onChange={(e) =>
+              update({ code: e.target.value.toUpperCase().trim() })
+            }
+            placeholder="staff"
             className={inp}
           />
         </Field>

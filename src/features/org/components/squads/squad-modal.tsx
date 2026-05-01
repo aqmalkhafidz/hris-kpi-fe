@@ -1,5 +1,5 @@
 import { Modal } from '@shared/ui/modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { inp } from '../../constants';
 import type { Department, Division, Squad } from '../../types';
 import { Field } from '../shared/field';
@@ -22,45 +22,41 @@ export function SquadModal({
   const blank: Omit<Squad, 'id'> = {
     code: '',
     name: '',
-    division: divisions[0]?.name ?? '',
     divId: divisions[0]?.id ?? 0,
-    department: departments[0]?.name ?? '',
-    deptId: departments[0]?.id ?? 0,
+    deptId:
+      departments.find((d) => d.divId === (divisions[0]?.id ?? 0))?.id ?? 0,
     description: '',
   };
-  const [form, setForm] = useState<Omit<Squad, 'id'>>(
-    initial
-      ? {
-          code: initial.code,
-          name: initial.name,
-          division: initial.division,
-          divId: initial.divId,
-          department: initial.department,
-          deptId: initial.deptId,
-          description: initial.description,
-        }
-      : blank
-  );
+  const [form, setForm] = useState<Omit<Squad, 'id'>>(blank);
+
+  useEffect(() => {
+    if (initial) {
+      setForm({
+        code: initial.code,
+        name: initial.name,
+        divId: initial.divId,
+        deptId: initial.deptId,
+        description: initial.description,
+      });
+    } else {
+      setForm(blank);
+    }
+  }, [initial, open]);
+
   const update = (p: Partial<typeof form>) => setForm((f) => ({ ...f, ...p }));
 
-  const filteredDepts = departments.filter(
-    (d) => !form.division || d.division === form.division
-  );
+  const filteredDepts = departments.filter((d) => d.divId === form.divId);
 
-  const onDivChange = (name: string) => {
-    const div = divisions.find((d) => d.name === name);
-    const firstDept = departments.find((d) => d.division === name);
+  const onDivChange = (divId: number) => {
+    const firstDept = filteredDepts[0];
     update({
-      division: name,
-      divId: div?.id ?? 0,
-      department: firstDept?.name ?? '',
+      divId,
       deptId: firstDept?.id ?? 0,
     });
   };
 
-  const onDeptChange = (name: string) => {
-    const dept = departments.find((d) => d.name === name);
-    update({ department: name, deptId: dept?.id ?? 0 });
+  const onDeptChange = (deptId: number) => {
+    update({ deptId });
   };
 
   return (
@@ -111,12 +107,13 @@ export function SquadModal({
         </div>
         <Field label="Division" required>
           <select
-            value={form.division}
-            onChange={(e) => onDivChange(e.target.value)}
+            value={form.divId}
+            onChange={(e) => onDivChange(Number(e.target.value))}
             className={inp}
           >
+            <option value="">— Select division —</option>
             {divisions.map((d) => (
-              <option key={d.id} value={d.name}>
+              <option key={d.id} value={d.id}>
                 {d.name}
               </option>
             ))}
@@ -124,12 +121,13 @@ export function SquadModal({
         </Field>
         <Field label="Department" required>
           <select
-            value={form.department}
-            onChange={(e) => onDeptChange(e.target.value)}
+            value={form.deptId}
+            onChange={(e) => onDeptChange(Number(e.target.value))}
             className={inp}
           >
+            <option value="">— Select department —</option>
             {filteredDepts.map((d) => (
-              <option key={d.id} value={d.name}>
+              <option key={d.id} value={d.id}>
                 {d.name}
               </option>
             ))}

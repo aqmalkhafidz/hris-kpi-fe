@@ -15,7 +15,7 @@ export function TabStrip({
         <button
           key={t.id}
           onClick={() => onChange(t.id)}
-          className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-colors ${
+          className={`flex items-center gap-1.5 rounded-lg px-3.5 py-1.5 text-sm font-medium transition-all duration-200 ease-out ${
             value === t.id
               ? 'bg-brand-500 text-white shadow-sm'
               : 'text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white'
@@ -23,7 +23,7 @@ export function TabStrip({
         >
           {t.label}
           <span
-            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+            className={`rounded px-1.5 py-0.5 text-[10px] font-semibold transition-all duration-200 ease-out ${
               value === t.id
                 ? 'bg-white/20 text-white'
                 : 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'

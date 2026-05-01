@@ -1,5 +1,5 @@
 import { Modal } from '@shared/ui/modal';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { inp } from '../../constants';
 import type { Division } from '../../types';
 import { Field } from '../shared/field';
@@ -18,23 +18,24 @@ export function DivisionModal({
   const blank: Omit<Division, 'id'> = {
     code: '',
     name: '',
-    head: '',
-    headId: 0,
     headcount: 0,
     departments: [],
   };
-  const [form, setForm] = useState<Omit<Division, 'id'>>(
-    initial
-      ? {
-          code: initial.code ?? '',
-          name: initial.name,
-          head: initial.head,
-          headId: initial.headId,
-          headcount: initial.headcount,
-          departments: [...initial.departments],
-        }
-      : blank
-  );
+  const [form, setForm] = useState<Omit<Division, 'id'>>(blank);
+
+  useEffect(() => {
+    if (initial) {
+      setForm({
+        code: initial.code ?? '',
+        name: initial.name,
+        headcount: initial.headcount ?? 0,
+        departments: [...(initial.departments ?? [])],
+      });
+    } else {
+      setForm(blank);
+    }
+  }, [initial, open]);
+
   const update = (p: Partial<typeof form>) => setForm((f) => ({ ...f, ...p }));
   return (
     <Modal
