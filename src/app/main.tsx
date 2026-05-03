@@ -1,5 +1,5 @@
 import { AuthProvider, useAuth } from '@features/auth/context/auth-context';
-import { ApiError, clearAuthSession, getToken } from '@shared/api/client';
+import { ApiError, clearAuthSession } from '@shared/api/client';
 import { applyTheme, getInitialTheme } from '@shared/lib/theme';
 import {
   MutationCache,
@@ -17,8 +17,7 @@ import '../styles/friendly.css';
 applyTheme(getInitialTheme());
 
 function handleUnauthorized(error: unknown) {
-  if (!(error instanceof ApiError) || error.status !== 401 || !getToken())
-    return;
+  if (!(error instanceof ApiError) || error.status !== 401) return;
   clearAuthSession();
   if (window.location.pathname !== '/login') {
     window.location.assign('/login');

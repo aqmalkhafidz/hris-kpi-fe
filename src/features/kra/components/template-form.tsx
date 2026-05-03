@@ -1,7 +1,11 @@
 import { useState, useMemo, useEffect } from 'react';
+import {
+  useDivisions,
+  useDepartments,
+  usePositions,
+} from '../../org/hooks/use-org';
 import { inputCls } from '../constants';
 import type { KraTemplateV2, TemplateStatus } from '../types';
-import { useDivisions, useDepartments, usePositions } from '../../org/hooks/use-org';
 
 export type TplFormData = {
   name: string;
@@ -60,14 +64,15 @@ export function TemplateForm({
   // Auto-fill template name from position title if empty or just changed position
   useEffect(() => {
     if (!initial && form.posId) {
-      const pos = positions.find(p => p.id === form.posId);
-      if (pos && (!form.name || positions.some(p => p.title === form.name))) {
+      const pos = positions.find((p) => p.id === form.posId);
+      if (pos && (!form.name || positions.some((p) => p.title === form.name))) {
         up({ name: pos.title });
       }
     }
   }, [form.posId, positions, initial]);
 
-  const valid = form.name.trim() && form.divId > 0 && form.deptId > 0 && form.posId > 0;
+  const valid =
+    form.name.trim() && form.divId > 0 && form.deptId > 0 && form.posId > 0;
 
   return (
     <div className="space-y-6">
@@ -79,7 +84,9 @@ export function TemplateForm({
             </label>
             <select
               value={form.divId}
-              onChange={(e) => up({ divId: Number(e.target.value), deptId: 0, posId: 0 })}
+              onChange={(e) =>
+                up({ divId: Number(e.target.value), deptId: 0, posId: 0 })
+              }
               className={inputCls}
             >
               <option value={0}>Select Division</option>

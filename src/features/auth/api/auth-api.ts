@@ -1,12 +1,11 @@
-import { api, clearAuthSession, setToken } from '@shared/api/client';
+import { api, clearAuthSession } from '@shared/api/client';
 import type { AppUser } from '../types';
 
 export async function loginWithPassword(email: string, password: string) {
-  const result = await api<{ token: string; user: AppUser }>('/auth/login', {
+  const result = await api<{ user: AppUser }>('/auth/login', {
     method: 'POST',
     body: JSON.stringify({ email, password }),
   });
-  setToken(result.token);
   return result.user;
 }
 

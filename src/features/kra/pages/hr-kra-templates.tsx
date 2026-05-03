@@ -1,6 +1,12 @@
 import { Icon } from '@shared/layouts/icon';
 import { PageShell } from '@shared/layouts/page-shell';
+import { Modal } from '@shared/ui/modal';
 import { useMemo, useState } from 'react';
+import {
+  useDivisions,
+  useDepartments,
+  usePositions,
+} from '../../org/hooks/use-org';
 import { KraItemForm, type KraFormData } from '../components/kra-item-form';
 import { TemplateCard } from '../components/template-card';
 import { TemplateDetail } from '../components/template-detail';
@@ -12,8 +18,6 @@ import {
   useUpsertKraTemplate,
 } from '../hooks/use-kra-templates';
 import type { KraItem, KraTemplateV2, TemplateStatus } from '../types';
-import { useDivisions, useDepartments, usePositions } from '../../org/hooks/use-org';
-import { Modal } from '@shared/ui/modal';
 
 export function HrKraTemplatesPage() {
   const { data: templates = [] } = useKraTemplates();
@@ -34,16 +38,22 @@ export function HrKraTemplatesPage() {
     () =>
       templates.filter((t) => {
         if (filter !== 'all' && t.status !== filter) return false;
-        
+
         if (search) {
-          const divName = divisions.find(d => d.id === t.divId)?.name ?? '';
-          const deptName = departments.find(d => d.id === t.deptId)?.name ?? '';
-          const posTitle = positions.find(p => p.id === t.posId)?.title ?? '';
-          
-          const searchStr = (t.name + divName + deptName + posTitle).toLowerCase();
+          const divName = divisions.find((d) => d.id === t.divId)?.name ?? '';
+          const deptName =
+            departments.find((d) => d.id === t.deptId)?.name ?? '';
+          const posTitle = positions.find((p) => p.id === t.posId)?.title ?? '';
+
+          const searchStr = (
+            t.name +
+            divName +
+            deptName +
+            posTitle
+          ).toLowerCase();
           if (!searchStr.includes(search.toLowerCase())) return false;
         }
-        
+
         return true;
       }),
     [templates, filter, search, divisions, departments, positions]
@@ -139,10 +149,10 @@ export function HrKraTemplatesPage() {
     ? (active?.items.find((it) => it.code === kraCode) ?? null)
     : null;
   const otherWeight = kraCode
-    ? active?.items
+    ? (active?.items
         .filter((it) => it.code !== kraCode)
-        .reduce((s, i) => s + i.weight, 0) ?? 0
-    : active?.items.reduce((s, i) => s + i.weight, 0) ?? 0;
+        .reduce((s, i) => s + i.weight, 0) ?? 0)
+    : (active?.items.reduce((s, i) => s + i.weight, 0) ?? 0);
 
   return (
     <PageShell>
@@ -254,7 +264,9 @@ export function HrKraTemplatesPage() {
 
       <Modal
         open={view.mode === 'add-kra' || view.mode === 'edit-kra'}
-        title={view.mode === 'edit-kra' ? `Edit KRA · ${kraCode}` : 'Add KRA Item'}
+        title={
+          view.mode === 'edit-kra' ? `Edit KRA · ${kraCode}` : 'Add KRA Item'
+        }
         onClose={() => setView({ mode: 'list' })}
         maxWidth="max-w-xl"
       >

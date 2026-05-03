@@ -1,12 +1,12 @@
 import { Icon } from '@shared/layouts/icon';
-import type { KraTemplateV2 } from '../types';
-import { StatusBadge } from './status-badge';
-import { WeightStack } from './weight-stack';
 import {
   useDivisions,
   useDepartments,
   usePositions,
 } from '../../org/hooks/use-org';
+import type { KraTemplateV2 } from '../types';
+import { StatusBadge } from './status-badge';
+import { WeightStack } from './weight-stack';
 
 export function TemplateDetail({
   t,
