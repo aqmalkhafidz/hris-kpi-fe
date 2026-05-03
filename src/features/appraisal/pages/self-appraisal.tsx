@@ -25,6 +25,38 @@ import {
   useSubmitAppraisal,
 } from '../hooks/use-appraisal';
 
+function ReviewerAvatar({
+  initials,
+  name,
+  tone,
+  align = 'center',
+}: {
+  initials: string;
+  name: string;
+  tone: 'brand' | 'success' | 'warning';
+  align?: 'left' | 'center' | 'right';
+}) {
+  const tooltipAlignClass =
+    align === 'left'
+      ? 'left-0'
+      : align === 'right'
+        ? 'right-0'
+        : 'left-1/2 -translate-x-1/2';
+
+  return (
+    <div className="group relative">
+      <div className="cursor-help" title={name}>
+        <Avatar initials={initials} size="sm" tone={tone} />
+      </div>
+      <div
+        className={`pointer-events-none absolute top-full z-10 mt-2 max-w-44 rounded-md border border-gray-200 bg-white px-2 py-1 text-center text-[11px] font-medium text-gray-700 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200 ${tooltipAlignClass}`}
+      >
+        {name}
+      </div>
+    </div>
+  );
+}
+
 export function SelfAppraisalPage() {
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -107,6 +139,7 @@ export function SelfAppraisalPage() {
         reflection: currentReflection,
         submittedAt: 'Today',
       },
+      showSuccessToast: false,
     });
     await advanceMut.mutateAsync({
       appraisalId: appraisal.id,
@@ -181,22 +214,24 @@ export function SelfAppraisalPage() {
                 Reviewer chain
               </p>
               <div className="mt-1 flex items-center gap-2">
-                <Avatar
+                <ReviewerAvatar
                   initials={appraisal.reviewers.sl.initials}
-                  size="sm"
+                  name={appraisal.reviewers.sl.name}
                   tone="brand"
+                  align="left"
                 />
                 <span className="text-gray-400">{Icon.chev}</span>
-                <Avatar
+                <ReviewerAvatar
                   initials={appraisal.reviewers.hod.initials}
-                  size="sm"
+                  name={appraisal.reviewers.hod.name}
                   tone="success"
                 />
                 <span className="text-gray-400">{Icon.chev}</span>
-                <Avatar
+                <ReviewerAvatar
                   initials={appraisal.reviewers.hodiv.initials}
-                  size="sm"
+                  name={appraisal.reviewers.hodiv.name}
                   tone="warning"
+                  align="right"
                 />
               </div>
             </div>
@@ -323,7 +358,7 @@ export function SelfAppraisalPage() {
           </SectionCard>
 
           <SectionCard title="History">
-            <AuditTimeline entries={appraisal.audit_log} />
+            <AuditTimeline entries={appraisal.audit_log} compact maxItems={4} />
           </SectionCard>
         </aside>
 

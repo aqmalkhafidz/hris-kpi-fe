@@ -51,13 +51,19 @@ export function useSubmitAppraisal() {
     mutationFn: ({
       appraisalId,
       updates,
+      showSuccessToast = true,
     }: {
       appraisalId: number;
       updates: Partial<Appraisal>;
-    }) => appraisalApi.update(appraisalId, updates),
-    onSuccess: (data) => {
+      showSuccessToast?: boolean;
+    }) =>
+      appraisalApi.update(appraisalId, updates).then((data) => ({
+        data,
+        showSuccessToast,
+      })),
+    onSuccess: ({ data, showSuccessToast }) => {
       invalidateAppraisal(qc, data);
-      toast.success('Data berhasil disimpan');
+      if (showSuccessToast) toast.success('Data berhasil disimpan');
     },
     onError: () => toast.error('Gagal menyimpan data'),
   });
@@ -91,18 +97,5 @@ export function useReturnAppraisal() {
       toast.success('Appraisal berhasil dikembalikan');
     },
     onError: () => toast.error('Gagal mengembalikan appraisal'),
-  });
-}
-
-export function useAcknowledgeAppraisal() {
-  const qc = useQueryClient();
-  return useMutation({
-    mutationFn: ({ appraisalId }: { appraisalId: number }) =>
-      appraisalApi.acknowledge(appraisalId),
-    onSuccess: (data) => {
-      invalidateAppraisal(qc, data);
-      toast.success('Appraisal berhasil diakui');
-    },
-    onError: () => toast.error('Gagal mengakui appraisal'),
   });
 }

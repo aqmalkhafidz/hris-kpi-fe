@@ -17,6 +17,12 @@ export interface KraTemplateV2 {
   status: TemplateStatus;
   updated: string;
   usedBy: number;
+  usage: {
+    usedInCycles: number;
+    totalEmployees: number;
+    lastUsedCycle: string | null;
+    lastUsedEmployeeCount: number;
+  };
   summary: string;
   items: KraItem[];
 }

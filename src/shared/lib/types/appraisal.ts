@@ -10,7 +10,7 @@ export type AppraisalStatus =
 
 export type ReviewerRole = 'sl' | 'hod' | 'hodiv';
 
-export type AuditAction = 'submit' | 'approve' | 'return' | 'acknowledge';
+export type AuditAction = 'submit' | 'approve' | 'return';
 
 export interface Evidence {
   kind: 'url' | 'file';
@@ -52,6 +52,11 @@ export interface AuditEntry {
 export interface Appraisal {
   id: number;
   userId: number;
+  owner: {
+    userId: number;
+    name: string;
+    initials: string;
+  };
   cycleName: string;
   cycleShort: string;
   cycleStartDate: string | null;

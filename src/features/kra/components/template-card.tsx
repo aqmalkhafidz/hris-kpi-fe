@@ -11,10 +11,15 @@ export function TemplateCard({
   t,
   active,
   onClick,
+  versionMeta,
 }: {
   t: KraTemplateV2;
   active: boolean;
   onClick: () => void;
+  versionMeta?: {
+    totalVersions: number;
+    hiddenVersions: number;
+  };
 }) {
   const { data: divisions = [] } = useDivisions();
   const { data: departments = [] } = useDepartments();
@@ -49,6 +54,19 @@ export function TemplateCard({
         </div>
         <StatusBadge status={t.status} />
       </div>
+      <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+        <span className="rounded-md bg-gray-100 px-2 py-0.5 font-semibold text-gray-700 dark:bg-gray-800 dark:text-gray-200">
+          {t.version}
+        </span>
+        {versionMeta && versionMeta.totalVersions > 1 && (
+          <span>
+            {versionMeta.totalVersions} versions
+            {versionMeta.hiddenVersions > 0
+              ? ` · ${versionMeta.hiddenVersions} hidden`
+              : ''}
+          </span>
+        )}
+      </div>
       <p className="mt-3 line-clamp-2 text-xs text-gray-500 dark:text-gray-400">
         {t.summary}
       </p>
@@ -63,12 +81,23 @@ export function TemplateCard({
           </strong>{' '}
           KRAs
         </span>
+      </div>
+      <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[11px] text-gray-500 dark:text-gray-400">
+        <span>
+          Used in{' '}
+          <strong className="font-semibold tabular-nums text-gray-700 dark:text-gray-200">
+            {t.usage.usedInCycles}
+          </strong>{' '}
+          cycles
+        </span>
         <span>·</span>
         <span>
-          used by{' '}
           <strong className="font-semibold tabular-nums text-gray-700 dark:text-gray-200">
-            {t.usedBy}
+            {t.usage.lastUsedEmployeeCount}
           </strong>
+          <span className="ml-1">
+            employees in {t.usage.lastUsedCycle ?? 'no cycle yet'}
+          </span>
         </span>
       </div>
     </button>

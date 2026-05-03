@@ -1,5 +1,6 @@
 import { useAuth } from '@features/auth/context/auth-context';
 import type { UserRole } from '@features/auth/types';
+import { useReviewQueue } from '@features/review/hooks/use-reviews';
 import { Badge } from '@shared/ui/badge';
 import { Link, LinkProps, useRouterState } from '@tanstack/react-router';
 import { ReactNode } from 'react';
@@ -49,34 +50,14 @@ const GROUPS: SidebarGroup[] = [
         label: 'Self-Appraisal',
         icon: Icon.target,
         link: { to: '/self-appraisal' },
-        roles: ['staff', 'sl'],
+        roles: ['staff'],
       },
       {
-        id: 'team-reviews-sl',
-        label: 'Team Reviews',
+        id: 'reviews',
+        label: 'Reviews',
         icon: Icon.team,
-        link: { to: '/review/sl/$appraisalId', params: { appraisalId: '3' } },
-        badge: '2',
-        roles: ['sl'],
-      },
-      {
-        id: 'team-reviews-hodept',
-        label: 'Team Reviews',
-        icon: Icon.team,
-        link: { to: '/review/hod/$appraisalId', params: { appraisalId: '1' } },
-        badge: '2',
-        roles: ['hodept'],
-      },
-      {
-        id: 'team-reviews-hodiv',
-        label: 'Team Reviews',
-        icon: Icon.team,
-        link: {
-          to: '/review/hodiv/$appraisalId',
-          params: { appraisalId: '1' },
-        },
-        badge: '2',
-        roles: ['hodiv'],
+        link: { to: '/reviews' },
+        roles: ['sl', 'hodept', 'hodiv'],
       },
       {
         id: 'history',
@@ -137,7 +118,31 @@ export function AppSidebar({
   const { location } = useRouterState();
   const path = location.pathname;
   const { user } = useAuth();
+  const reviewRole = !user
+    ? null
+    : user.role === 'sl'
+      ? 'sl'
+      : user.role === 'hodept'
+        ? 'hod'
+        : user.role === 'hodiv'
+          ? 'hodiv'
+          : null;
+  const { data: reviewQueue = [] } = useReviewQueue(
+    reviewRole && user ? user.id : null,
+    reviewRole ?? 'sl'
+  );
   if (!user) return null;
+  const pendingStatus =
+    reviewRole === 'sl'
+      ? 'sl_review'
+      : reviewRole === 'hod'
+        ? 'hod_review'
+        : reviewRole === 'hodiv'
+          ? 'hodiv_review'
+          : null;
+  const pendingCount = pendingStatus
+    ? reviewQueue.filter((a) => a.status === pendingStatus).length
+    : 0;
 
   const isHr = user.role === 'hr';
   const homeLink: LinkProps = isHr
@@ -145,7 +150,14 @@ export function AppSidebar({
     : { to: '/dashboard' };
   const visibleGroups = GROUPS.map((group) => ({
     ...group,
-    items: group.items.filter((item) => item.roles.includes(user.role)),
+    items: group.items
+      .filter((item) => item.roles.includes(user.role))
+      .map((item) => {
+        if (item.id === 'reviews' && pendingCount > 0) {
+          return { ...item, badge: String(pendingCount) };
+        }
+        return item;
+      }),
   })).filter((group) => group.items.length > 0);
 
   return (

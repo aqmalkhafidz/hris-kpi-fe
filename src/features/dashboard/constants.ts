@@ -3,7 +3,6 @@ export const STATUS_FLOW = [
   { key: 'sl_review', label: 'SL Review', actor: 'Squad Leader' },
   { key: 'hod_review', label: 'HoD Review', actor: 'Head of Dept' },
   { key: 'hodiv_review', label: 'HoDiv Review', actor: 'Head of Div' },
-  { key: 'acknowledge', label: 'Acknowledge', actor: 'You' },
   { key: 'completed', label: 'Completed', actor: 'HR' },
 ] as const;
 
@@ -15,8 +14,6 @@ export const STATUS_BADGE: Record<string, string> = {
     'bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-400',
   hodiv_review:
     'bg-warning-50 text-warning-700 dark:bg-warning-500/10 dark:text-warning-400',
-  acknowledge:
-    'bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-300',
   completed:
     'bg-success-50 text-success-700 dark:bg-success-500/10 dark:text-success-400',
 };

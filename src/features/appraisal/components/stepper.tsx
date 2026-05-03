@@ -6,7 +6,6 @@ const steps: { id: AppraisalStatus; label: string }[] = [
   { id: 'sl_review', label: 'SL' },
   { id: 'hod_review', label: 'HoD' },
   { id: 'hodiv_review', label: 'HoDiv' },
-  { id: 'acknowledge', label: 'Acknowledge' },
   { id: 'completed', label: 'Completed' },
 ];
 

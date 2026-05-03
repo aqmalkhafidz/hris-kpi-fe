@@ -1,5 +1,6 @@
 import { api } from '@shared/api/client';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import type { Cycle, DistEmployee, DistTemplate } from '../types';
 
 export const cyclesKeys = {
@@ -13,8 +14,6 @@ export function useCycles() {
     queryFn: () => api<Cycle[]>('/cycles'),
   });
 }
-
-import { toast } from 'sonner';
 
 export function useUpsertCycle() {
   const qc = useQueryClient();

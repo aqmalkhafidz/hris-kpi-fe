@@ -6,10 +6,12 @@ export function KRARow({
   kra,
   expanded,
   onToggle,
+  canEditSelfAppraisal = true,
 }: {
   kra: Appraisal['kras'][number];
   expanded: boolean;
   onToggle: () => void;
+  canEditSelfAppraisal?: boolean;
 }) {
   const filled = kra.self_score > 0;
   const pct = filled ? (kra.self_score / 5) * 100 : 0;
@@ -100,14 +102,16 @@ export function KRARow({
                   </p>
                 </>
               )}
-              <div className="mt-4">
-                <Link
-                  to="/self-appraisal"
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-600"
-                >
-                  {filled ? 'Edit in self-appraisal' : 'Score & comment'}
-                </Link>
-              </div>
+              {canEditSelfAppraisal && (
+                <div className="mt-4">
+                  <Link
+                    to="/self-appraisal"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-600"
+                  >
+                    {filled ? 'Edit in self-appraisal' : 'Score & comment'}
+                  </Link>
+                </div>
+              )}
             </div>
             <div className="rounded-xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
               <p className="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400">

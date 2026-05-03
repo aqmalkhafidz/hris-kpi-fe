@@ -60,7 +60,7 @@ export function statusLabel(status: string): string {
     sl_review: 'SL Review',
     hod_review: 'HoD Review',
     hodiv_review: 'HoDiv Review',
-    acknowledge: 'Pending Acknowledge',
+    acknowledge: 'Awaiting Ack',
     completed: 'Completed',
   };
   return map[status] ?? status;

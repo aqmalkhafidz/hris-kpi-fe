@@ -1,5 +1,5 @@
 import { MyAccountPage } from '@features/account/pages/my-account';
-import { AcknowledgePage } from '@features/appraisal/pages/acknowledge';
+import { HistoryAppraisalDetailPage } from '@features/appraisal/pages/history-appraisal-detail';
 import { HistoryAppraisalPage } from '@features/appraisal/pages/history-appraisal';
 import { SelfAppraisalPage } from '@features/appraisal/pages/self-appraisal';
 import { AuthState } from '@features/auth/context/auth-context';
@@ -14,9 +14,12 @@ import { HrDashboardPage } from '@features/dashboard/pages/hr-dashboard';
 import { HrKraTemplatesPage } from '@features/kra/pages/hr-kra-templates';
 import { HrOrganizationPage } from '@features/org/pages/hr-organization';
 import { HrReportsPage } from '@features/reports/pages/hr-reports';
-import { HodReviewPage } from '@features/review/pages/review-hod';
-import { HodivReviewPage } from '@features/review/pages/review-hodiv';
-import { SlReviewPage } from '@features/review/pages/review-sl';
+import {
+  HodReviewPage,
+  HodivReviewPage,
+  SlReviewPage,
+} from '@features/review/pages/review-page';
+import { ReviewQueuePage } from '@features/review/pages/review-queue';
 import { AppLayout } from '@shared/layouts/app-layout';
 import {
   createRouter,
@@ -83,7 +86,7 @@ const selfAppraisalRoute = createRoute({
   component: SelfAppraisalPage,
   beforeLoad: ({ context }) => {
     const role = context.auth.user?.role;
-    if (role !== 'staff' && role !== 'sl') throw redirect({ to: '/dashboard' });
+    if (role !== 'staff') throw redirect({ to: '/dashboard' });
   },
 });
 
@@ -93,6 +96,12 @@ const historyAppraisalRoute = createRoute({
   component: HistoryAppraisalPage,
 });
 
+const historyAppraisalDetailRoute = createRoute({
+  getParentRoute: () => employeeLayoutRoute,
+  path: '/history-appraisal/$appraisalId',
+  component: HistoryAppraisalDetailPage,
+});
+
 const myAccountRoute = createRoute({
   getParentRoute: () => employeeLayoutRoute,
   path: '/my-account',
@@ -100,6 +109,17 @@ const myAccountRoute = createRoute({
 });
 
 // ─── Review routes ───
+const reviewQueueRoute = createRoute({
+  getParentRoute: () => employeeLayoutRoute,
+  path: '/reviews',
+  component: ReviewQueuePage,
+  beforeLoad: ({ context }) => {
+    const role = context.auth.user?.role;
+    if (role !== 'sl' && role !== 'hodept' && role !== 'hodiv')
+      throw redirect({ to: '/dashboard' });
+  },
+});
+
 const slReviewRoute = createRoute({
   getParentRoute: () => employeeLayoutRoute,
   path: '/review/sl/$appraisalId',
@@ -129,12 +149,6 @@ const hodivReviewRoute = createRoute({
     const role = context.auth.user?.role;
     if (role !== 'hodiv' && role !== 'hr') throw redirect({ to: '/dashboard' });
   },
-});
-
-const acknowledgeRoute = createRoute({
-  getParentRoute: () => employeeLayoutRoute,
-  path: '/acknowledge/$appraisalId',
-  component: AcknowledgePage,
 });
 
 // ─── HR layout + routes ───
@@ -206,11 +220,12 @@ const routeTree = rootRoute.addChildren([
       dashboardRoute,
       selfAppraisalRoute,
       historyAppraisalRoute,
+      historyAppraisalDetailRoute,
       myAccountRoute,
+      reviewQueueRoute,
       slReviewRoute,
       hodReviewRoute,
       hodivReviewRoute,
-      acknowledgeRoute,
     ]),
     hrLayoutRoute.addChildren([
       hrDashboardRoute,

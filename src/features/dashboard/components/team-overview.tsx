@@ -8,6 +8,11 @@ export type ReviewItem = {
   id: number;
   cycleName: string;
   userId: number;
+  owner?: {
+    userId: number;
+    name: string;
+    initials: string;
+  };
   status: string;
   reviewRole: 'sl' | 'hod' | 'hodiv';
 };
@@ -30,9 +35,7 @@ export function TeamOverview({
   const inReview = items.filter((r) =>
     ['sl_review', 'hod_review', 'hodiv_review'].includes(r.status)
   );
-  const done = items.filter((r) =>
-    ['completed', 'acknowledge'].includes(r.status)
-  );
+  const done = items.filter((r) => r.status === 'completed');
 
   const stats = [
     { label: 'Total team', val: items.length, color: '#94a3b8' },
@@ -141,12 +144,12 @@ export function TeamOverview({
                       <td className="px-5 py-3">
                         <div className="flex items-center gap-3">
                           <Avatar
-                            initials={`U${r.userId}`}
+                            initials={r.owner?.initials ?? `U${r.userId}`}
                             tone="brand"
                             size="sm"
                           />
                           <p className="font-semibold text-gray-800 dark:text-white/90">
-                            {r.userId}
+                            {r.owner?.name ?? `User #${r.userId}`}
                           </p>
                         </div>
                       </td>

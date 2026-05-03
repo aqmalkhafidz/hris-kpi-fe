@@ -50,8 +50,8 @@ export async function updateContactApi(patch: ContactPatch) {
 }
 
 export async function logoutApi() {
-  clearAuthSession();
-  return api<{ ok: boolean }>('/auth/logout', { method: 'POST' }).catch(() => ({
+  await api<{ ok: boolean }>('/auth/logout', { method: 'POST' }).catch(() => ({
     ok: true,
   }));
+  clearAuthSession();
 }

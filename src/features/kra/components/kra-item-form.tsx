@@ -12,13 +12,11 @@ export type KraFormData = {
 export function KraItemForm({
   initial,
   otherWeight,
-  templateName,
   onSave,
   onCancel,
 }: {
   initial: KraItem | null;
   otherWeight: number;
-  templateName: string;
   onSave: (d: KraFormData) => void;
   onCancel: () => void;
 }) {

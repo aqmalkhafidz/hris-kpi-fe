@@ -8,7 +8,7 @@ export interface AuthState {
   user: AppUser | null;
   loading: boolean;
   login: (email: string, password: string) => Promise<AppUser>;
-  logout: () => void;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -19,7 +19,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(
     () =>
       onAuthCleared(() => {
-        queryClient.removeQueries({ queryKey: ['me'] });
+        queryClient.cancelQueries({ queryKey: ['me'] });
+        queryClient.setQueryData(['me'], null);
       }),
     [queryClient]
   );
@@ -41,9 +42,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return fullProfile;
   };
 
-  const logout = () => {
-    logoutApi();
-    queryClient.removeQueries({ queryKey: ['me'] });
+  const logout = async () => {
+    await logoutApi();
+    queryClient.setQueryData(['me'], null);
   };
 
   return (

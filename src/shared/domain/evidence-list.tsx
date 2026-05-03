@@ -4,22 +4,47 @@ import { Evidence } from '@shared/lib/types/appraisal';
 
 export type EvidenceItem = Evidence;
 
+function canOpenInBrowser(mimeType: string | null, fileName: string): boolean {
+  if (mimeType) {
+    if (mimeType.startsWith('image/')) return true;
+    if (mimeType.startsWith('text/')) return true;
+    if (mimeType === 'application/pdf') return true;
+    if (mimeType === 'application/json') return true;
+    if (mimeType === 'application/xml' || mimeType === 'text/xml') return true;
+    return false;
+  }
+
+  const lower = fileName.toLowerCase();
+  return (
+    lower.endsWith('.pdf') ||
+    lower.endsWith('.png') ||
+    lower.endsWith('.jpg') ||
+    lower.endsWith('.jpeg') ||
+    lower.endsWith('.gif') ||
+    lower.endsWith('.txt') ||
+    lower.endsWith('.md') ||
+    lower.endsWith('.json') ||
+    lower.endsWith('.xml')
+  );
+}
+
 function FileEvidence({ item }: { item: Evidence }) {
   const { src, mimeType, loading } = useProtectedObjectUrl(item.url ?? null);
   const isImage = Boolean(src && mimeType?.startsWith('image/'));
   const isPdf = Boolean(src && mimeType === 'application/pdf');
+  const openable = canOpenInBrowser(mimeType, item.name);
 
   return (
     <>
       {src && (
         <a
           href={src}
-          download={item.name}
           target="_blank"
           rel="noreferrer"
           className="mt-0.5 block truncate text-xs font-medium text-blue-600 hover:underline dark:text-blue-300"
+          {...(openable ? {} : { download: item.name })}
         >
-          Open file
+          {openable ? 'Open file' : 'Download file'}
         </a>
       )}
       {loading && (
@@ -58,7 +83,7 @@ export function EvidenceList({
       {items.map((item, index) => (
         <div
           key={`${item.name}-${index}`}
-          className="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-3 py-2.5 dark:border-gray-800 dark:bg-white/[0.03]"
+          className="flex items-start gap-3 rounded-xl border border-gray-100 bg-white px-3 py-2.5 shadow-sm dark:border-gray-800 dark:bg-white/[0.06]"
         >
           <span
             className={`mt-0.5 ${item.kind === 'url' ? 'text-blue-600 dark:text-blue-300' : 'text-brand-600 dark:text-brand-300'}`}

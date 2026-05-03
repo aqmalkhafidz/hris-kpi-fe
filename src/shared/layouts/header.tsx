@@ -21,10 +21,10 @@ export function Header({ onMenuClick }: HeaderProps = {}) {
   const [theme, setTheme] = useState<ThemeMode>(() => getInitialTheme());
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     setMenuOpen(false);
-    logout();
-    navigate({ to: '/login' });
+    await logout();
+    navigate({ to: '/login', replace: true });
   };
 
   const handleThemeToggle = () => {

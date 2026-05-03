@@ -87,13 +87,15 @@ export function TemplateDetail({
         </div>
         <div>
           <p className="text-[11px] uppercase tracking-wider text-gray-500 dark:text-gray-400">
-            Used by
-          </p>
-          <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
-            {t.usedBy} employees
+            Usage
           </p>
           <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            In the active Q1 2026 cycle
+            Used in {t.usage.usedInCycles} cycles
+          </p>
+          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+            {t.usage.lastUsedCycle
+              ? `${t.usage.lastUsedEmployeeCount} employees in ${t.usage.lastUsedCycle}`
+              : 'Belum pernah dipakai di cycle'}
           </p>
         </div>
         <div>

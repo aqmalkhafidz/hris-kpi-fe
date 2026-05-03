@@ -34,8 +34,17 @@ export function DashboardPage() {
   const appraisal = appraisals?.[0];
   const canReview =
     user?.role === 'sl' || user?.role === 'hodept' || user?.role === 'hodiv';
+  const isStaff = user?.role === 'staff';
   const firstName = user?.name.split(' ')[0] ?? 'there';
   const status = appraisal?.status ?? 'draft';
+  const canOpenSelfAppraisal =
+    isStaff && status === 'draft' && Boolean(appraisal);
+
+  const pendingReviewCount = [
+    ...(slQueue ?? []).filter((a) => a.status === 'sl_review'),
+    ...(hodQueue ?? []).filter((a) => a.status === 'hod_review'),
+    ...(hodivQueue ?? []).filter((a) => a.status === 'hodiv_review'),
+  ].length;
 
   const weighted = appraisal ? weightedScore(appraisal) : 0;
   const evidenceCount =
@@ -82,20 +91,80 @@ export function DashboardPage() {
             )}
           </p>
         </div>
-        <Link
-          to="/self-appraisal"
-          className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600"
-        >
-          {Icon.doc}
-          <span>Open self-appraisal</span>
-        </Link>
+        {canOpenSelfAppraisal && (
+          <Link
+            to="/self-appraisal"
+            className="inline-flex items-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600"
+          >
+            {Icon.doc}
+            <span>Open self-appraisal</span>
+          </Link>
+        )}
       </div>
 
-      {isLoading ? (
+      {canReview && (
+        <div
+          className={`rounded-2xl border px-5 py-4 ${
+            pendingReviewCount > 0
+              ? 'border-warning-200 bg-warning-50 dark:border-warning-800/50 dark:bg-warning-500/10'
+              : 'border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.02]'
+          }`}
+        >
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+            <div className="flex items-start gap-3">
+              <div
+                className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-white ${
+                  pendingReviewCount > 0 ? 'bg-warning-500' : 'bg-gray-400'
+                }`}
+              >
+                {Icon.team}
+              </div>
+              <div>
+                <h3
+                  className={`text-sm font-semibold ${
+                    pendingReviewCount > 0
+                      ? 'text-warning-800 dark:text-warning-300'
+                      : 'text-gray-800 dark:text-gray-200'
+                  }`}
+                >
+                  {pendingReviewCount > 0
+                    ? `Action required · ${pendingReviewCount} ${pendingReviewCount === 1 ? 'member' : 'members'} need your review`
+                    : 'No reviews waiting on you right now'}
+                </h3>
+                <p
+                  className={`mt-1 text-sm ${
+                    pendingReviewCount > 0
+                      ? 'text-warning-700 dark:text-warning-400'
+                      : 'text-gray-500 dark:text-gray-400'
+                  }`}
+                >
+                  {pendingReviewCount > 0
+                    ? 'Open the queue to score and route to the next reviewer.'
+                    : 'New submissions will show up here as soon as they arrive.'}
+                </p>
+              </div>
+            </div>
+            <Link
+              to="/reviews"
+              className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-semibold ${
+                pendingReviewCount > 0
+                  ? 'border border-warning-300 bg-white text-warning-700 hover:bg-warning-100 dark:border-warning-800/60 dark:bg-warning-500/5 dark:text-warning-300'
+                  : 'border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:bg-white/[0.02] dark:text-gray-300'
+              }`}
+            >
+              Open review queue {Icon.chev}
+            </Link>
+          </div>
+        </div>
+      )}
+
+      {canReview && <TeamOverview role={user!.role} items={allTeamItems} />}
+
+      {isStaff && isLoading ? (
         <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.02]">
           <p className="text-sm text-gray-400">Loading appraisal…</p>
         </div>
-      ) : !appraisal ? (
+      ) : isStaff && !appraisal ? (
         <div className="rounded-2xl border border-gray-200 bg-white p-10 text-center dark:border-gray-800 dark:bg-white/[0.02]">
           <p className="text-sm font-medium text-gray-600 dark:text-gray-300">
             No active appraisal cycle found.
@@ -104,7 +173,7 @@ export function DashboardPage() {
             HR has not opened a cycle for this account yet.
           </p>
         </div>
-      ) : (
+      ) : isStaff && appraisal ? (
         <>
           {status === 'draft' && (
             <div className="rounded-2xl border border-warning-200 bg-warning-50 px-5 py-4 dark:border-warning-800/50 dark:bg-warning-500/10">
@@ -162,33 +231,6 @@ export function DashboardPage() {
                   className="inline-flex items-center gap-1.5 rounded-xl border border-blue-300 bg-white px-4 py-2.5 text-sm font-semibold text-blue-700 hover:bg-blue-100 dark:border-blue-800/60 dark:bg-blue-500/5 dark:text-blue-300"
                 >
                   View submission
-                </Link>
-              </div>
-            </div>
-          )}
-
-          {status === 'acknowledge' && (
-            <div className="rounded-2xl border border-blue-200 bg-blue-50 px-5 py-4 dark:border-blue-800/50 dark:bg-blue-500/10">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-500 text-white">
-                    {Icon.check}
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-semibold text-blue-800 dark:text-blue-300">
-                      Final scores ready · Acknowledge to close the cycle
-                    </h3>
-                    <p className="mt-1 text-sm text-blue-700 dark:text-blue-400">
-                      HoDiv has signed off. Review final scores and acknowledge.
-                    </p>
-                  </div>
-                </div>
-                <Link
-                  to="/acknowledge/$appraisalId"
-                  params={{ appraisalId: String(appraisal.id) }}
-                  className="inline-flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700"
-                >
-                  Review &amp; acknowledge {Icon.chev}
                 </Link>
               </div>
             </div>
@@ -331,20 +373,20 @@ export function DashboardPage() {
                   {appraisal.kras.reduce((s, k) => s + k.weight, 0)}%
                 </p>
               </div>
-              <Link
-                to="/self-appraisal"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-brand-500 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-600"
-              >
-                {Icon.doc}{' '}
-                {status === 'draft'
-                  ? 'Continue self-appraisal'
-                  : 'View submission'}
-              </Link>
+              {canOpenSelfAppraisal && (
+                <Link
+                  to="/self-appraisal"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-brand-500 px-3 py-2 text-sm font-semibold text-white hover:bg-brand-600"
+                >
+                  {Icon.doc} Continue self-appraisal
+                </Link>
+              )}
             </div>
             {appraisal.kras.map((kra) => (
               <KRARow
                 key={kra.id}
                 kra={kra}
+                canEditSelfAppraisal={canOpenSelfAppraisal}
                 expanded={expandedKra === kra.id}
                 onToggle={() =>
                   setExpandedKra(expandedKra === kra.id ? null : kra.id)
@@ -352,8 +394,6 @@ export function DashboardPage() {
               />
             ))}
           </div>
-
-          {canReview && <TeamOverview role={user!.role} items={allTeamItems} />}
 
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
             <div className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-white/[0.03] lg:col-span-2">
@@ -422,18 +462,18 @@ export function DashboardPage() {
                   </div>
                 ))}
               </dl>
-              <Link
-                to="/self-appraisal"
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600"
-              >
-                {status === 'draft'
-                  ? 'Continue self-appraisal'
-                  : 'Open appraisal'}
-              </Link>
+              {canOpenSelfAppraisal && (
+                <Link
+                  to="/self-appraisal"
+                  className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-brand-500 px-4 py-2.5 text-sm font-semibold text-white hover:bg-brand-600"
+                >
+                  Continue self-appraisal
+                </Link>
+              )}
             </div>
           </div>
         </>
-      )}
+      ) : null}
     </PageShell>
   );
 }
