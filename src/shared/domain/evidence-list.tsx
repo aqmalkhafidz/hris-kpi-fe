@@ -1,7 +1,49 @@
+import { useProtectedObjectUrl } from '@shared/hooks/use-protected-object-url';
 import { Icon } from '@shared/layouts/icon';
 import { Evidence } from '@shared/lib/types/appraisal';
 
 export type EvidenceItem = Evidence;
+
+function FileEvidence({ item }: { item: Evidence }) {
+  const { src, mimeType, loading } = useProtectedObjectUrl(item.url ?? null);
+  const isImage = Boolean(src && mimeType?.startsWith('image/'));
+  const isPdf = Boolean(src && mimeType === 'application/pdf');
+
+  return (
+    <>
+      {src && (
+        <a
+          href={src}
+          download={item.name}
+          target="_blank"
+          rel="noreferrer"
+          className="mt-0.5 block truncate text-xs font-medium text-blue-600 hover:underline dark:text-blue-300"
+        >
+          Open file
+        </a>
+      )}
+      {loading && (
+        <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
+          Preparing preview...
+        </p>
+      )}
+      {isImage && (
+        <img
+          src={src!}
+          alt=""
+          className="mt-2 h-28 w-full rounded-lg border border-gray-200 bg-white object-cover dark:border-gray-700"
+        />
+      )}
+      {isPdf && (
+        <iframe
+          src={src!}
+          title={item.name}
+          className="mt-2 h-52 w-full rounded-lg border border-gray-200 bg-white dark:border-gray-700"
+        />
+      )}
+    </>
+  );
+}
 
 export function EvidenceList({
   items,
@@ -37,6 +79,7 @@ export function EvidenceList({
                 {item.url}
               </a>
             )}
+            {item.kind === 'file' && <FileEvidence item={item} />}
             {item.description && item.description !== item.name && (
               <p className="mt-0.5 line-clamp-2 text-xs text-gray-600 dark:text-gray-300">
                 {item.description}

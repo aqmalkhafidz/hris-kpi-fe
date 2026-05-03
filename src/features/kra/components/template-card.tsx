@@ -1,4 +1,9 @@
 import { Icon } from '@shared/layouts/icon';
+import {
+  useDivisions,
+  useDepartments,
+  usePositions,
+} from '../../org/hooks/use-org';
 import type { KraTemplateV2 } from '../types';
 import { StatusBadge } from './status-badge';
 
@@ -11,6 +16,14 @@ export function TemplateCard({
   active: boolean;
   onClick: () => void;
 }) {
+  const { data: divisions = [] } = useDivisions();
+  const { data: departments = [] } = useDepartments();
+  const { data: positions = [] } = usePositions();
+
+  const division = divisions.find((d) => d.id === t.divId);
+  const department = departments.find((d) => d.id === t.deptId);
+  const position = positions.find((p) => p.id === t.posId);
+
   return (
     <button
       onClick={onClick}
@@ -30,7 +43,7 @@ export function TemplateCard({
               {t.name}
             </p>
             <p className="text-[11px] text-gray-500 dark:text-gray-400">
-              {t.dept} · {t.level}
+              {division?.name ?? 'Unknown'} · {department?.name ?? 'Unknown'}
             </p>
           </div>
         </div>
@@ -40,9 +53,9 @@ export function TemplateCard({
         {t.summary}
       </p>
       <div className="mt-4 flex items-center gap-3 text-[11px] text-gray-500 dark:text-gray-400">
-        <code className="rounded bg-gray-100 px-1.5 py-0.5 tabular-nums dark:bg-gray-800 dark:text-gray-300">
-          {t.code}
-        </code>
+        <span className="font-medium text-brand-600 dark:text-brand-400">
+          {position?.title ?? 'No Position'}
+        </span>
         <span>·</span>
         <span>
           <strong className="font-semibold tabular-nums text-gray-700 dark:text-gray-200">

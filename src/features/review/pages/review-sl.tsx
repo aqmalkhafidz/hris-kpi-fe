@@ -90,7 +90,6 @@ export function SlReviewPage() {
     });
     await advanceMut.mutateAsync({
       appraisalId: appraisal.id,
-      actor: { userId: user.id, name: user.name, role: user.role },
     });
     setSubmitting(false);
     navigate({ to: '/dashboard' });
@@ -108,7 +107,6 @@ export function SlReviewPage() {
     await returnMut.mutateAsync({
       appraisalId: appraisal.id,
       reason,
-      actor: { userId: user.id, name: user.name, role: 'sl' },
     });
     setSubmitting(false);
     setReturnOpen(false);

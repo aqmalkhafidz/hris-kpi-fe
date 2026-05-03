@@ -55,7 +55,8 @@ export type DistStatus =
   | 'matched'
   | 'skipped_already'
   | 'skipped_no_template'
-  | 'skipped_no_reviewer';
+  | 'skipped_no_reviewer'
+  | 'skipped_not_staff';
 
 export interface DistRow {
   employee: DistEmployee;

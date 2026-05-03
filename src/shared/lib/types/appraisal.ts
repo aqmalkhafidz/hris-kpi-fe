@@ -10,13 +10,7 @@ export type AppraisalStatus =
 
 export type ReviewerRole = 'sl' | 'hod' | 'hodiv';
 
-export type AuditAction =
-  | 'submit'
-  | 'approve'
-  | 'return'
-  | 'acknowledge'
-  | 'score_change'
-  | 'comment';
+export type AuditAction = 'submit' | 'approve' | 'return' | 'acknowledge';
 
 export interface Evidence {
   kind: 'url' | 'file';
@@ -60,6 +54,9 @@ export interface Appraisal {
   userId: number;
   cycleName: string;
   cycleShort: string;
+  cycleStartDate: string | null;
+  cycleEndDate: string | null;
+  cycleSelfDeadline: string | null;
   status: AppraisalStatus;
   reflection: string;
   kras: Kra[];

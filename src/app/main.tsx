@@ -1,6 +1,12 @@
 import { AuthProvider, useAuth } from '@features/auth/context/auth-context';
+import { ApiError, clearAuthSession, getToken } from '@shared/api/client';
 import { applyTheme, getInitialTheme } from '@shared/lib/theme';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import {
+  MutationCache,
+  QueryCache,
+  QueryClient,
+  QueryClientProvider,
+} from '@tanstack/react-query';
 import { RouterProvider } from '@tanstack/react-router';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -10,7 +16,22 @@ import '../styles/friendly.css';
 
 applyTheme(getInitialTheme());
 
+function handleUnauthorized(error: unknown) {
+  if (!(error instanceof ApiError) || error.status !== 401 || !getToken())
+    return;
+  clearAuthSession();
+  if (window.location.pathname !== '/login') {
+    window.location.assign('/login');
+  }
+}
+
 const queryClient = new QueryClient({
+  queryCache: new QueryCache({
+    onError: handleUnauthorized,
+  }),
+  mutationCache: new MutationCache({
+    onError: handleUnauthorized,
+  }),
   defaultOptions: {
     queries: { staleTime: 30_000, retry: 1 },
   },

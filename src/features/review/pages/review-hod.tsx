@@ -112,7 +112,6 @@ export function HodReviewPage() {
     });
     await advanceMut.mutateAsync({
       appraisalId: appraisal.id,
-      actor: { userId: user.id, name: user.name, role: user.role },
     });
     setSubmitting(false);
     navigate({ to: '/dashboard' });
@@ -130,7 +129,6 @@ export function HodReviewPage() {
     await returnMut.mutateAsync({
       appraisalId: appraisal.id,
       reason,
-      actor: { userId: user.id, name: user.name, role: 'hodept' },
     });
     setSubmitting(false);
     setReturnOpen(false);

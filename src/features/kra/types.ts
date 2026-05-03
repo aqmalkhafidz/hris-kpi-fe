@@ -9,10 +9,10 @@ export interface KraItem {
 
 export interface KraTemplateV2 {
   id: number;
-  code: string;
   name: string;
-  dept: string;
-  level: string;
+  divId: number;
+  deptId: number;
+  posId: number;
   version: string;
   status: TemplateStatus;
   updated: string;

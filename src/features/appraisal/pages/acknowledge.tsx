@@ -51,7 +51,6 @@ export function AcknowledgePage() {
     setSubmitting(true);
     await ackMut.mutateAsync({
       appraisalId: appraisal.id,
-      actor: { userId: user.id, name: user.name, role: user.role },
     });
     setSubmitting(false);
     navigate({ to: '/dashboard' });

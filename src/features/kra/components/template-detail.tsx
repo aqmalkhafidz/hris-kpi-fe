@@ -2,20 +2,35 @@ import { Icon } from '@shared/layouts/icon';
 import type { KraTemplateV2 } from '../types';
 import { StatusBadge } from './status-badge';
 import { WeightStack } from './weight-stack';
+import {
+  useDivisions,
+  useDepartments,
+  usePositions,
+} from '../../org/hooks/use-org';
 
 export function TemplateDetail({
   t,
   onEdit,
+  onPublish,
   onAddKra,
   onEditKra,
   onDeleteKra,
 }: {
   t: KraTemplateV2;
   onEdit: () => void;
+  onPublish: () => void;
   onAddKra: () => void;
   onEditKra: (kraCode: string) => void;
   onDeleteKra: (kraCode: string) => void;
 }) {
+  const { data: divisions = [] } = useDivisions();
+  const { data: departments = [] } = useDepartments();
+  const { data: positions = [] } = usePositions();
+
+  const division = divisions.find((d) => d.id === t.divId);
+  const department = departments.find((d) => d.id === t.deptId);
+  const position = positions.find((p) => p.id === t.posId);
+
   const total = t.items.reduce((s, i) => s + i.weight, 0);
   const balanced = total === 100;
 
@@ -24,9 +39,6 @@ export function TemplateDetail({
       <div className="flex flex-wrap items-start justify-between gap-4 border-b border-gray-200 px-6 py-5 dark:border-gray-800">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <code className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] tabular-nums text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-              {t.code}
-            </code>
             <StatusBadge status={t.status} />
             <span className="text-[11px] text-gray-500 dark:text-gray-400">
               Version {t.version} · updated {t.updated}
@@ -40,10 +52,17 @@ export function TemplateDetail({
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-800 dark:bg-white/[0.02] dark:text-gray-200">
-            {Icon.send}
-            <span>Publish v{parseFloat(t.version.replace('v', '')) + 1}</span>
-          </button>
+          {t.status === 'draft' && (
+            <button
+              onClick={onPublish}
+              disabled={!balanced}
+              title={!balanced ? 'Total weight must be 100% to publish' : ''}
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-gray-800 dark:bg-white/[0.02] dark:text-gray-200"
+            >
+              {Icon.send}
+              <span>Publish v{parseFloat(t.version.replace('v', '')) + 1}</span>
+            </button>
+          )}
           <button
             onClick={onEdit}
             className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-brand-500 px-3 text-xs font-semibold text-white hover:bg-brand-600"
@@ -60,10 +79,10 @@ export function TemplateDetail({
             Applies to
           </p>
           <p className="mt-1 text-sm font-semibold text-gray-900 dark:text-white">
-            {t.dept} · {t.level}
+            {division?.name ?? '...'} · {department?.name ?? '...'}
           </p>
-          <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-            Auto-assigned to matching positions
+          <p className="mt-1 text-xs font-medium text-brand-600 dark:text-brand-400">
+            {position?.title ?? '...'}
           </p>
         </div>
         <div>

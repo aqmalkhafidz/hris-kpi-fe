@@ -12,7 +12,13 @@ import { PerfChart } from '../components/perf-chart';
 import { TeamOverview, type ReviewItem } from '../components/team-overview';
 import { STATUS_BADGE, STATUS_FLOW } from '../constants';
 import { useMyActivity, usePerfHistory } from '../hooks/use-my-dashboard';
-import { getStatusLabel, weightedScore } from '../utils';
+import {
+  formatPeriod,
+  daysUntil,
+  formatLongDate,
+  getStatusLabel,
+  weightedScore,
+} from '../utils';
 
 export function DashboardPage() {
   const { user } = useAuth();
@@ -34,6 +40,12 @@ export function DashboardPage() {
   const weighted = appraisal ? weightedScore(appraisal) : 0;
   const evidenceCount =
     appraisal?.kras.reduce((s, k) => s + k.evidence.length, 0) ?? 0;
+  const cyclePeriod = appraisal
+    ? formatPeriod(appraisal.cycleStartDate, appraisal.cycleEndDate)
+    : '—';
+  const submissionDeadline =
+    appraisal?.cycleSelfDeadline ?? appraisal?.cycleEndDate ?? null;
+  const daysToCycleEnd = daysUntil(appraisal?.cycleEndDate);
 
   const allTeamItems: ReviewItem[] = [
     ...(slQueue ?? []).map((i) => ({ ...i, reviewRole: 'sl' as const })),
@@ -59,15 +71,15 @@ export function DashboardPage() {
             {user?.position ?? ''}
             {user?.squad ? ` · ${user.squad}` : ''}
             {user?.dept ? ` · ${user.dept}` : ''}
-            <span className="mx-2 text-gray-300 dark:text-gray-700">·</span>
-            Q1 2026 runs{' '}
-            <strong className="text-gray-700 dark:text-gray-300">
-              Jan 1
-            </strong>{' '}
-            –{' '}
-            <strong className="text-gray-700 dark:text-gray-300">
-              Mar 31, 2026
-            </strong>
+            {appraisal && (
+              <>
+                <span className="mx-2 text-gray-300 dark:text-gray-700">·</span>
+                {appraisal.cycleName} runs{' '}
+                <strong className="text-gray-700 dark:text-gray-300">
+                  {cyclePeriod}
+                </strong>
+              </>
+            )}
           </p>
         </div>
         <Link
@@ -103,8 +115,10 @@ export function DashboardPage() {
                   </div>
                   <div>
                     <h3 className="text-sm font-semibold text-warning-800 dark:text-warning-300">
-                      Action required · Submit self-appraisal before Mar 31,
-                      2026
+                      Action required · Submit self-appraisal
+                      {submissionDeadline
+                        ? ` before ${formatLongDate(submissionDeadline)}`
+                        : ''}
                     </h3>
                     <p className="mt-1 text-sm text-warning-700 dark:text-warning-400">
                       {appraisal.kras.filter((k) => k.self_score === 0).length >
@@ -216,9 +230,16 @@ export function DashboardPage() {
                   icon: Icon.clock,
                   tone: 'info',
                   label: 'Days to cycle end',
-                  value: '4',
+                  value:
+                    daysToCycleEnd == null
+                      ? '—'
+                      : daysToCycleEnd < 0
+                        ? '0'
+                        : String(daysToCycleEnd),
                   sub: 'days',
-                  foot: 'Mar 31, 2026 · submission window',
+                  foot: appraisal?.cycleEndDate
+                    ? `${formatLongDate(appraisal.cycleEndDate)} · cycle window`
+                    : 'No cycle window set',
                 },
               ] as const
             ).map((s, i) => (
@@ -381,7 +402,7 @@ export function DashboardPage() {
                 {(
                   [
                     ['Cycle', appraisal.cycleName],
-                    ['Period', 'Jan 1 – Mar 31, 2026'],
+                    ['Period', cyclePeriod],
                     ['Status', getStatusLabel(status)],
                     ['SL', appraisal.reviewers.sl.name],
                     ['HoD', appraisal.reviewers.hod.name],

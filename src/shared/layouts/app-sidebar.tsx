@@ -103,7 +103,6 @@ const GROUPS: SidebarGroup[] = [
         label: 'KRA Templates',
         icon: Icon.layers,
         link: { to: '/hr/kra-templates' },
-        badge: '4',
         roles: ['hr'],
       },
       {

@@ -6,8 +6,6 @@ const ACTION_LABEL: Record<AuditAction, string> = {
   approve: 'Approved',
   return: 'Returned',
   acknowledge: 'Acknowledged',
-  score_change: 'Updated score',
-  comment: 'Updated comment',
 };
 
 const ACTION_TONE: Record<AuditAction, string> = {
@@ -15,8 +13,6 @@ const ACTION_TONE: Record<AuditAction, string> = {
   approve: 'bg-success-500',
   return: 'bg-warning-500',
   acknowledge: 'bg-blue-500',
-  score_change: 'bg-gray-400',
-  comment: 'bg-gray-400',
 };
 
 function formatTimestamp(iso: string): string {

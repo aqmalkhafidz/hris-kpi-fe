@@ -1,403 +1,361 @@
-# User Flow Appraisal Q1 2026
+# User Flow — HRIS KPI / Performa
 
-Dokumen ini menjelaskan alur appraisal yang berlaku di aplikasi saat ini untuk skenario `Q1 2026`, mulai dari setup HR, distribusi form, self appraisal, review berjenjang, sampai HR calibration dan report.
+Dokumen ini menjelaskan alur aplikasi end-to-end berdasarkan kode FE ([hris-kpi-fe](../../hris-kpi-fe/)) dan BE ([hris-kpi-be](../../hris-kpi-be/)) yang sedang berjalan.
 
-## Perubahan Terakhir
+Stack:
+- FE: React 18 + TypeScript, Vite, TanStack Router/Query/Form/Table, Tailwind 3.
+- BE: Hono + Drizzle ORM + Postgres + Zod + JWT (jose, HS256, expiry 8 jam).
 
-- Template appraisal sudah **tidak** memakai `job_title_id`.
-- Matching template sekarang memakai kombinasi `division_id + position_id`.
-- Tabel `appraisal_templates` sudah memakai `position_id`.
-- Portal `My Appraisals` sekarang tetap bisa diakses oleh employee non-head, termasuk `Squad Leader`.
-- `Head of Department` dan `Head of Division` tidak mendapat akses self appraisal, tetapi tetap bisa mengakses `Team Reviews`.
-- Form self appraisal dan form reviewer sama-sama mendukung simpan progress sebagai draft.
-- HR sekarang punya tahap lanjutan di `Reports`: bell curve, calibration, export CSV, dan print view.
+---
 
-## Scope
+## 1. Aktor & Role
 
-- Periode appraisal: `Q1 2026`
-- Tanggal cycle: `2026-01-01` sampai `2026-03-31`
-- Cycle seed default: `Q1 2026 Appraisal`
+Field `role` di tabel [users](../../hris-kpi-be/src/db/schema.ts) — enum `UserRole` di [src/types.ts](../../hris-kpi-be/src/types.ts):
 
-## Aktor dan Akses
+| Role | Akses utama |
+|---|---|
+| `staff` | Self appraisal, dashboard, history, account. |
+| `sl` | Self appraisal + review subordinate (Squad Leader). |
+| `hodept` | Review HoD level (Head of Department). |
+| `hodiv` | Review HoDiv level (Head of Division). |
+| `hr` | Full akses HR (org master data, KRA templates, cycles, distribusi, reports, calibration). |
 
-- `HR`
-  Mengelola master data, template, cycle, distribusi, calibration, export, dan print report.
-- `Employee`
-  Mengisi `My Appraisals` jika bukan `Head of Department` dan bukan `Head of Division`.
-- `Squad Leader`
-  Bisa punya dua peran sekaligus:
-  1. mengisi `My Appraisals` untuk appraisal dirinya sendiri
-  2. mereview subordinate di `Team Reviews`
-- `Head of Department`
-  Reviewer level berikutnya di `Team Reviews`.
-- `Head of Division`
-  Reviewer final di `Team Reviews`.
+Catatan dari `selfAppraisalRoute` di [router.tsx](../../hris-kpi-fe/src/app/router.tsx):
+- Hanya `staff` dan `sl` yang bisa buka `/self-appraisal`. `hodept` dan `hodiv` tidak punya self appraisal.
+- `sl` saat submit self appraisal akan langsung lompat ke `hod_review` (lihat `advanceStatusFor` di [domain/appraisal.ts](../../hris-kpi-be/src/domain/appraisal.ts:16)).
 
-## Prasyarat
+---
 
-Sebelum HR menjalankan appraisal:
+## 2. Status Machine Appraisal
 
-- Master data organisasi tersedia: `division`, `department`, `squad`, `position`, `job title`.
-- Data employee aktif tersedia.
-- Template appraisal aktif tersedia untuk kombinasi `division + position`.
-- Routing reviewer employee terisi atau bisa diturunkan dari struktur organisasi.
+Forward order (sumber tunggal: [domain/appraisal.ts](../../hris-kpi-be/src/domain/appraisal.ts:3)):
 
-Aturan routing reviewer yang dipakai sistem:
+```
+draft → sl_review → hod_review → hodiv_review → acknowledge → completed
+```
 
-- `Squad Leader` harus berada di squad yang sama.
-- `Head of Department` harus berada di department yang sama.
-- Semua reviewer harus berada di division yang sama.
+Aturan transisi:
+- `advanceStatusFor(status, role)` — naikkan status. SL submit dari `draft` lompat langsung ke `hod_review` (skip self-review by SL).
+- `returnTargetFor(role)` — kickback target reviewer:
+  - `sl` → `draft`
+  - `hodept` → `sl_review`
+  - `hodiv` → `hod_review`
+- `requiredRoleForApproval(status)` — siapa yang boleh approve di status itu:
+  - `sl_review` → `sl`
+  - `hod_review` → `hodept`
+  - `hodiv_review` → `hodiv`
 
-Jika field reviewer kosong saat HR membuat atau mengubah employee, sistem akan mencoba autofill:
-
-1. `squad_leader_id` dari leader squad terpilih.
-2. `head_of_department_id` dari HoD milik squad leader, atau dari head/default employee di department tersebut.
-3. `head_of_division_id` dari HoDiv milik HoD, atau dari HoDiv milik squad leader, atau dari head/default employee di division tersebut.
-
-## Alur End-to-End
-
-### 1. HR menyiapkan template appraisal
-
-Menu: `Appraisal Setup > Templates`
-
-Langkah:
-
-1. HR membuat template baru.
-2. HR mengisi `name`, `division`, `position`, `description`, dan status aktif.
-3. HR menambahkan daftar KRA.
-4. Total bobot seluruh KRA harus tepat `100`.
-
-Output:
-
-- Template aktif siap dipakai saat distribusi.
-- Template akan dicocokkan ke employee berdasarkan `division + position`.
-
-Catatan sistem:
-
-- Jika total bobot KRA bukan `100`, template tidak bisa disimpan.
-- Template nonaktif tidak akan dipakai saat distribusi.
-- `job title` masih ada di master data dan report employee, tetapi **bukan** lagi kunci matching template.
-- Untuk data lama, migrasi akan mencoba backfill `position_id` dari kombinasi employee yang cocok. Jika tidak unik, HR perlu review manual.
-
-### 2. HR membuat atau mengaktifkan cycle appraisal
-
-Menu: `Appraisal Setup > Cycles`
-
-Contoh data cycle:
-
-- `cycle_name`: `Q1 2026 Appraisal`
-- `start_date`: `2026-01-01`
-- `end_date`: `2026-03-31`
-- `status`: `draft` lalu diubah ke `active` saat siap distribusi
-- `description`: `Performance review for Q1 2026`
-
-Output:
-
-- Cycle tersedia di sistem.
-
-Catatan sistem:
-
-- Distribusi hanya bisa dijalankan untuk cycle dengan status `active`.
-
-### 3. HR memastikan data employee dan reviewer routing benar
-
-Menu: `Master Data > Employees`
-
-Langkah:
-
-1. HR cek setiap employee aktif yang ikut appraisal.
-2. HR pastikan `division`, `department`, `squad`, `position`, dan `job title` benar.
-3. HR pastikan reviewer routing benar:
-   `squad_leader_id`, `head_of_department_id`, `head_of_division_id`.
-4. Jika ada field reviewer kosong, sistem akan mengisi default berdasarkan struktur organisasi saat data employee disimpan.
-5. HR tetap perlu review hasil routing sebelum appraisal didistribusikan.
-
-Output:
-
-- Setiap employee punya jalur review yang valid untuk dipakai saat distribusi.
-
-Catatan sistem:
-
-- Snapshot reviewer di appraisal diambil saat distribusi, bukan live-read setiap kali review.
-- Sistem hanya auto-skip reviewer yang sama dengan employee pada saat submit self appraisal.
-
-### 4. HR menjalankan distribusi appraisal
-
-Menu: `Appraisal Setup > Distribution`
-
-Langkah:
-
-1. HR membuka daftar cycle.
-2. HR memilih cycle yang berstatus `active`.
-3. HR klik `Distribute Now`.
-4. Sistem memproses semua employee aktif.
-5. Untuk employee yang match, sistem membuat appraisal dengan:
-   `current_approval_status = draft`
-   `current_step_order = 0`
-   `distributed_at = now()`
-6. Sistem menyimpan snapshot reviewer:
-   `assigned_squad_leader_id`
-   `assigned_head_of_department_id`
-   `assigned_head_of_division_id`
-7. Sistem menyalin semua KRA dari template ke appraisal detail snapshot.
-
-Output:
-
-- Employee yang match mendapat appraisal `draft`.
-
-Catatan sistem:
-
-- Employee akan dilewati jika sudah punya appraisal pada cycle yang sama.
-- Employee akan dilewati jika tidak ada template aktif yang match berdasarkan `division + position`.
-- Statistik distribusi di halaman menunjukkan jumlah appraisal yang sudah terbentuk per cycle.
-
-### 5. Employee mengisi self appraisal
-
-Menu: `My Appraisals`
-
-Siapa yang bisa akses:
-
-- Employee biasa
-- Squad Leader
-- Bukan `Head of Department`
-- Bukan `Head of Division`
-
-Langkah:
-
-1. Employee membuka appraisal berstatus `draft`.
-2. Employee mengisi semua KRA:
-   `self_score` dan `self_comment`.
-3. Employee dapat menambahkan evidence per KRA:
-   file upload atau URL.
-4. Employee mengisi `employee_reflection`.
-5. Employee bisa menyimpan dulu sebagai draft.
-6. Jika sudah final, employee submit appraisal.
-
-Output:
-
-- Draft tersimpan jika user memilih save draft.
-- Jika submit final, appraisal masuk ke reviewer pertama yang valid.
-
-Catatan sistem:
-
-- Semua KRA wajib punya `self_score` sebelum submit final.
-- Evidence file dibatasi `max 5 MB`.
-- Setelah submit final, appraisal tidak bisa diedit lagi dari portal self appraisal.
-
-### 6. Sistem menentukan reviewer pertama
-
-Setelah employee submit final, sistem mencari reviewer pertama dengan urutan:
-
-1. `assigned_squad_leader_id`
-2. `assigned_head_of_department_id`
-3. `assigned_head_of_division_id`
-
-Aturan:
-
-- Reviewer yang sama dengan employee akan dilewati.
-- Reviewer pertama yang valid akan menjadi `current_reviewer_id`.
-- Sistem membuat `appraisal_approval_steps` pertama dengan `status = in_progress` dan `step_order = 1`.
-
-Status yang mungkin:
-
-- `sl_review` jika masuk ke Squad Leader
-- `hod_review` jika langsung masuk ke HoD
-- `hodiv_review` jika langsung masuk ke HoDiv
-- `completed` jika tidak ada reviewer valid sama sekali
-
-Jika tidak ada reviewer valid:
-
-- `current_reviewer_id = null`
-- `completed_at` langsung terisi
-
-### 7. Reviewer mengerjakan appraisal di Team Reviews
-
-Menu: `Team Reviews`
-
-Halaman ini punya dua area utama:
-
-- `Action Required`
-  Berisi appraisal yang sedang assigned ke reviewer aktif.
-- `Review History`
-  Berisi appraisal yang pernah direview oleh reviewer tersebut.
-
-Langkah reviewer:
-
-1. Reviewer membuka appraisal yang sedang assigned.
-2. Sistem akan load atau membuat draft review untuk step aktif.
-3. Reviewer melihat self appraisal employee, evidence, dan reflection.
-4. Reviewer mengisi `reviewer_score` dan `reviewer_comment` per KRA.
-5. Reviewer mengisi `feedback_notes`.
-6. Reviewer bisa save progress sebagai draft.
-7. Jika semua KRA sudah diberi skor, reviewer submit review.
-
-Catatan sistem:
-
-- Semua KRA wajib punya `reviewer_score` sebelum submit final.
-- Nilai total reviewer dihitung dengan rumus:
-  `(reviewer_score / 5) * weight`
-- Total nilai reviewer dibatasi maksimum `100`.
-
-### 8. Routing review berjenjang
-
-#### 8.1 Jika reviewer aktif adalah Squad Leader
-
-Output setelah submit:
-
-- Approval step Squad Leader menjadi `completed`.
-- Review draft step tersebut mendapat `submitted_at`.
-- Jika ada HoD, appraisal diteruskan ke HoD dengan status `hod_review`.
-- Jika tidak ada HoD tetapi ada HoDiv, appraisal diteruskan ke HoDiv dengan status `hodiv_review`.
-- Jika tidak ada reviewer lanjutan, appraisal menjadi `completed`.
-
-#### 8.2 Jika reviewer aktif adalah Head of Department
-
-Output setelah submit:
-
-- Approval step HoD menjadi `completed`.
-- Jika ada HoDiv, appraisal diteruskan ke HoDiv dengan status `hodiv_review`.
-- Jika tidak ada HoDiv, appraisal menjadi `completed`.
-
-#### 8.3 Jika reviewer aktif adalah Head of Division
-
-Output setelah submit:
-
-- Appraisal menjadi `completed`.
-- `current_reviewer_id` menjadi `null`.
-- `final_score` diambil dari `reviewer_total_score` milik reviewer terakhir.
-- `completed_at` terisi.
-
-### 9. HR melakukan calibration dan reporting
-
-Menu: `Appraisal Setup > Reports`
-
-Halaman ini hanya menampilkan appraisal dengan status `completed`.
-
-Fitur yang tersedia:
-
-- Filter per cycle
-- Bell curve distribution
-- Daftar appraisal completed
-- Calibration per appraisal
-- Export CSV
-- Print view detail
-
-Langkah HR:
-
-1. HR membuka `Reports`.
-2. HR memilih cycle jika ingin filter.
-3. HR melihat distribusi nilai final di chart.
-4. HR membuka appraisal completed yang perlu disesuaikan.
-5. HR mengisi:
-   `calibrated_score`
-   `final_grade`
-6. HR menyimpan calibration.
-7. Jika perlu, HR export CSV atau buka detail report untuk print/PDF.
-
-Output:
-
-- `is_calibrated = true`
-- `calibrated_score` tersimpan
-- `final_grade` tersimpan
-
-Catatan sistem:
-
-- Bell curve memakai `calibrated_score` jika appraisal sudah dikalibrasi, jika belum memakai `final_score`.
-- Export CSV memuat:
-  employee number, name, department, job title, cycle, original final score, calibrated score, final grade, dan status calibration.
-- Reviewer yang pernah submit review bisa melihat detail appraisal melalui `Review History`.
-- HR bisa membuka detail report dan print ke PDF dari tampilan print preview.
-
-## Flow Status Singkat
-
-Flow normal:
-
-`draft -> sl_review -> hod_review -> hodiv_review -> completed`
-
-Kemungkinan shortcut:
-
-- `draft -> hod_review -> hodiv_review -> completed`
-- `draft -> hodiv_review -> completed`
-- `draft -> completed`
-
-## HR Mengambil Report Setelah Review HoDiv Selesai
-
-Menu: `Appraisal Setup > Reports`
-
-Langkah:
-
-1. HR membuka halaman report.
-2. HR memilih cycle `Q1 2026 Appraisal`.
-3. Sistem hanya menampilkan appraisal dengan status `completed`.
-4. HR melihat ringkasan daftar appraisal final per employee.
-5. HR dapat membuka detail report per appraisal untuk melihat:
-   cycle, template, KRA detail, evidence, hasil review, approval steps, dan catatan reviewer.
-6. HR dapat export report ke CSV untuk cycle yang dipilih.
-
-Output report:
-
-- Daftar appraisal final Q1 2026 yang sudah selesai sampai reviewer terakhir.
-- Nilai final per employee.
-- Data siap dipakai untuk rekap, kalibrasi, atau analisis distribusi nilai.
-
-Kolom export CSV:
-
-- `Employee ID`
-- `Name`
-- `Department`
-- `Job Title`
-- `Cycle`
-- `Original Final Score`
-- `Calibrated Score`
-- `Final Grade`
-- `Calibration Status`
-
-## Opsional: Kalibrasi Oleh HR
-
-Di halaman report, HR juga bisa melakukan kalibrasi hasil akhir:
-
-- Isi `calibrated_score`
-- Isi `final_grade`
-
-Output:
-
-- `is_calibrated = true`
-- Report menampilkan score hasil kalibrasi bila tersedia
-
-Catatan:
-
-- Kalibrasi bukan syarat agar report muncul.
-- Report sudah tersedia begitu appraisal berstatus `completed`.
-
-## Ringkasan Skenario Q1 2026
-
-1. HR buat template aktif untuk tiap kombinasi division dan position yang ikut appraisal Q1 2026.
-2. HR buat cycle `Q1 2026 Appraisal` dengan periode `2026-01-01` sampai `2026-03-31`.
-3. HR aktifkan cycle.
-4. HR distribusikan appraisal.
-5. Employee isi self appraisal dan submit.
-6. Reviewer berjenjang melakukan review.
-7. HoDiv submit review final.
-8. Status appraisal menjadi `completed`.
-9. HR buka `Reports`, filter cycle Q1 2026, lalu lihat detail atau export CSV.
-
-## Mermaid Flow
+Mermaid flow:
 
 ```mermaid
 flowchart LR
-    A["HR buat template aktif"] --> B["HR buat cycle Q1 2026"]
-    B --> C["HR ubah cycle ke active"]
-    C --> D["HR distribusi appraisal"]
-    D --> E["Employee isi self appraisal"]
-    E --> F["Submit self appraisal"]
-    F --> G{"Reviewer pertama tersedia?"}
-    G -->|Squad Leader| H["SL review"]
-    G -->|HoD| I["HoD review"]
-    G -->|HoDiv| J["HoDiv review"]
-    G -->|Tidak ada| N["Completed"]
-    H --> I
-    I --> J
-    J --> N["Completed"]
-    N --> O["HR buka report Q1 2026"]
-    O --> P["HR lihat detail / export CSV"]
+  D[draft] -->|staff submit| SL[sl_review]
+  D -->|sl submit own| HD[hod_review]
+  SL -->|sl approve| HD
+  SL -->|sl return| D
+  HD -->|hodept approve| HV[hodiv_review]
+  HD -->|hodept return| SL
+  HV -->|hodiv approve| ACK[acknowledge]
+  HV -->|hodiv return| HD
+  ACK -->|owner acknowledge| C[completed]
 ```
+
+---
+
+## 3. Auth Flow
+
+Public routes: `/login`, `/forgot-password`.
+
+Login flow:
+1. User buka `/login` → `LoginPage` ([features/auth/pages/login](../../hris-kpi-fe/src/features/auth/pages/login.tsx)).
+2. POST `/auth/login` (BE: [app.ts:84](../../hris-kpi-be/src/app.ts)) — bcrypt compare password.
+3. BE return `{ token, user }`. Token JWT HS256 expiry 8 jam ([http/auth.ts](../../hris-kpi-be/src/http/auth.ts)).
+4. FE simpan token di `localStorage[hris_auth_token]`, user di `localStorage[hris_auth]`. Auto-attach `Authorization: Bearer …` via `shared/api/client.ts`.
+5. Index `/` redirect: `hr` → `/hr/dashboard`, role lain → `/dashboard`, unauth → `/login` ([router.tsx:187](../../hris-kpi-fe/src/app/router.tsx)).
+
+Logout: `POST /auth/logout` (no-op server side) + clear localStorage.
+
+---
+
+## 4. HR Setup (Sekali per Cycle)
+
+### 4.1 Master Data Organisasi
+
+Menu: `Organization` (`/hr/organization`).
+
+CRUD endpoints di [app.ts:322-397](../../hris-kpi-be/src/app.ts) (helper `crud()`):
+- `/org/divisions`
+- `/org/departments`
+- `/org/positions`
+- `/org/employees` — termasuk field `reviewerSl`, `reviewerHod`, `reviewerHodiv`, `manager`, `squad`, `divId`, `deptId`.
+- `/org/job-titles`
+- `/org/squads`
+
+HR pastikan tiap employee aktif punya:
+- `divId`, `deptId`, `position` valid.
+- `manager` (nama SL) → dipakai matching reviewer SL saat distribusi.
+- `reviewerHod`, `reviewerHodiv` opsional (default ditarik dari `department.headId` dan `division.headId`).
+
+### 4.2 KRA Templates
+
+Menu: `KRA Templates` (`/hr/kra-templates`).
+
+Template terikat ke `deptId` + `name`. Distribusi mencari template via:
+```
+template.deptId === employee.deptId
+&& employee.position.toLowerCase().includes(template.name.toLowerCase())
+```
+([app.ts:435-439](../../hris-kpi-be/src/app.ts)).
+
+HR isi:
+- Nama template (harus jadi substring `position` employee target).
+- Daftar `kraTemplateItems`: `title`, `kpi`, `weight`. Total weight diharapkan `100`.
+
+### 4.3 Cycle Lifecycle
+
+Menu: `Cycles` (`/hr/cycles`).
+
+Status cycle: `draft | active | closed`.
+
+Field cycle (lihat `cycles` schema):
+- `name` (mis. `Q1 2026 Appraisal`)
+- `startDate`, `endDate`
+- `selfDeadline` (opsional)
+- `status`
+- `description`
+- Counters: `totalAppraisals`, `completed`, `inReview`, `draft` (di-recalc setelah distribusi).
+
+HR jalan:
+1. Buat cycle dengan `status=draft`.
+2. Set ke `active` saat siap distribusi.
+3. Buka detail cycle (`/hr/cycles/$cycleId`) untuk preview distribusi & klik distribute.
+
+### 4.4 Distribusi Appraisal
+
+Menu: `Cycle Detail` (`/hr/cycles/$cycleId`).
+
+Endpoint:
+- `GET /cycles/:id/distribution` — preview, return per-employee status.
+- `POST /cycles/:id/distribute` — actual create. Cycle harus `status=active` ([app.ts:500](../../hris-kpi-be/src/app.ts)).
+
+Per employee, sistem klasifikasi:
+- `skipped_already` — sudah punya appraisal di cycle yang sama.
+- `skipped_no_template` — tidak ada template match `deptId + position`.
+- `skipped_no_reviewer` — `hod` atau `hodiv` tidak ditemukan.
+- `matched` — siap dibuat.
+
+Saat distribute (matched only), BE create row `appraisals`:
+- `userId`, `cycleName`, `cycleShort`
+- `status='draft'`, `reflection=''`
+- Snapshot reviewer (auto-assign saat distribusi):
+  - `reviewerSlUserId/Name/Initials` (fallback ke HoD jika SL kosong)
+  - `reviewerHodUserId/Name/Initials`
+  - `reviewerHodivUserId/Name/Initials`
+- Copy template items ke tabel `kras` (1:1, `selfScore=0`, `selfComment=''`, `sortOrder` urut).
+
+Snapshot reviewer dipakai sepanjang cycle — perubahan struktur org setelah distribusi tidak mempengaruhi appraisal yang sudah dibuat.
+
+---
+
+## 5. Employee Self Appraisal
+
+Route: `/self-appraisal` ([SelfAppraisalPage](../../hris-kpi-fe/src/features/appraisal/pages/self-appraisal.tsx)).
+
+Akses: `staff` atau `sl` (lihat [router.tsx:84-88](../../hris-kpi-fe/src/app/router.tsx)).
+
+Flow:
+1. Page load → `useMyAppraisals(user.id)` → `GET /appraisals/user/:userId`. Ambil appraisal pertama (sortir: yang belum `completed` di atas).
+2. Editable hanya saat `status === 'draft'`.
+3. Per KRA, employee isi:
+   - `self_score` (1–5, ScorePicker)
+   - `self_comment`
+   - `evidence[]` (file upload via `/uploads` atau URL)
+4. Tab `Employee reflection` — tulis ringkasan cycle.
+5. **Save draft** — `PATCH /appraisals/:id` body `{ kras, reflection }`. Status tetap `draft`.
+6. **Submit final** — sama seperti save draft, lalu `POST /appraisals/:id/advance`. Hanya `userId === actor.id` yang boleh submit dari `draft` ([app.ts:174](../../hris-kpi-be/src/app.ts)).
+
+Submit gate (di FE):
+- Semua KRA punya `self_score > 0`.
+- Reflection terisi.
+- Total weight KRA = 100% (info-only, tidak block submit di FE saat ini).
+
+Side-effects setelah submit final:
+- `submittedAt` terisi `now()`.
+- Append `auditEntries` action `submit`, `fromStatus=draft`, `toStatus=`:
+  - `sl_review` jika role `staff`.
+  - `hod_review` jika role `sl` (skip SL self-review).
+- Kembali ke `/dashboard`.
+
+Return note (kickback):
+- Jika appraisal sebelumnya pernah `return`, banner kuning muncul dengan reason + actor + timestamp (helper `lastReturnEntry` di [shared/lib/types/appraisal](../../hris-kpi-fe/src/shared/lib/types/appraisal.ts)).
+
+---
+
+## 6. Review Berjenjang (Team Reviews)
+
+Reviewer dapat queue via `GET /reviews/queue?reviewerUserId=…&role=…`. Filter di BE ([app.ts:265-288](../../hris-kpi-be/src/app.ts)):
+- `role=sl` → `reviewerSlUserId === userId && status==='sl_review'`
+- `role=hod` → `reviewerHodUserId === userId && status==='hod_review'`
+- `role=hodiv` → `reviewerHodivUserId === userId && status==='hodiv_review'`
+
+Setiap reviewer punya page sendiri:
+
+| Role | Route | Page |
+|---|---|---|
+| SL | `/review/sl/$appraisalId` | [review-sl.tsx](../../hris-kpi-fe/src/features/review/pages/review-sl.tsx) |
+| HoD | `/review/hod/$appraisalId` | [review-hod.tsx](../../hris-kpi-fe/src/features/review/pages/review-hod.tsx) |
+| HoDiv | `/review/hodiv/$appraisalId` | [review-hodiv.tsx](../../hris-kpi-fe/src/features/review/pages/review-hodiv.tsx) |
+
+`hr` boleh akses semua review page (untuk override/inspect). Lihat `beforeLoad` masing-masing route.
+
+Per page reviewer isi:
+- `sl_score / sl_comment` atau `hod_score / hod_comment` atau `hodiv_score / hodiv_comment` per KRA.
+- Feedback notes opsional.
+
+Action tersedia:
+1. **Save progress** → `PATCH /appraisals/:id` (status tidak berubah).
+2. **Approve** → `POST /appraisals/:id/advance`. Validasi BE: `actor.role === requiredRoleForApproval(status)`. Append audit `action='approve'`.
+3. **Return** → `POST /appraisals/:id/return` body `{ reason }`. Validasi BE: actor role harus match required role status sekarang. Status di-set ke `returnTargetFor(actorRole)`. Append audit `action='return'`.
+
+State transition setelah approve:
+- SL approve `sl_review` → `hod_review`.
+- HoD approve `hod_review` → `hodiv_review`.
+- HoDiv approve `hodiv_review` → `acknowledge`.
+
+---
+
+## 7. Acknowledge oleh Employee
+
+Setelah HoDiv approve, status → `acknowledge`. Employee terima notif (via dashboard) untuk buka:
+
+Route: `/acknowledge/$appraisalId` → [AcknowledgePage](../../hris-kpi-fe/src/features/appraisal/pages/acknowledge.tsx).
+
+Halaman menampilkan:
+- Score comparison (self vs SL vs HoD vs HoDiv) per KRA.
+- Final score = `Σ (hodiv_score ?? hod_score ?? sl_score ?? self_score) × (weight/100)`.
+- Audit timeline lengkap.
+
+Gate acknowledge ([app.ts:241-263](../../hris-kpi-be/src/app.ts)):
+- `appraisal.status` harus `acknowledge`.
+- `actor.id === appraisal.userId` (hanya owner).
+
+Click `Acknowledge` → `POST /appraisals/:id/acknowledge`:
+- BE update `status='completed'`, `acknowledgedAt=now()`.
+- Append audit `action='acknowledge'`, `fromStatus='acknowledge'`, `toStatus='completed'`.
+- FE redirect ke `/dashboard`.
+
+---
+
+## 8. HR Reports & Calibration
+
+Route: `/hr/reports` → [HrReportsPage](../../hris-kpi-fe/src/features/reports/pages/hr-reports.tsx).
+
+Filter: per cycle, lalu sub-filter `all | pending | calibrated`.
+
+Fitur:
+- **Bell curve** — distribusi `effectiveScore = calibratedScore ?? finalScore`.
+- **Tabel appraisal** completed.
+- **Calibration modal** — HR isi `calibratedScore` dan `finalGrade`. Save → `is_calibrated=true`.
+- **Export CSV** — kolom: `Employee ID, Name, Department, Job Title, Cycle, Original Final Score, Calibrated Score, Final Grade, Calibration Status`.
+- **Print view** detail report per appraisal.
+
+Calibration tidak wajib — appraisal `completed` sudah masuk report begitu employee acknowledge.
+
+---
+
+## 9. Dashboard
+
+### 9.1 Employee Dashboard (`/dashboard`)
+
+Untuk role non-HR. Menampilkan:
+- Appraisal aktif user (status, deadline, progress).
+- Action card jika ada `acknowledge` pending → CTA ke `/acknowledge/:id`.
+- Untuk `sl/hodept/hodiv`: queue review yang assigned.
+- Quick links ke history & account.
+
+### 9.2 HR Dashboard (`/hr/dashboard`)
+
+BE-aggregated stats: total cycle, total appraisal per status, distribution coverage, kalibrasi pending, dst.
+
+---
+
+## 10. History & Account
+
+- `/history-appraisal` — semua role. Tampilkan appraisal completed milik user via `GET /appraisals/user/:userId` filter `status='completed'`.
+- `/my-account` — profile + change password (jika tersedia di endpoint).
+
+---
+
+## 11. Audit Trail
+
+Tabel `auditEntries` ([db/schema.ts](../../hris-kpi-be/src/db/schema.ts)). Setiap transisi append row:
+- `appraisalId`, `timestamp`, `actorUserId`, `actorName`, `actorRole`
+- `action`: `submit | approve | return | acknowledge`
+- `fromStatus`, `toStatus`
+- `reason` (hanya untuk `return`)
+
+Render di FE via `AuditTimeline` ([shared/domain/audit-timeline](../../hris-kpi-fe/src/shared/domain/audit-timeline.tsx)) — muncul di self-appraisal, review pages, acknowledge page, dan report detail.
+
+---
+
+## 12. Skenario End-to-End (Q1 2026)
+
+```mermaid
+flowchart TD
+  A[HR setup org master data] --> B[HR buat KRA templates]
+  B --> C[HR buat cycle Q1 2026 status=draft]
+  C --> D[HR set cycle status=active]
+  D --> E[HR distribute -> appraisals dibuat status=draft]
+  E --> F[Employee buka /self-appraisal]
+  F --> G[Isi KRA + reflection -> Submit final]
+  G -->|role=staff| H1[sl_review]
+  G -->|role=sl| H2[hod_review]
+  H1 -->|SL approve| H2
+  H1 -->|SL return| F
+  H2 -->|HoD approve| I[hodiv_review]
+  H2 -->|HoD return| H1
+  I -->|HoDiv approve| J[acknowledge]
+  I -->|HoDiv return| H2
+  J -->|Owner acknowledge| K[completed]
+  K --> L[HR /hr/reports]
+  L --> M[Calibrate / Export CSV / Print]
+```
+
+---
+
+## 13. Endpoint Map (Quick Reference)
+
+| Endpoint | Method | Auth | Caller |
+|---|---|---|---|
+| `/auth/login` | POST | public | LoginPage |
+| `/auth/me` | GET | bearer | AuthProvider bootstrap |
+| `/auth/demo-users` | GET | public | LoginPage demo picker |
+| `/appraisals/user/:userId` | GET | bearer | dashboard, self-appraisal, history |
+| `/appraisals/history?userIds=` | GET | bearer | HR dashboard subordinate roll-up |
+| `/appraisals/:id` | GET | bearer | review pages, acknowledge |
+| `/appraisals/:id` | PATCH | bearer | save draft kras + reflection |
+| `/appraisals/:id/advance` | POST | bearer | submit / approve |
+| `/appraisals/:id/return` | POST | bearer | reviewer kickback |
+| `/appraisals/:id/acknowledge` | POST | bearer (owner) | acknowledge page |
+| `/reviews/queue` | GET | bearer | dashboard review queue |
+| `/org/*` | CRUD | bearer | HR organization page |
+| `/cycles` | CRUD | bearer | HR cycles page |
+| `/cycles/:id/distribution` | GET | bearer | cycle detail preview |
+| `/cycles/:id/distribute` | POST | bearer | cycle detail action |
+| `/kra-templates*` | CRUD | bearer | HR KRA templates |
+| `/reports/*` | GET / POST | bearer | HR reports + calibration |
+| `/dashboard/*` | GET | bearer | dashboards |
+| `/uploads/*` | GET / POST | bearer | evidence upload + serve |
+
+---
+
+## 14. Catatan Implementasi
+
+- Naming response field: appraisal & audit pakai `snake_case` (kontrak FE lama). Endpoint lain `camelCase`.
+- Semua ID = `serial integer`.
+- Error pattern: `fail(status, msg)` → throw `HttpError` → `app.onError` → JSON.
+- Validasi input: Zod di tiap handler.
+- Snapshot reviewer dibuat saat distribusi — bukan live-read tiap review.
+- `sl` self-appraisal otomatis skip SL step (lompat ke `hod_review`) — diatur di `advanceStatusFor`, bukan di FE.
+- Acknowledge step **wajib** untuk transisi `hodiv_review → completed`. Tidak ada bypass.
+- Calibration tidak block status — appraisal `completed` tetap muncul di report tanpa kalibrasi.

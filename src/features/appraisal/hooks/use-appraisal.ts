@@ -12,12 +12,7 @@ const appraisalKeys = {
   all: ['appraisals'] as const,
   byUser: (userId: number) => ['appraisals', userId] as const,
   byId: (id: number) => ['appraisal', id] as const,
-  scopedHistory: (userIds: number[]) =>
-    [
-      'appraisals',
-      'scoped-history',
-      [...userIds].sort((a, b) => a - b).join(','),
-    ] as const,
+  scopedHistory: () => ['appraisals', 'scoped-history'] as const,
   reviewQueue: ['review-queue'] as const,
 };
 
@@ -35,11 +30,10 @@ export function useMyAppraisals(userId: number) {
   });
 }
 
-export function useScopedHistory(userIds: number[]) {
+export function useScopedHistory() {
   return useQuery({
-    queryKey: appraisalKeys.scopedHistory(userIds),
-    queryFn: () => appraisalApi.history(userIds),
-    enabled: userIds.length > 0,
+    queryKey: appraisalKeys.scopedHistory(),
+    queryFn: () => appraisalApi.history(),
   });
 }
 

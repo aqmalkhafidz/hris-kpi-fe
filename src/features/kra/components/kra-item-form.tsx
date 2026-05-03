@@ -43,24 +43,7 @@ export function KraItemForm({
     !overflow;
 
   return (
-    <div className="mx-auto max-w-xl px-6 py-8 space-y-6">
-      <button
-        onClick={onCancel}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-      >
-        ← Back to {templateName}
-      </button>
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-          {initial ? `Edit KRA · ${initial.code}` : 'Add KRA item'}
-        </h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {initial
-            ? `Editing ${initial.code} in ${templateName}`
-            : `New row in ${templateName} · weight contributes to 100% total`}
-        </p>
-      </div>
-
+    <div className="space-y-6">
       <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.02] space-y-5">
         <div className="grid grid-cols-3 gap-3">
           <div>

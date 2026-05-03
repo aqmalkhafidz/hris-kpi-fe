@@ -1,12 +1,13 @@
-import { useState } from 'react';
-import { DEPTS, LEVELS, inputCls } from '../constants';
+import { useState, useMemo, useEffect } from 'react';
+import { inputCls } from '../constants';
 import type { KraTemplateV2, TemplateStatus } from '../types';
+import { useDivisions, useDepartments, usePositions } from '../../org/hooks/use-org';
 
 export type TplFormData = {
-  code: string;
   name: string;
-  dept: string;
-  level: string;
+  divId: number;
+  deptId: number;
+  posId: number;
   summary: string;
   status: TemplateStatus;
 };
@@ -20,61 +21,115 @@ export function TemplateForm({
   onSave: (d: TplFormData) => void;
   onCancel: () => void;
 }) {
+  const { data: divisions = [] } = useDivisions();
+  const { data: departments = [] } = useDepartments();
+  const { data: positions = [] } = usePositions();
+
   const [form, setForm] = useState<TplFormData>(
     initial
       ? {
-          code: initial.code,
           name: initial.name,
-          dept: initial.dept,
-          level: initial.level,
+          divId: initial.divId,
+          deptId: initial.deptId,
+          posId: initial.posId,
           summary: initial.summary,
           status: initial.status,
         }
       : {
-          code: '',
           name: '',
-          dept: 'Engineering',
-          level: 'L3',
+          divId: 0,
+          deptId: 0,
+          posId: 0,
           summary: '',
           status: 'draft',
         }
   );
+
   const up = (p: Partial<TplFormData>) => setForm((f) => ({ ...f, ...p }));
-  const valid = form.code.trim() && form.name.trim();
+
+  // Filtering logic
+  const filteredDepts = useMemo(
+    () => departments.filter((d) => d.divId === form.divId),
+    [departments, form.divId]
+  );
+  const filteredPositions = useMemo(
+    () => positions.filter((p) => p.deptId === form.deptId),
+    [positions, form.deptId]
+  );
+
+  // Auto-fill template name from position title if empty or just changed position
+  useEffect(() => {
+    if (!initial && form.posId) {
+      const pos = positions.find(p => p.id === form.posId);
+      if (pos && (!form.name || positions.some(p => p.title === form.name))) {
+        up({ name: pos.title });
+      }
+    }
+  }, [form.posId, positions, initial]);
+
+  const valid = form.name.trim() && form.divId > 0 && form.deptId > 0 && form.posId > 0;
 
   return (
-    <div className="mx-auto max-w-2xl px-6 py-8 space-y-6">
-      <button
-        onClick={onCancel}
-        className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
-      >
-        ← Back to templates
-      </button>
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
-          {initial ? `Edit template · ${initial.name}` : 'New KRA template'}
-        </h1>
-        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
-          {initial
-            ? 'Update position metadata and status.'
-            : 'Bundle of KRAs auto-assigned to a position when a cycle starts.'}
-        </p>
-      </div>
-
+    <div className="space-y-6">
       <div className="rounded-2xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-white/[0.02] space-y-5">
         <div className="grid grid-cols-2 gap-4">
-          <div>
+          <div className="col-span-2 sm:col-span-1">
             <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
-              Template code <span className="text-red-500">*</span>
+              Division <span className="text-red-500">*</span>
             </label>
-            <input
-              value={form.code}
-              onChange={(e) => up({ code: e.target.value.toUpperCase() })}
-              placeholder="ENG-SE-V1"
-              className={inputCls + ' tabular-nums'}
-            />
+            <select
+              value={form.divId}
+              onChange={(e) => up({ divId: Number(e.target.value), deptId: 0, posId: 0 })}
+              className={inputCls}
+            >
+              <option value={0}>Select Division</option>
+              {divisions.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
           </div>
-          <div>
+
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+              Department <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={form.deptId}
+              disabled={!form.divId}
+              onChange={(e) => up({ deptId: Number(e.target.value), posId: 0 })}
+              className={inputCls}
+            >
+              <option value={0}>Select Department</option>
+              {filteredDepts.map((d) => (
+                <option key={d.id} value={d.id}>
+                  {d.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-span-2 sm:col-span-1">
+            <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
+              Position <span className="text-red-500">*</span>
+            </label>
+            <select
+              value={form.posId}
+              disabled={!form.deptId}
+              onChange={(e) => up({ posId: Number(e.target.value) })}
+              className={inputCls}
+            >
+              <option value={0}>Select Position</option>
+              {filteredPositions.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="col-span-2 sm:col-span-1">
             <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
               Status
             </label>
@@ -88,49 +143,19 @@ export function TemplateForm({
               <option value="archived">Archived</option>
             </select>
           </div>
-          <div>
+
+          <div className="col-span-2">
             <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
-              Position name <span className="text-red-500">*</span>
+              Template Name <span className="text-red-500">*</span>
             </label>
             <input
               value={form.name}
               onChange={(e) => up({ name: e.target.value })}
-              placeholder="Software Engineer"
+              placeholder="e.g. Software Engineer Standard"
               className={inputCls}
             />
           </div>
-          <div>
-            <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
-              Department
-            </label>
-            <select
-              value={form.dept}
-              onChange={(e) => up({ dept: e.target.value })}
-              className={inputCls}
-            >
-              {DEPTS.map((d) => (
-                <option key={d} value={d}>
-                  {d}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
-              Level
-            </label>
-            <select
-              value={form.level}
-              onChange={(e) => up({ level: e.target.value })}
-              className={inputCls}
-            >
-              {LEVELS.map((l) => (
-                <option key={l} value={l}>
-                  {l}
-                </option>
-              ))}
-            </select>
-          </div>
+
           <div className="col-span-2">
             <label className="block mb-1.5 text-xs font-semibold uppercase tracking-wider text-gray-600 dark:text-gray-300">
               Summary

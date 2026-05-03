@@ -110,7 +110,6 @@ export function SelfAppraisalPage() {
     });
     await advanceMut.mutateAsync({
       appraisalId: appraisal.id,
-      actor: { userId: user.id, name: user.name, role: user.role },
     });
     setSaving(false);
     navigate({ to: '/dashboard' });

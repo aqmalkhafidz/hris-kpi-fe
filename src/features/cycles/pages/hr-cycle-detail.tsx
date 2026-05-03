@@ -39,29 +39,17 @@ export function HrCycleDetailPage() {
 
   const cycle = cycles.find((c) => c.id === numericCycleId);
 
-  if (!cycle) {
-    return (
-      <PageShell breadcrumb="Cycle Detail" maxWidth="5xl">
-        <p className="text-sm text-gray-500">Cycle tidak ditemukan.</p>
-        <Link
-          to="/hr/cycles"
-          className="mt-3 inline-block text-sm font-semibold text-brand-600"
-        >
-          ← Kembali ke Cycles
-        </Link>
-      </PageShell>
-    );
-  }
-
   const distStats = useMemo(() => {
     let matched = 0,
       no_template = 0,
       already = 0,
+      not_staff = 0,
       no_reviewer = 0;
     preview.forEach((r) => {
       if (r.status === 'matched') matched++;
       if (r.status === 'skipped_no_template') no_template++;
       if (r.status === 'skipped_already') already++;
+      if (r.status === 'skipped_not_staff') not_staff++;
       if (r.status === 'skipped_no_reviewer') no_reviewer++;
     });
     return {
@@ -69,6 +57,7 @@ export function HrCycleDetailPage() {
       matched,
       no_template,
       already,
+      not_staff,
       no_reviewer,
     };
   }, [preview]);
@@ -95,6 +84,20 @@ export function HrCycleDetailPage() {
       }),
     [preview, distFilter, search]
   );
+
+  if (!cycle) {
+    return (
+      <PageShell breadcrumb="Cycle Detail" maxWidth="5xl">
+        <p className="text-sm text-gray-500">Cycle tidak ditemukan.</p>
+        <Link
+          to="/hr/cycles"
+          className="mt-3 inline-block text-sm font-semibold text-brand-600"
+        >
+          ← Kembali ke Cycles
+        </Link>
+      </PageShell>
+    );
+  }
 
   const completionPct =
     cycle.totalAppraisals > 0
@@ -146,6 +149,11 @@ export function HrCycleDetailPage() {
       id: 'skipped_already' as const,
       label: 'Already',
       count: distStats.already,
+    },
+    {
+      id: 'skipped_not_staff' as const,
+      label: 'Not Staff',
+      count: distStats.not_staff,
     },
     {
       id: 'skipped_no_reviewer' as const,
@@ -320,6 +328,11 @@ export function HrCycleDetailPage() {
                 tone: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
               },
               {
+                label: 'Not Staff',
+                value: distStats.not_staff,
+                tone: 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300',
+              },
+              {
                 label: 'No reviewer',
                 value: distStats.no_reviewer,
                 tone: 'bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-300',
@@ -440,10 +453,7 @@ export function HrCycleDetailPage() {
                       <td className="px-3 py-3">
                         {r.template ? (
                           <div>
-                            <code className="rounded bg-gray-100 px-1.5 py-0.5 text-[11px] tabular-nums text-gray-700 dark:bg-gray-800 dark:text-gray-300">
-                              {r.template.code}
-                            </code>
-                            <p className="mt-1 text-[11px] text-gray-500 dark:text-gray-400">
+                            <p className="text-[11px] font-medium text-gray-800 dark:text-gray-200">
                               {r.template.name}
                             </p>
                           </div>
@@ -472,6 +482,10 @@ export function HrCycleDetailPage() {
               Logika distribusi
             </p>
             <ul className="mt-2 list-disc space-y-1 pl-5">
+              <li>
+                Hanya karyawan dengan <strong>Role Staff</strong> atau{' '}
+                <strong>Job Title Staff</strong> yang mendapatkan distribusi.
+              </li>
               <li>
                 Match template berdasarkan kombinasi{' '}
                 <span className="font-mono">division + position</span> karyawan.

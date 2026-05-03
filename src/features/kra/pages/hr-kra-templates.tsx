@@ -12,6 +12,8 @@ import {
   useUpsertKraTemplate,
 } from '../hooks/use-kra-templates';
 import type { KraItem, KraTemplateV2, TemplateStatus } from '../types';
+import { useDivisions, useDepartments, usePositions } from '../../org/hooks/use-org';
+import { Modal } from '@shared/ui/modal';
 
 export function HrKraTemplatesPage() {
   const { data: templates = [] } = useKraTemplates();
@@ -24,20 +26,27 @@ export function HrKraTemplatesPage() {
 
   const active = templates.find((t) => t.id === activeId) ?? templates[0];
 
+  const { data: divisions = [] } = useDivisions();
+  const { data: departments = [] } = useDepartments();
+  const { data: positions = [] } = usePositions();
+
   const visible = useMemo(
     () =>
       templates.filter((t) => {
         if (filter !== 'all' && t.status !== filter) return false;
-        if (
-          search &&
-          !(t.name + t.code + t.dept)
-            .toLowerCase()
-            .includes(search.toLowerCase())
-        )
-          return false;
+        
+        if (search) {
+          const divName = divisions.find(d => d.id === t.divId)?.name ?? '';
+          const deptName = departments.find(d => d.id === t.deptId)?.name ?? '';
+          const posTitle = positions.find(p => p.id === t.posId)?.title ?? '';
+          
+          const searchStr = (t.name + divName + deptName + posTitle).toLowerCase();
+          if (!searchStr.includes(search.toLowerCase())) return false;
+        }
+        
         return true;
       }),
-    [templates, filter, search]
+    [templates, filter, search, divisions, departments, positions]
   );
 
   const filterChips: {
@@ -63,25 +72,15 @@ export function HrKraTemplatesPage() {
     },
   ];
 
-  if (!active) {
-    return (
-      <PageShell>
-        <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-10 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-white/[0.02] dark:text-gray-400">
-          No KRA templates available.
-        </div>
-      </PageShell>
-    );
-  }
-
   function saveTemplate(data: TplFormData) {
     const next: Omit<KraTemplateV2, 'id'> = {
       ...data,
-      version: view.mode === 'edit-template' ? active.version : 'v1',
+      version: view.mode === 'edit-template' && active ? active.version : 'v1',
       updated: 'today',
-      usedBy: view.mode === 'edit-template' ? active.usedBy : 0,
-      items: view.mode === 'edit-template' ? active.items : [],
+      usedBy: view.mode === 'edit-template' && active ? active.usedBy : 0,
+      items: view.mode === 'edit-template' && active ? active.items : [],
     };
-    if (view.mode === 'edit-template') {
+    if (view.mode === 'edit-template' && active) {
       upsertTemplate.mutate({ id: active.id, template: next });
     } else {
       upsertTemplate.mutate(
@@ -121,40 +120,29 @@ export function HrKraTemplatesPage() {
     });
   }
 
-  if (view.mode === 'create-template' || view.mode === 'edit-template') {
-    return (
-      <PageShell>
-        <TemplateForm
-          initial={view.mode === 'edit-template' ? active : null}
-          onSave={saveTemplate}
-          onCancel={() => setView({ mode: 'list' })}
-        />
-      </PageShell>
-    );
+  function publishTemplate() {
+    if (!active) return;
+    const currentVer = parseFloat(active.version.replace('v', '')) || 1;
+    const nextVer = `v${currentVer + 1}`;
+
+    const next: KraTemplateV2 = {
+      ...active,
+      status: 'published',
+      version: nextVer,
+      updated: 'today',
+    };
+    upsertTemplate.mutate({ id: active.id, template: next });
   }
 
-  if (view.mode === 'add-kra' || view.mode === 'edit-kra') {
-    const kraCode = view.mode === 'edit-kra' ? view.kraCode : null;
-    const editingKra = kraCode
-      ? (active.items.find((it) => it.code === kraCode) ?? null)
-      : null;
-    const otherWeight = kraCode
-      ? active.items
-          .filter((it) => it.code !== kraCode)
-          .reduce((s, i) => s + i.weight, 0)
-      : active.items.reduce((s, i) => s + i.weight, 0);
-    return (
-      <PageShell>
-        <KraItemForm
-          initial={editingKra}
-          otherWeight={otherWeight}
-          templateName={active.name}
-          onSave={saveKraItem}
-          onCancel={() => setView({ mode: 'list' })}
-        />
-      </PageShell>
-    );
-  }
+  const kraCode = view.mode === 'edit-kra' ? view.kraCode : null;
+  const editingKra = kraCode
+    ? (active?.items.find((it) => it.code === kraCode) ?? null)
+    : null;
+  const otherWeight = kraCode
+    ? active?.items
+        .filter((it) => it.code !== kraCode)
+        .reduce((s, i) => s + i.weight, 0) ?? 0
+    : active?.items.reduce((s, i) => s + i.weight, 0) ?? 0;
 
   return (
     <PageShell>
@@ -222,7 +210,9 @@ export function HrKraTemplatesPage() {
         <div className="space-y-3 xl:col-span-4">
           {visible.length === 0 && (
             <div className="rounded-2xl border border-dashed border-gray-300 bg-white p-8 text-center text-sm text-gray-500 dark:border-gray-700 dark:bg-white/[0.02] dark:text-gray-400">
-              No templates match your filter.
+              {templates.length === 0
+                ? 'Belum ada KRA template. Klik "New template" untuk membuat yang pertama.'
+                : 'No templates match your filter.'}
             </div>
           )}
           {visible.map((t) => (
@@ -239,6 +229,7 @@ export function HrKraTemplatesPage() {
             <TemplateDetail
               t={active}
               onEdit={() => setView({ mode: 'edit-template' })}
+              onPublish={publishTemplate}
               onAddKra={() => setView({ mode: 'add-kra' })}
               onEditKra={(kraCode) => setView({ mode: 'edit-kra', kraCode })}
               onDeleteKra={deleteKraItem}
@@ -246,6 +237,37 @@ export function HrKraTemplatesPage() {
           )}
         </div>
       </div>
+
+      {/* Modals */}
+      <Modal
+        open={view.mode === 'create-template' || view.mode === 'edit-template'}
+        title={view.mode === 'edit-template' ? 'Edit Template' : 'New Template'}
+        onClose={() => setView({ mode: 'list' })}
+        maxWidth="max-w-2xl"
+      >
+        <TemplateForm
+          initial={view.mode === 'edit-template' && active ? active : null}
+          onSave={saveTemplate}
+          onCancel={() => setView({ mode: 'list' })}
+        />
+      </Modal>
+
+      <Modal
+        open={view.mode === 'add-kra' || view.mode === 'edit-kra'}
+        title={view.mode === 'edit-kra' ? `Edit KRA · ${kraCode}` : 'Add KRA Item'}
+        onClose={() => setView({ mode: 'list' })}
+        maxWidth="max-w-xl"
+      >
+        {active && (
+          <KraItemForm
+            initial={editingKra}
+            otherWeight={otherWeight}
+            templateName={active.name}
+            onSave={saveKraItem}
+            onCancel={() => setView({ mode: 'list' })}
+          />
+        )}
+      </Modal>
     </PageShell>
   );
 }

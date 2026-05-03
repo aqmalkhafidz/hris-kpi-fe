@@ -1,6 +1,12 @@
-import { clearToken, getToken } from '@shared/api/client';
+import { clearAuthSession, getToken, onAuthCleared } from '@shared/api/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { createContext, useContext, useState, ReactNode } from 'react';
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  ReactNode,
+} from 'react';
 import { fetchMe, loginWithPassword, logoutApi } from '../api/auth-api';
 import type { AppUser } from '../types';
 
@@ -17,12 +23,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [hasToken, setHasToken] = useState(() => !!getToken());
   const queryClient = useQueryClient();
 
+  useEffect(
+    () =>
+      onAuthCleared(() => {
+        setHasToken(false);
+        queryClient.removeQueries({ queryKey: ['me'] });
+      }),
+    [queryClient]
+  );
+
   const { data: user = null, isLoading } = useQuery({
     queryKey: ['me'],
     queryFn: () =>
       fetchMe().catch(() => {
-        clearToken();
-        setHasToken(false);
+        clearAuthSession();
         return null;
       }),
     enabled: hasToken,
@@ -30,10 +44,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   });
 
   const login = async (email: string, password: string) => {
-    const next = await loginWithPassword(email, password);
-    queryClient.setQueryData(['me'], next);
+    await loginWithPassword(email, password);
     setHasToken(true);
-    return next;
+    const fullProfile = await fetchMe();
+    queryClient.setQueryData(['me'], fullProfile);
+    return fullProfile;
   };
 
   const logout = () => {

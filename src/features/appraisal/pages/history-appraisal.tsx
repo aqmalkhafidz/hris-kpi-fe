@@ -1,55 +1,23 @@
-import { fetchDemoUsers } from '@features/auth/api/auth-api';
 import { useAuth } from '@features/auth/context/auth-context';
-import {
-  getHistoryScope,
-  ROLE_LABELS,
-  type AppUser,
-} from '@features/auth/types';
+import { ROLE_LABELS } from '@features/auth/types';
 import { PageShell } from '@shared/layouts/page-shell';
 import { Badge } from '@shared/ui/badge';
 import { EmptyState } from '@shared/ui/empty-state';
 import { PageHeader } from '@shared/ui/page-header';
 import { SectionCard } from '@shared/ui/section-card';
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { PastCyclesCard } from '../components/past-cycles-card';
 import { useScopedHistory } from '../hooks/use-appraisal';
 
 export function HistoryAppraisalPage() {
   const { user } = useAuth();
-  const [users, setUsers] = useState<AppUser[]>([]);
-  useEffect(() => {
-    fetchDemoUsers()
-      .then(setUsers)
-      .catch(() => setUsers([]));
-  }, []);
-  const scope = useMemo(
-    () => (user ? getHistoryScope(user, users.length ? users : [user]) : null),
-    [user, users]
-  );
-  const { data, isLoading } = useScopedHistory(scope?.userIds ?? []);
+  const { data, isLoading } = useScopedHistory();
   const [filterUserId, setFilterUserId] = useState<number | 'all'>('all');
 
-  const ownerLookup = useMemo(() => {
-    if (!scope) return {};
-    return scope.userIds.reduce<
-      Record<
-        number,
-        { id: number; name: string; initials: string; position?: string }
-      >
-    >((acc, id) => {
-      const u = users.find((m) => m.id === id);
-      if (u)
-        acc[id] = {
-          id: u.id,
-          name: u.name,
-          initials: u.initials,
-          position: u.position,
-        };
-      return acc;
-    }, {});
-  }, [scope]);
+  const items = data?.items ?? [];
+  const ownerLookup = data?.owners ?? {};
+  const scopeLabel = data?.scopeLabel ?? '';
 
-  const items = data ?? [];
   const visible =
     filterUserId === 'all'
       ? items
@@ -62,7 +30,7 @@ export function HistoryAppraisalPage() {
       .filter((u): u is NonNullable<typeof u> => Boolean(u));
   }, [items, ownerLookup]);
 
-  if (!user || !scope) {
+  if (!user) {
     return (
       <PageShell breadcrumb="History Appraisal">
         <EmptyState title="Sign in to view history." />
@@ -77,7 +45,7 @@ export function HistoryAppraisalPage() {
       <PageHeader
         category={`History · ${ROLE_LABELS[user.role]}`}
         title="Appraisal History"
-        description={scope.label}
+        description={scopeLabel}
         actions={
           <Badge tone="brand">
             {items.length} record{items.length === 1 ? '' : 's'}

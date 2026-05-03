@@ -1,0 +1,3652 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Performa · HRIS KPI Wireframes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,700;0,9..144,900;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --paper: #f3ede0;
+        --paper-2: #ece4d3;
+        --paper-shadow: rgba(50, 36, 14, 0.08);
+        --ink: #1a1612;
+        --ink-soft: #4a3f33;
+        --ink-mute: #80715f;
+        --rule: #c8b89a;
+        --rule-soft: #ddd0b6;
+        --accent: #b94a2c;
+        --accent-soft: #e58a6e;
+        --olive: #5a6b3a;
+        --indigo: #3b4f7a;
+        --warn: #b8732a;
+        --field: #fbf7ed;
+        --field-edge: #d3c39f;
+        --shadow-lift: 0 1px 0 rgba(28, 19, 8, 0.04),
+          0 8px 18px -10px rgba(28, 19, 8, 0.18);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--paper);
+        color: var(--ink);
+        font-family: 'DM Sans', system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        background-image:
+          radial-gradient(
+            circle at 20% 0%,
+            rgba(185, 74, 44, 0.05),
+            transparent 35%
+          ),
+          radial-gradient(
+            circle at 95% 100%,
+            rgba(59, 79, 122, 0.06),
+            transparent 40%
+          ),
+          repeating-linear-gradient(
+            0deg,
+            transparent 0,
+            transparent 23px,
+            rgba(80, 60, 30, 0.025) 23px,
+            rgba(80, 60, 30, 0.025) 24px
+          );
+      }
+
+      /* ─── Layout shell ─── */
+      .shell {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        min-height: 100vh;
+      }
+
+      .toc {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow-y: auto;
+        padding: 32px 24px;
+        border-right: 1px solid var(--rule);
+        background:
+          linear-gradient(
+            180deg,
+            rgba(240, 232, 215, 0.9),
+            rgba(232, 222, 200, 0.9)
+          ),
+          var(--paper-2);
+        backdrop-filter: blur(10px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: baseline;
+        gap: 10px;
+        margin-bottom: 4px;
+      }
+      .brand .mark {
+        font-family: 'Fraunces', serif;
+        font-weight: 900;
+        font-size: 26px;
+        letter-spacing: -0.02em;
+        line-height: 1;
+        font-style: italic;
+        color: var(--accent);
+      }
+      .brand .name {
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        font-size: 21px;
+        letter-spacing: -0.01em;
+      }
+      .brand .dash {
+        flex: 1;
+        height: 1px;
+        background: var(--rule);
+      }
+      .brand-sub {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+        margin-bottom: 28px;
+      }
+
+      .toc-section {
+        margin-bottom: 24px;
+      }
+      .toc-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+        padding: 0 8px;
+        margin-bottom: 8px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .toc-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 7px 8px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13.5px;
+        color: var(--ink-soft);
+        text-decoration: none;
+        transition: background 0.18s;
+        border-left: 2px solid transparent;
+      }
+      .toc-link:hover {
+        background: rgba(185, 74, 44, 0.06);
+      }
+      .toc-link.active {
+        background: rgba(185, 74, 44, 0.1);
+        color: var(--accent);
+        border-left-color: var(--accent);
+        font-weight: 500;
+      }
+      .toc-link .num {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--ink-mute);
+        min-width: 18px;
+      }
+      .toc-foot {
+        margin-top: 32px;
+        padding: 12px 8px;
+        border-top: 1px dashed var(--rule);
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        line-height: 1.7;
+        color: var(--ink-mute);
+      }
+      .toc-foot a {
+        color: var(--accent);
+        text-decoration: none;
+      }
+
+      /* ─── Stage ─── */
+      .stage {
+        padding: 56px 64px 96px 64px;
+        max-width: 1280px;
+      }
+      .doc-meta {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+        margin-bottom: 18px;
+      }
+      .doc-meta .pill {
+        padding: 4px 10px;
+        border: 1px solid var(--rule);
+        border-radius: 100px;
+        background: var(--field);
+      }
+      .doc-meta .dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+      }
+      .doc-title {
+        font-family: 'Fraunces', serif;
+        font-size: 76px;
+        line-height: 0.95;
+        letter-spacing: -0.04em;
+        font-weight: 900;
+        margin: 0 0 18px 0;
+      }
+      .doc-title em {
+        font-style: italic;
+        color: var(--accent);
+        font-weight: 400;
+      }
+      .doc-lede {
+        max-width: 70ch;
+        font-size: 16px;
+        line-height: 1.6;
+        color: var(--ink-soft);
+        margin-bottom: 28px;
+      }
+      .doc-lede a {
+        color: var(--accent);
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px 22px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--ink-mute);
+        padding: 14px 18px;
+        border: 1px solid var(--rule);
+        border-radius: 4px;
+        background: var(--field);
+        margin-bottom: 48px;
+      }
+      .legend strong {
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      /* ─── Page card ─── */
+      .page {
+        display: none;
+      }
+      .page.active {
+        display: block;
+        animation: fade 0.32s ease;
+      }
+      @keyframes fade {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      .page-head {
+        display: grid;
+        grid-template-columns: auto 1fr auto;
+        align-items: end;
+        gap: 24px;
+        padding-bottom: 20px;
+        margin-bottom: 32px;
+        border-bottom: 1.5px solid var(--ink);
+        position: relative;
+      }
+      .page-head .id {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 14px;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .page-head h2 {
+        font-family: 'Fraunces', serif;
+        font-size: 44px;
+        line-height: 1;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 0;
+      }
+      .page-head h2 em {
+        font-style: italic;
+        font-weight: 400;
+      }
+      .page-head .route {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        color: var(--ink-mute);
+        background: var(--field);
+        border: 1px solid var(--rule);
+        padding: 4px 10px;
+        border-radius: 4px;
+      }
+      .page-head .meta {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+        text-align: right;
+      }
+
+      .canvas-wrap {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 36px;
+        align-items: start;
+      }
+
+      /* ─── Wireframe canvas (the actual sketch) ─── */
+      .canvas {
+        background: var(--field);
+        border: 1.5px solid var(--ink);
+        border-radius: 4px;
+        position: relative;
+        overflow: hidden;
+        box-shadow: var(--shadow-lift);
+      }
+      .canvas::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background-image: linear-gradient(
+            0deg,
+            transparent 23px,
+            rgba(28, 22, 18, 0.025) 24px
+          ),
+          linear-gradient(
+            90deg,
+            transparent 23px,
+            rgba(28, 22, 18, 0.025) 24px
+          );
+        background-size: 24px 24px;
+        pointer-events: none;
+        z-index: 0;
+      }
+      .canvas-inner {
+        position: relative;
+        z-index: 1;
+        padding: 18px;
+      }
+
+      /* ─── Box primitives ─── */
+      .box {
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        border-radius: 3px;
+        padding: 12px 14px;
+        position: relative;
+      }
+      .box.dashed {
+        border-style: dashed;
+        background: transparent;
+      }
+      .box.muted {
+        background: var(--paper-2);
+      }
+      .box.accent {
+        border-color: var(--accent);
+        background: rgba(185, 74, 44, 0.08);
+      }
+      .box.warn {
+        border-color: var(--warn);
+        background: rgba(184, 115, 42, 0.1);
+      }
+      .box.olive {
+        border-color: var(--olive);
+        background: rgba(90, 107, 58, 0.08);
+      }
+      .box.indigo {
+        border-color: var(--indigo);
+        background: rgba(59, 79, 122, 0.08);
+      }
+      .box .label {
+        position: absolute;
+        top: -10px;
+        left: 10px;
+        background: var(--paper);
+        padding: 0 8px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+      }
+      .box .label.acc {
+        color: var(--accent);
+      }
+
+      .row {
+        display: flex;
+        gap: 12px;
+      }
+      .row.tight {
+        gap: 8px;
+      }
+      .col {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .grow {
+        flex: 1;
+      }
+
+      /* ─── Form-ish primitives ─── */
+      .input {
+        height: 34px;
+        background: var(--paper);
+        border: 1px solid var(--field-edge);
+        border-radius: 3px;
+        padding: 0 10px;
+        display: flex;
+        align-items: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--ink-mute);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 34px;
+        padding: 0 14px;
+        border: 1.5px solid var(--ink);
+        background: var(--ink);
+        color: var(--paper);
+        font-family: 'DM Sans', sans-serif;
+        font-size: 12px;
+        font-weight: 500;
+        letter-spacing: 0.02em;
+        border-radius: 3px;
+      }
+      .btn.ghost {
+        background: var(--paper);
+        color: var(--ink);
+      }
+      .btn.accent {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+      .btn.danger {
+        background: transparent;
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .btn.sm {
+        height: 26px;
+        padding: 0 10px;
+        font-size: 10.5px;
+      }
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        height: 22px;
+        padding: 0 9px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        border: 1px solid var(--ink-soft);
+        border-radius: 100px;
+        background: var(--paper);
+      }
+      .badge.draft {
+        color: var(--ink-mute);
+      }
+      .badge.sl {
+        color: var(--indigo);
+        border-color: var(--indigo);
+      }
+      .badge.hod {
+        color: #5a3b8a;
+        border-color: #5a3b8a;
+      }
+      .badge.hodiv {
+        color: var(--accent);
+        border-color: var(--accent);
+      }
+      .badge.ack {
+        color: var(--warn);
+        border-color: var(--warn);
+      }
+      .badge.completed {
+        color: var(--olive);
+        border-color: var(--olive);
+      }
+
+      .progress {
+        height: 6px;
+        background: var(--paper-2);
+        border-radius: 100px;
+        overflow: hidden;
+        border: 1px solid var(--field-edge);
+      }
+      .progress > span {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+      }
+
+      .stepper {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 0;
+        align-items: center;
+      }
+      .stepper .step {
+        text-align: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+        padding: 8px 4px 6px;
+        position: relative;
+        border-bottom: 2px solid var(--rule);
+      }
+      .stepper .step.done {
+        border-color: var(--olive);
+        color: var(--olive);
+      }
+      .stepper .step.now {
+        border-color: var(--accent);
+        color: var(--accent);
+        font-weight: 700;
+      }
+      .stepper .step::before {
+        content: '';
+        position: absolute;
+        bottom: -5.5px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: var(--paper);
+        border: 2px solid var(--rule);
+      }
+      .stepper .step.done::before {
+        background: var(--olive);
+        border-color: var(--olive);
+      }
+      .stepper .step.now::before {
+        background: var(--accent);
+        border-color: var(--accent);
+      }
+
+      /* avatar dots */
+      .av {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--paper-2);
+        border: 1.5px solid var(--ink);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        font-weight: 700;
+        color: var(--ink-soft);
+      }
+      .av.sm {
+        width: 22px;
+        height: 22px;
+        font-size: 8.5px;
+      }
+      .chev {
+        color: var(--ink-mute);
+        font-family: 'JetBrains Mono', monospace;
+      }
+
+      /* numbered annotation pin */
+      .pin {
+        position: absolute;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px solid var(--paper);
+        box-shadow: 0 0 0 1px var(--accent);
+        z-index: 5;
+      }
+
+      /* annotations panel */
+      .notes {
+        position: sticky;
+        top: 28px;
+        font-size: 12.5px;
+        line-height: 1.55;
+      }
+      .notes-title {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+        padding-bottom: 10px;
+        border-bottom: 1px solid var(--rule);
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+      }
+      .note {
+        display: grid;
+        grid-template-columns: 26px 1fr;
+        gap: 10px;
+        padding: 10px 0;
+        border-bottom: 1px dashed var(--rule);
+      }
+      .note .n {
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        background: var(--accent);
+        color: #fff;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10.5px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .note p {
+        margin: 0;
+        color: var(--ink-soft);
+      }
+      .note p strong {
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .note code {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        background: var(--paper-2);
+        padding: 1px 5px;
+        border-radius: 3px;
+        color: var(--accent);
+      }
+
+      .signoff {
+        margin-top: 36px;
+        padding: 18px 22px;
+        border: 1px solid var(--rule);
+        border-radius: 4px;
+        background: var(--field);
+        font-size: 12px;
+        color: var(--ink-soft);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+      .signoff .stamp {
+        font-family: 'Fraunces', serif;
+        font-style: italic;
+        font-size: 18px;
+        color: var(--accent);
+      }
+
+      /* ─── App-shell mock (sidebar inside canvas) ─── */
+      .mock-shell {
+        display: grid;
+        grid-template-columns: 130px 1fr;
+        gap: 14px;
+        min-height: 480px;
+      }
+      .mock-side {
+        background: var(--paper);
+        border: 1.5px solid var(--ink);
+        border-radius: 3px;
+        padding: 12px 10px;
+      }
+      .mock-side .li {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 8px;
+        border-radius: 3px;
+        font-size: 11px;
+        color: var(--ink-soft);
+      }
+      .mock-side .li.active {
+        background: rgba(185, 74, 44, 0.12);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .mock-side .li .ico {
+        width: 14px;
+        height: 14px;
+        background: var(--rule);
+        border-radius: 3px;
+      }
+      .mock-side .li.active .ico {
+        background: var(--accent);
+      }
+      .mock-side .group {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+        padding: 10px 8px 4px;
+      }
+      .mock-content {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .mock-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        border-radius: 3px;
+      }
+      .mock-header .crumb {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        color: var(--ink-mute);
+      }
+
+      /* ─── Specific mini-components ─── */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+      .kpi {
+        border: 1.5px solid var(--ink);
+        background: var(--paper);
+        border-radius: 3px;
+        padding: 12px;
+      }
+      .kpi .k-label {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        letter-spacing: 0.18em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+      }
+      .kpi .k-value {
+        font-family: 'Fraunces', serif;
+        font-size: 32px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+      .kpi .k-foot {
+        font-size: 10.5px;
+        color: var(--ink-mute);
+      }
+
+      .twocol {
+        display: grid;
+        grid-template-columns: 1.4fr 1fr;
+        gap: 14px;
+      }
+      .threecol {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 14px;
+      }
+      .four-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+      }
+
+      .review-row {
+        display: flex;
+        gap: 14px;
+        align-items: stretch;
+      }
+      .kra-list {
+        flex: 0 0 230px;
+      }
+      .kra-list .item {
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 9px 10px;
+        border-radius: 3px;
+        font-size: 11.5px;
+      }
+      .kra-list .item.sel {
+        background: rgba(185, 74, 44, 0.1);
+        color: var(--accent);
+        font-weight: 600;
+      }
+      .kra-list .item .dot {
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        border: 1.5px dashed var(--rule);
+        flex-shrink: 0;
+        margin-top: 2px;
+      }
+      .kra-list .item.done .dot {
+        background: var(--olive);
+        border-color: var(--olive);
+        border-style: solid;
+      }
+      .kra-list .item.sel .dot {
+        background: var(--accent);
+        border-color: var(--accent);
+        border-style: solid;
+      }
+
+      .score-picker {
+        display: flex;
+        gap: 6px;
+      }
+      .score-picker .s {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: 1.5px solid var(--rule);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-family: 'Fraunces', serif;
+        font-weight: 700;
+        font-size: 16px;
+        color: var(--ink-mute);
+      }
+      .score-picker .s.on {
+        background: var(--accent);
+        color: #fff;
+        border-color: var(--accent);
+      }
+
+      .audit-line {
+        display: grid;
+        grid-template-columns: 90px 12px 1fr;
+        gap: 10px;
+        align-items: start;
+        font-size: 11.5px;
+        padding: 6px 0;
+      }
+      .audit-line .when {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--ink-mute);
+      }
+      .audit-line .pip {
+        width: 10px;
+        height: 10px;
+        margin-top: 4px;
+        border-radius: 50%;
+        background: var(--ink);
+      }
+      .audit-line.return .pip {
+        background: var(--accent);
+      }
+      .audit-line.approve .pip {
+        background: var(--olive);
+      }
+      .audit-line.ack .pip {
+        background: var(--warn);
+      }
+
+      table.lite {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 11.5px;
+      }
+      table.lite th,
+      table.lite td {
+        text-align: left;
+        padding: 8px 10px;
+        border-bottom: 1px dashed var(--rule);
+      }
+      table.lite th {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 9.5px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--ink-mute);
+        font-weight: 500;
+        background: var(--paper-2);
+      }
+      table.lite tr.skip td {
+        color: var(--ink-mute);
+        font-style: italic;
+      }
+      table.lite tr.warn td {
+        background: rgba(184, 115, 42, 0.06);
+      }
+
+      /* bell curve mini */
+      .bell {
+        height: 100px;
+        display: flex;
+        align-items: flex-end;
+        gap: 6px;
+        padding: 12px;
+        border: 1px dashed var(--rule);
+        border-radius: 3px;
+        background: var(--paper);
+      }
+      .bell .b {
+        flex: 1;
+        background: var(--accent);
+        opacity: 0.8;
+        border-radius: 2px 2px 0 0;
+      }
+      .bell-axis {
+        display: flex;
+        justify-content: space-between;
+        padding: 6px 12px 0;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        color: var(--ink-mute);
+      }
+
+      /* small responsive guard */
+      @media (max-width: 1100px) {
+        .canvas-wrap {
+          grid-template-columns: 1fr;
+        }
+        .notes {
+          position: static;
+        }
+      }
+      @media (max-width: 800px) {
+        .shell {
+          grid-template-columns: 1fr;
+        }
+        .toc {
+          position: static;
+          height: auto;
+          border-right: 0;
+          border-bottom: 1px solid var(--rule);
+        }
+        .stage {
+          padding: 32px 22px 64px;
+        }
+        .doc-title {
+          font-size: 48px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="shell">
+      <!-- ─────────── TOC ─────────── -->
+      <aside class="toc">
+        <div class="brand">
+          <span class="mark">¶</span>
+          <span class="name">Performa</span>
+          <span class="dash"></span>
+        </div>
+        <div class="brand-sub">Wireframe Atlas · v0.1</div>
+
+        <div class="toc-section">
+          <div class="toc-label">
+            <span>Auth</span><span>2</span>
+          </div>
+          <a class="toc-link" data-target="login"
+            ><span class="num">01</span>Login</a
+          >
+          <a class="toc-link" data-target="forgot"
+            ><span class="num">02</span>Forgot Password</a
+          >
+        </div>
+
+        <div class="toc-section">
+          <div class="toc-label">
+            <span>Shell</span><span>1</span>
+          </div>
+          <a class="toc-link" data-target="shell"
+            ><span class="num">03</span>App Shell</a
+          >
+        </div>
+
+        <div class="toc-section">
+          <div class="toc-label">
+            <span>Employee</span><span>7</span>
+          </div>
+          <a class="toc-link" data-target="dashboard"
+            ><span class="num">04</span>Dashboard</a
+          >
+          <a class="toc-link" data-target="self"
+            ><span class="num">05</span>Self-Appraisal</a
+          >
+          <a class="toc-link" data-target="review-sl"
+            ><span class="num">06</span>Review · SL</a
+          >
+          <a class="toc-link" data-target="review-hod"
+            ><span class="num">07</span>Review · HoD</a
+          >
+          <a class="toc-link" data-target="review-hodiv"
+            ><span class="num">08</span>Review · HoDiv</a
+          >
+          <a class="toc-link" data-target="ack"
+            ><span class="num">09</span>Acknowledge</a
+          >
+          <a class="toc-link" data-target="history"
+            ><span class="num">10</span>History</a
+          >
+          <a class="toc-link" data-target="account"
+            ><span class="num">11</span>My Account</a
+          >
+        </div>
+
+        <div class="toc-section">
+          <div class="toc-label">
+            <span>HR Console</span><span>6</span>
+          </div>
+          <a class="toc-link" data-target="hr-dash"
+            ><span class="num">12</span>HR Dashboard</a
+          >
+          <a class="toc-link" data-target="hr-org"
+            ><span class="num">13</span>Organization</a
+          >
+          <a class="toc-link" data-target="hr-kra"
+            ><span class="num">14</span>KRA Templates</a
+          >
+          <a class="toc-link" data-target="hr-cycles"
+            ><span class="num">15</span>Cycles</a
+          >
+          <a class="toc-link" data-target="hr-cycle"
+            ><span class="num">16</span>Cycle Detail</a
+          >
+          <a class="toc-link" data-target="hr-reports"
+            ><span class="num">17</span>Reports</a
+          >
+        </div>
+
+        <div class="toc-foot">
+          ref · <a href="./userflow.md">userflow.md</a><br />
+          ref · <a href="./wireframes.md">wireframes.md</a><br />
+          stack · React 18 · Hono · PG
+        </div>
+      </aside>
+
+      <!-- ─────────── STAGE ─────────── -->
+      <main class="stage">
+        <div class="doc-meta">
+          <span class="dot"></span>
+          <span class="pill">HRIS / Performa</span>
+          <span>Wireframe Atlas</span>
+          <span style="color: var(--ink)">v0.1 · 2026-04-30</span>
+        </div>
+        <h1 class="doc-title">
+          Wireframe<br /><em>Atlas</em>
+        </h1>
+        <p class="doc-lede">
+          17 halaman aplikasi Performa, dipetakan dari kode aktual
+          <a href="../../hris-kpi-fe/src">hris-kpi-fe</a> dan
+          <a href="../../hris-kpi-be/src">hris-kpi-be</a>. Setiap canvas adalah
+          low-fidelity sketch berfungsi: layout, hierarchy, state, anotasi.
+          Bukan visual design — ini blueprint untuk handoff & review.
+        </p>
+        <div class="legend">
+          <span><strong>—</strong> solid box = persistent UI</span>
+          <span><strong>┄</strong> dashed = optional / state-driven</span>
+          <span><strong>●</strong> pin = annotation reference</span>
+          <span
+            ><strong style="color: var(--accent)">accent</strong> = brand
+            CTA</span
+          >
+          <span
+            ><strong style="color: var(--olive)">olive</strong> = success
+            state</span
+          >
+          <span
+            ><strong style="color: var(--warn)">amber</strong> = action
+            needed</span
+          >
+        </div>
+
+        <!-- ═══════ 01 LOGIN ═══════ -->
+        <section class="page active" id="login">
+          <header class="page-head">
+            <div class="id">01</div>
+            <div>
+              <h2><em>Sign in</em> Login</h2>
+            </div>
+            <div class="route">/login</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div
+                class="canvas-inner"
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  min-height: 540px;
+                "
+              >
+                <div
+                  class="box"
+                  style="width: 420px; padding: 32px; position: relative"
+                >
+                  <span class="pin" style="top: -12px; left: -12px">1</span>
+                  <div
+                    style="
+                      font-family: 'Fraunces', serif;
+                      font-style: italic;
+                      font-size: 32px;
+                      color: var(--accent);
+                      margin-bottom: 4px;
+                    "
+                  >
+                    ¶ Performa
+                  </div>
+                  <div style="color: var(--ink-mute); margin-bottom: 24px">
+                    HRIS · KPI Appraisal
+                  </div>
+                  <div
+                    style="
+                      font-size: 11px;
+                      color: var(--ink-mute);
+                      margin-bottom: 4px;
+                    "
+                  >
+                    Email
+                  </div>
+                  <div class="input" style="margin-bottom: 14px">
+                    aqmal@performa.id
+                  </div>
+                  <div
+                    style="
+                      font-size: 11px;
+                      color: var(--ink-mute);
+                      margin-bottom: 4px;
+                      display: flex;
+                      justify-content: space-between;
+                    "
+                  >
+                    <span>Password</span>
+                    <a
+                      style="
+                        color: var(--accent);
+                        font-size: 11px;
+                        text-decoration: none;
+                      "
+                      href="#forgot"
+                      data-target="forgot"
+                      >Forgot?</a
+                    >
+                  </div>
+                  <div class="input" style="margin-bottom: 18px">
+                    ••••••••••••
+                  </div>
+                  <div style="position: relative">
+                    <span class="pin" style="top: -12px; right: -12px">2</span>
+                    <div class="btn accent" style="width: 100%; height: 40px">
+                      Sign in
+                    </div>
+                  </div>
+                  <div
+                    style="
+                      display: flex;
+                      align-items: center;
+                      gap: 10px;
+                      margin: 22px 0;
+                    "
+                  >
+                    <div
+                      style="flex: 1; height: 1px; background: var(--rule)"
+                    ></div>
+                    <span
+                      style="
+                        font-family: 'JetBrains Mono', monospace;
+                        font-size: 10px;
+                        color: var(--ink-mute);
+                        letter-spacing: 0.18em;
+                      "
+                      >OR PICK DEMO</span
+                    >
+                    <div
+                      style="flex: 1; height: 1px; background: var(--rule)"
+                    ></div>
+                  </div>
+                  <div style="position: relative">
+                    <span class="pin" style="top: -12px; left: -12px">3</span>
+                    <div class="input" style="margin-bottom: 10px">
+                      ▾ Choose demo user (staff, sl, hodept, hodiv, hr)
+                    </div>
+                    <div class="btn ghost" style="width: 100%">
+                      Login as demo
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>3</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Center card</strong>, <code>max-w-md</code>. Brand
+                  display gunakan Fraunces italic. Background paper neutral.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  Submit → <code>POST /auth/login</code>. JWT HS256 expiry 8
+                  jam. Token saved ke <code>localStorage</code>. Error inline
+                  banner di atas tombol.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">3</span>
+                <p>
+                  Demo picker → <code>GET /auth/demo-users</code>. Untuk seed
+                  data preview. Sukses redirect: <code>hr</code> →
+                  <code>/hr/dashboard</code>, lainnya <code>/dashboard</code>.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 02 FORGOT ═══════ -->
+        <section class="page" id="forgot">
+          <header class="page-head">
+            <div class="id">02</div>
+            <div>
+              <h2><em>Recover</em> Forgot Password</h2>
+            </div>
+            <div class="route">/forgot-password</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div
+                class="canvas-inner"
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  min-height: 480px;
+                "
+              >
+                <div class="box" style="width: 420px; padding: 32px">
+                  <div
+                    style="
+                      font-family: 'Fraunces', serif;
+                      font-size: 24px;
+                      font-weight: 700;
+                      margin-bottom: 6px;
+                    "
+                  >
+                    Forgot Password
+                  </div>
+                  <div
+                    style="
+                      color: var(--ink-mute);
+                      font-size: 12.5px;
+                      margin-bottom: 22px;
+                    "
+                  >
+                    Masukkan email akun. Link reset dikirim ke email.
+                  </div>
+                  <div
+                    style="
+                      font-size: 11px;
+                      color: var(--ink-mute);
+                      margin-bottom: 4px;
+                    "
+                  >
+                    Email
+                  </div>
+                  <div class="input" style="margin-bottom: 18px">
+                    aqmal@performa.id
+                  </div>
+                  <div class="btn accent" style="width: 100%; height: 40px">
+                    Send reset link
+                  </div>
+                  <a
+                    href="#login"
+                    data-target="login"
+                    style="
+                      display: block;
+                      margin-top: 16px;
+                      text-align: center;
+                      color: var(--ink-mute);
+                      font-size: 12px;
+                      text-decoration: none;
+                    "
+                    >← Back to login</a
+                  >
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>States</span><span>3</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Default</strong> · email empty. Submit disabled until
+                  valid format.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  <strong>Success</strong> · banner olive "Link dikirim ke
+                  …@…" · CTA jadi "Resend (60s)".
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">3</span>
+                <p>
+                  <strong>Error</strong> · banner accent kalau email tidak
+                  ditemukan. Hindari user enumeration di copy.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 03 APP SHELL ═══════ -->
+        <section class="page" id="shell">
+          <header class="page-head">
+            <div class="id">03</div>
+            <div>
+              <h2><em>Chrome</em> App Shell</h2>
+            </div>
+            <div class="route">layout · _auth</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner mock-shell">
+                <div class="mock-side" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">1</span>
+                  <div
+                    style="
+                      font-family: 'Fraunces', serif;
+                      font-style: italic;
+                      font-weight: 700;
+                      color: var(--accent);
+                      padding: 4px 8px 12px;
+                      border-bottom: 1px dashed var(--rule);
+                      margin-bottom: 6px;
+                    "
+                  >
+                    ¶ Performa
+                  </div>
+                  <div class="li active">
+                    <span class="ico"></span>Dashboard
+                  </div>
+                  <div class="group">Appraisal</div>
+                  <div class="li"><span class="ico"></span>Self-Appraisal</div>
+                  <div class="li"><span class="ico"></span>Team Reviews [2]</div>
+                  <div class="li"><span class="ico"></span>History</div>
+                  <div class="group">HR Console</div>
+                  <div class="li"><span class="ico"></span>Organization</div>
+                  <div class="li"><span class="ico"></span>KRA Templates</div>
+                  <div class="li"><span class="ico"></span>Cycles</div>
+                  <div class="li"><span class="ico"></span>Reports</div>
+                  <div class="group" style="margin-top: 12px">User</div>
+                  <div class="li"><span class="ico"></span>My Account</div>
+                  <div class="li"><span class="ico"></span>Logout</div>
+                </div>
+                <div class="mock-content">
+                  <div class="mock-header" style="position: relative">
+                    <span class="pin" style="top: -10px; left: -10px">2</span>
+                    <div class="crumb">☰ &nbsp; Home / Dashboard</div>
+                    <div
+                      style="display: flex; align-items: center; gap: 10px"
+                    >
+                      <span style="color: var(--ink-mute)">🔔</span>
+                      <span class="av">AP</span>
+                      <span style="color: var(--ink-mute); font-size: 11px"
+                        >Aqmal ▾</span
+                      >
+                    </div>
+                  </div>
+                  <div class="box dashed" style="flex: 1; min-height: 360px">
+                    <span class="label">PAGE OUTLET</span>
+                    <div
+                      style="
+                        height: 100%;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        color: var(--ink-mute);
+                        font-family: 'JetBrains Mono', monospace;
+                        font-size: 12px;
+                        letter-spacing: 0.18em;
+                        text-transform: uppercase;
+                        min-height: 320px;
+                      "
+                    >
+                      &lt;Outlet /&gt; · per-route content
+                    </div>
+                  </div>
+                  <div
+                    class="box muted"
+                    style="
+                      padding: 8px 14px;
+                      font-family: 'JetBrains Mono', monospace;
+                      font-size: 10px;
+                      color: var(--ink-mute);
+                      letter-spacing: 0.1em;
+                    "
+                  >
+                    © Performa · v0.1 · ENV:dev · BE:localhost:4000
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Shell</span><span>3</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Sidebar</strong> sticky <code>w-64</code> di desktop,
+                  slide-in mobile via hamburger. Items difilter
+                  <code>user.role</code> di
+                  <a href="../../hris-kpi-fe/src/shared/layouts/app-sidebar.tsx"
+                    >app-sidebar.tsx</a
+                  >.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  <strong>Header</strong> · breadcrumb kiri, notif + avatar
+                  dropdown kanan. Hamburger toggle muncul di
+                  <code>&lt; lg</code>.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">3</span>
+                <p>
+                  Setiap route inject content via
+                  <code>&lt;Outlet /&gt;</code>. Layout guard
+                  <code>_auth</code> redirect ke <code>/login</code> kalau
+                  tidak ada user.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 04 DASHBOARD ═══════ -->
+        <section class="page" id="dashboard">
+          <header class="page-head">
+            <div class="id">04</div>
+            <div>
+              <h2><em>Home</em> Employee Dashboard</h2>
+            </div>
+            <div class="route">/dashboard</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">1</span>
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: end;
+                    "
+                  >
+                    <div>
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          color: var(--ink-mute);
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                        "
+                      >
+                        Home / Dashboard
+                      </div>
+                      <div
+                        style="
+                          font-family: 'Fraunces', serif;
+                          font-size: 28px;
+                          font-weight: 700;
+                          margin-top: 4px;
+                        "
+                      >
+                        Hi, Aqmal
+                      </div>
+                      <div
+                        style="
+                          font-size: 12px;
+                          color: var(--ink-mute);
+                          margin-top: 2px;
+                        "
+                      >
+                        Q1 2026 Appraisal · 3 KRAs · deadline Mar 31
+                      </div>
+                    </div>
+                    <div class="btn accent">Open appraisal</div>
+                  </div>
+                </div>
+
+                <div class="box warn" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">2</span>
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                    "
+                  >
+                    <div>
+                      <div style="font-weight: 600; color: var(--warn)">
+                        ⚠ Acknowledge required
+                      </div>
+                      <div
+                        style="
+                          font-size: 11.5px;
+                          color: var(--ink-soft);
+                          margin-top: 2px;
+                        "
+                      >
+                        Appraisal kamu sudah final. Sign-off untuk close cycle.
+                      </div>
+                    </div>
+                    <div class="btn ghost" style="border-color: var(--warn); color: var(--warn)">Review &amp; Acknowledge →</div>
+                  </div>
+                </div>
+
+                <div class="box indigo">
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                    "
+                  >
+                    <div>
+                      <div style="font-weight: 600; color: var(--indigo)">
+                        👥 2 reviews pending in your queue
+                      </div>
+                      <div
+                        style="
+                          font-size: 11.5px;
+                          color: var(--ink-soft);
+                          margin-top: 2px;
+                        "
+                      >
+                        Khusus reviewer (sl/hodept/hodiv).
+                      </div>
+                    </div>
+                    <div class="btn ghost" style="border-color: var(--indigo); color: var(--indigo)">Open Team Reviews →</div>
+                  </div>
+                </div>
+
+                <div class="kpi-grid" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">3</span>
+                  <div class="kpi">
+                    <div class="k-label">Active</div>
+                    <div class="k-value">1</div>
+                    <div class="k-foot">cycle Q1 2026</div>
+                  </div>
+                  <div class="kpi">
+                    <div class="k-label">In review</div>
+                    <div class="k-value">0</div>
+                    <div class="k-foot">awaiting reviewer</div>
+                  </div>
+                  <div class="kpi">
+                    <div class="k-label">Completed</div>
+                    <div class="k-value">3</div>
+                    <div class="k-foot">all cycles</div>
+                  </div>
+                  <div class="kpi">
+                    <div class="k-label">Avg score</div>
+                    <div class="k-value">4.2</div>
+                    <div class="k-foot">all-time / 5</div>
+                  </div>
+                </div>
+
+                <div class="twocol" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">4</span>
+                  <div class="box">
+                    <div
+                      style="
+                        font-family: 'JetBrains Mono', monospace;
+                        font-size: 10px;
+                        letter-spacing: 0.18em;
+                        text-transform: uppercase;
+                        color: var(--ink-mute);
+                        margin-bottom: 6px;
+                      "
+                    >
+                      Current appraisal
+                    </div>
+                    <div
+                      style="
+                        font-family: 'Fraunces', serif;
+                        font-size: 18px;
+                        font-weight: 700;
+                      "
+                    >
+                      Q1 2026 Appraisal
+                    </div>
+                    <div style="margin: 6px 0 10px"><span class="badge draft">draft</span></div>
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 6px;
+                        font-size: 11px;
+                        color: var(--ink-soft);
+                        margin-bottom: 10px;
+                      "
+                    >
+                      <span class="av sm">JS</span><span class="chev">›</span>
+                      <span class="av sm">MR</span><span class="chev">›</span>
+                      <span class="av sm">KH</span>
+                      <span style="margin-left: 6px; color: var(--ink-mute)"
+                        >SL → HoD → HoDiv</span
+                      >
+                    </div>
+                    <div
+                      style="
+                        font-size: 11px;
+                        color: var(--ink-mute);
+                        margin-bottom: 4px;
+                      "
+                    >
+                      KRA progress 50%
+                    </div>
+                    <div class="progress"><span style="width: 50%"></span></div>
+                    <div style="margin-top: 12px">
+                      <span class="btn ghost sm">Continue self-appraisal →</span>
+                    </div>
+                  </div>
+                  <div class="box muted">
+                    <div
+                      style="
+                        font-family: 'JetBrains Mono', monospace;
+                        font-size: 10px;
+                        letter-spacing: 0.18em;
+                        text-transform: uppercase;
+                        color: var(--ink-mute);
+                        margin-bottom: 8px;
+                      "
+                    >
+                      Recent activity
+                    </div>
+                    <div class="audit-line approve">
+                      <span class="when">04-25</span><span class="pip"></span>
+                      <span><strong>SL</strong> approved your KRA review</span>
+                    </div>
+                    <div class="audit-line">
+                      <span class="when">04-20</span><span class="pip"></span>
+                      <span>You submitted self-appraisal</span>
+                    </div>
+                    <div class="audit-line">
+                      <span class="when">01-02</span><span class="pip"></span>
+                      <span>HR distributed cycle <code>Q1 2026</code></span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>4</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Hero strip</strong> · CTA primary jump ke
+                  <code>/self-appraisal</code> atau
+                  <code>/acknowledge/$id</code> kalau acknowledge pending.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  <strong>Action banners</strong> kondisional. Acknowledge
+                  (amber) muncul saat <code>status === 'acknowledge'</code>.
+                  Reviewer queue (indigo) untuk role
+                  <code>sl/hodept/hodiv</code>.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">3</span>
+                <p>
+                  <strong>KPI grid</strong> · 4 kolom <code>xl:</code>, 2 kolom
+                  <code>sm:</code>, 1 kolom mobile. Aggregated server-side dari
+                  <code>/dashboard/*</code>.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">4</span>
+                <p>
+                  <strong>Two-col</strong> · current appraisal kiri (1.4fr),
+                  audit feed kanan (1fr). Empty state: card centered "No active
+                  appraisal · cycle belum di-distribute".
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 05 SELF APPRAISAL ═══════ -->
+        <section class="page" id="self">
+          <header class="page-head">
+            <div class="id">05</div>
+            <div>
+              <h2><em>Score</em> Self-Appraisal</h2>
+            </div>
+            <div class="route">/self-appraisal</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: end;
+                    "
+                  >
+                    <div>
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          color: var(--ink-mute);
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                        "
+                      >
+                        Self-appraisal · Q1 2026
+                      </div>
+                      <div
+                        style="
+                          font-family: 'Fraunces', serif;
+                          font-size: 26px;
+                          font-weight: 700;
+                          margin-top: 2px;
+                        "
+                      >
+                        Q1 2026 Appraisal
+                      </div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute)">
+                        Tech KRA · weight 100% · Jan 1 – Mar 31, 2026
+                      </div>
+                    </div>
+                    <span class="badge draft">draft</span>
+                  </div>
+                </div>
+
+                <div class="box" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">1</span>
+                  <div
+                    style="
+                      display: flex;
+                      justify-content: space-between;
+                      align-items: center;
+                      font-size: 11px;
+                      color: var(--ink-mute);
+                    "
+                  >
+                    <span>Completion</span>
+                    <span
+                      style="
+                        font-family: 'JetBrains Mono', monospace;
+                        color: var(--ink);
+                      "
+                      >2/3 KRAs · reflection pending · 50%</span
+                    >
+                  </div>
+                  <div class="progress" style="margin: 8px 0 14px">
+                    <span style="width: 50%"></span>
+                  </div>
+                  <div class="stepper">
+                    <div class="step done">draft</div>
+                    <div class="step now">sl_review</div>
+                    <div class="step">hod_review</div>
+                    <div class="step">hodiv_review</div>
+                    <div class="step">acknowledge</div>
+                    <div class="step">completed</div>
+                  </div>
+                </div>
+
+                <div class="box warn" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">2</span>
+                  <div
+                    style="
+                      display: flex;
+                      gap: 12px;
+                      align-items: flex-start;
+                    "
+                  >
+                    <div
+                      style="
+                        width: 28px;
+                        height: 28px;
+                        border-radius: 6px;
+                        background: var(--warn);
+                        color: #fff;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-weight: 700;
+                      "
+                    >
+                      ⚠
+                    </div>
+                    <div>
+                      <div style="font-weight: 600; color: var(--warn)">
+                        Returned by HoD (HODEPT) — "KRA evidence kurang"
+                      </div>
+                      <div
+                        style="
+                          font-size: 11px;
+                          color: var(--ink-mute);
+                          margin-top: 2px;
+                        "
+                      >
+                        2026-04-15 · revisi sebelum re-submit
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="threecol">
+                  <div class="col">
+                    <div class="box" style="position: relative">
+                      <span class="pin" style="top: -10px; left: -10px">3</span>
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                          color: var(--ink-mute);
+                          margin-bottom: 8px;
+                        "
+                      >
+                        KRA list · 2/3 scored
+                      </div>
+                      <div class="kra-list">
+                        <div class="item done">
+                          <span class="dot"></span>
+                          <div>
+                            <div style="font-weight: 600">Ship feature X</div>
+                            <div style="font-size: 10.5px; color: var(--ink-mute)">
+                              Weight 40% · Score 4/5
+                            </div>
+                          </div>
+                        </div>
+                        <div class="item done">
+                          <span class="dot"></span>
+                          <div>
+                            <div style="font-weight: 600">Code quality</div>
+                            <div style="font-size: 10.5px; color: var(--ink-mute)">
+                              Weight 30% · Score 4/5
+                            </div>
+                          </div>
+                        </div>
+                        <div class="item sel">
+                          <span class="dot"></span>
+                          <div>
+                            <div style="font-weight: 600">Mentor juniors</div>
+                            <div style="font-size: 10.5px; color: var(--ink-mute)">
+                              Weight 30% · Score required
+                            </div>
+                          </div>
+                        </div>
+                        <div class="item">
+                          <span class="dot"></span>
+                          <div>
+                            <div style="font-weight: 600">Reflection</div>
+                            <div style="font-size: 10.5px; color: var(--ink-mute)">
+                              Closing narrative
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="box muted">
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                          color: var(--ink-mute);
+                          margin-bottom: 8px;
+                        "
+                      >
+                        Submit checklist
+                      </div>
+                      <div style="font-size: 12px; line-height: 1.9">
+                        <div>☑ All KRAs scored</div>
+                        <div>☐ Reflection written</div>
+                        <div>☑ Weight totals 100%</div>
+                      </div>
+                    </div>
+                    <div class="box accent">
+                      <div style="font-size: 11.5px; color: var(--accent); font-weight: 500">
+                        Note · jika role <code>sl</code>, self-appraisal lompat
+                        langsung ke <code>hod_review</code> (skip SL step).
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col">
+                    <div class="box" style="position: relative">
+                      <span class="pin" style="top: -10px; left: -10px">4</span>
+                      <div
+                        style="
+                          display: flex;
+                          justify-content: space-between;
+                          align-items: end;
+                          margin-bottom: 12px;
+                        "
+                      >
+                        <div>
+                          <div
+                            style="
+                              font-family: 'Fraunces', serif;
+                              font-size: 20px;
+                              font-weight: 700;
+                            "
+                          >
+                            Mentor juniors
+                          </div>
+                          <div style="font-size: 11.5px; color: var(--ink-mute)">
+                            Target: 2 sessions/month · Weight 30%
+                          </div>
+                        </div>
+                        <span class="badge">KRA 3</span>
+                      </div>
+                      <div class="box muted" style="margin-bottom: 14px; border-style: dashed">
+                        <div style="font-size: 11.5px; color: var(--ink-soft); line-height: 1.5">
+                          Provide weekly mentoring sessions for at least 2 junior
+                          engineers, focus on code review and architecture
+                          coaching. Track progress via 1:1 notes.
+                        </div>
+                      </div>
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                          color: var(--ink-mute);
+                          margin-bottom: 8px;
+                        "
+                      >
+                        Self score
+                      </div>
+                      <div class="score-picker" style="margin-bottom: 14px">
+                        <span class="s">1</span><span class="s">2</span
+                        ><span class="s">3</span><span class="s on">4</span
+                        ><span class="s">5</span>
+                      </div>
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                          color: var(--ink-mute);
+                          margin-bottom: 6px;
+                        "
+                      >
+                        Achievement narrative
+                      </div>
+                      <div
+                        class="input"
+                        style="
+                          height: auto;
+                          min-height: 84px;
+                          align-items: flex-start;
+                          padding: 10px;
+                          line-height: 1.6;
+                          color: var(--ink);
+                        "
+                      >
+                        Mentored 3 juniors weekly. Code review hit-rate up 18%.
+                        Pair-programming session every Tue/Thu. Blocker: 1
+                        conflicting deadline week of Mar 10.
+                      </div>
+
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                          color: var(--ink-mute);
+                          margin: 14px 0 8px;
+                        "
+                      >
+                        Evidence (2)
+                      </div>
+                      <div class="box dashed" style="padding: 8px 10px; margin-bottom: 6px; font-size: 11.5px;">
+                        📎 mentoring-log-q1.pdf · 1.2 MB
+                        <span style="float: right; color: var(--ink-mute)">[×]</span>
+                      </div>
+                      <div class="box dashed" style="padding: 8px 10px; margin-bottom: 10px; font-size: 11.5px;">
+                        🔗 https://github.com/perfor/pr/...
+                        <span style="float: right; color: var(--ink-mute)">[×]</span>
+                      </div>
+                      <div style="display: flex; gap: 8px">
+                        <span class="btn ghost sm">+ Add file</span>
+                        <span class="btn ghost sm">+ Add URL</span>
+                      </div>
+
+                      <div
+                        style="
+                          margin-top: 18px;
+                          padding-top: 14px;
+                          border-top: 1px dashed var(--rule);
+                          display: flex;
+                          justify-content: space-between;
+                          align-items: center;
+                        "
+                      >
+                        <div style="display: flex; gap: 8px">
+                          <span class="btn ghost sm">Previous</span>
+                          <span class="btn ghost sm">Next</span>
+                        </div>
+                        <div style="display: flex; gap: 8px">
+                          <span class="btn ghost sm">Save draft</span>
+                          <span class="btn accent sm" style="position: relative;">
+                            <span class="pin" style="top: -12px; right: -12px">5</span>
+                            Submit final ➤
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>5</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Stepper</strong> render dari
+                  <code>advanceStatusFor</code>. Aktif state = current.
+                  Past state = olive checkmark.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  <strong>Return banner</strong> tampil hanya kalau
+                  <code>lastReturnEntry</code> exists. Show actor + reason +
+                  timestamp.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">3</span>
+                <p>
+                  <strong>Aside 4-col</strong> · KRA list, submit checklist,
+                  audit history. Toggle reflection mode di list bawah.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">4</span>
+                <p>
+                  <strong>Editor 8-col</strong> · description, score picker,
+                  narrative textarea, evidence list + adder. Disabled saat
+                  status ≠ <code>draft</code>.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">5</span>
+                <p>
+                  <strong>Submit gate</strong> FE: semua KRA scored AND
+                  reflection filled. Action: <code>PATCH /appraisals/:id</code>
+                  + <code>POST /advance</code>.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 06 REVIEW SL ═══════ -->
+        <section class="page" id="review-sl">
+          <header class="page-head">
+            <div class="id">06</div>
+            <div>
+              <h2><em>Approve</em> Review · SL</h2>
+            </div>
+            <div class="route">/review/sl/$id</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: end">
+                    <div>
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          color: var(--ink-mute);
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                        "
+                      >
+                        Team Reviews / SL Review
+                      </div>
+                      <div
+                        style="
+                          font-family: 'Fraunces', serif;
+                          font-size: 24px;
+                          font-weight: 700;
+                          margin-top: 2px;
+                        "
+                      >
+                        Aqmal Pratama · Q1 2026
+                      </div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute)">
+                        Tech KRA · 3 KRAs
+                      </div>
+                    </div>
+                    <span class="badge sl">sl_review</span>
+                  </div>
+                </div>
+
+                <div class="box">
+                  <div class="stepper">
+                    <div class="step done">draft</div>
+                    <div class="step now">sl_review</div>
+                    <div class="step">hod_review</div>
+                    <div class="step">hodiv_review</div>
+                    <div class="step">acknowledge</div>
+                    <div class="step">completed</div>
+                  </div>
+                </div>
+
+                <div class="threecol">
+                  <div class="col">
+                    <div class="box" style="position: relative">
+                      <span class="pin" style="top: -10px; left: -10px">1</span>
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                          color: var(--ink-mute);
+                          margin-bottom: 8px;
+                        "
+                      >
+                        KRA list
+                      </div>
+                      <div class="kra-list">
+                        <div class="item sel">
+                          <span class="dot"></span>
+                          <div>
+                            <div style="font-weight: 600">Ship feature X</div>
+                            <div style="font-size: 10.5px; color: var(--ink-mute)">
+                              Weight 40% · Self 4/5
+                            </div>
+                          </div>
+                        </div>
+                        <div class="item">
+                          <span class="dot"></span>
+                          <div>
+                            <div style="font-weight: 600">Code quality</div>
+                            <div style="font-size: 10.5px; color: var(--ink-mute)">
+                              Weight 30% · Self 4/5
+                            </div>
+                          </div>
+                        </div>
+                        <div class="item">
+                          <span class="dot"></span>
+                          <div>
+                            <div style="font-weight: 600">Mentor juniors</div>
+                            <div style="font-size: 10.5px; color: var(--ink-mute)">
+                              Weight 30% · Self 4/5
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="box muted">
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                          color: var(--ink-mute);
+                          margin-bottom: 8px;
+                        "
+                      >
+                        Audit timeline
+                      </div>
+                      <div class="audit-line">
+                        <span class="when">04-10 09:12</span><span class="pip"></span
+                        ><span><strong>submit</strong> · staff</span>
+                      </div>
+                      <div class="audit-line approve">
+                        <span class="when">…pending</span><span class="pip"></span
+                        ><span style="color: var(--ink-mute)">awaiting your approval</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col">
+                    <div class="box" style="position: relative">
+                      <span class="pin" style="top: -10px; left: -10px">2</span>
+                      <div
+                        style="
+                          font-family: 'Fraunces', serif;
+                          font-size: 20px;
+                          font-weight: 700;
+                          margin-bottom: 4px;
+                        "
+                      >
+                        Ship feature X
+                      </div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute); margin-bottom: 14px">
+                        Weight 40% · Target Mar 15
+                      </div>
+
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                          color: var(--ink-mute);
+                          margin-bottom: 8px;
+                        "
+                      >
+                        Self submission
+                      </div>
+                      <div class="box muted" style="border-style: dashed; margin-bottom: 14px;">
+                        <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px">
+                          <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute)">Self score</span>
+                          <span class="score-picker" style="gap: 4px">
+                            <span class="s" style="width:24px;height:24px;font-size:12px">1</span>
+                            <span class="s" style="width:24px;height:24px;font-size:12px">2</span>
+                            <span class="s" style="width:24px;height:24px;font-size:12px">3</span>
+                            <span class="s on" style="width:24px;height:24px;font-size:12px">4</span>
+                            <span class="s" style="width:24px;height:24px;font-size:12px">5</span>
+                          </span>
+                        </div>
+                        <div style="font-size: 11.5px; color: var(--ink-soft); line-height: 1.55">
+                          "Delivered feature on time, all P1s closed before
+                          launch. UAT passed. Minor blocker: dependency on auth
+                          team's release."
+                        </div>
+                        <div style="margin-top: 8px; font-size: 11px; color: var(--ink-mute)">
+                          Evidence: 📎 launch-doc.pdf · 🔗 PR-318
+                        </div>
+                      </div>
+
+                      <div
+                        style="
+                          font-family: 'JetBrains Mono', monospace;
+                          font-size: 10px;
+                          letter-spacing: 0.18em;
+                          text-transform: uppercase;
+                          color: var(--ink-mute);
+                          margin-bottom: 8px;
+                        "
+                      >
+                        Your review
+                      </div>
+                      <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">Score</div>
+                      <div class="score-picker" style="margin-bottom: 12px">
+                        <span class="s">1</span><span class="s">2</span
+                        ><span class="s">3</span><span class="s on">4</span
+                        ><span class="s">5</span>
+                      </div>
+                      <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">Comment</div>
+                      <div class="input" style="height: auto; min-height: 56px; align-items: flex-start; padding: 10px; color: var(--ink)">
+                        Solid execution. Untuk next cycle, push for earlier
+                        spec lock-in supaya dependency cleaner.
+                      </div>
+
+                      <div
+                        style="
+                          margin-top: 18px;
+                          padding-top: 14px;
+                          border-top: 1px dashed var(--rule);
+                          display: flex;
+                          justify-content: space-between;
+                          align-items: center;
+                        "
+                      >
+                        <div style="position: relative">
+                          <span class="pin" style="top: -12px; left: -12px">3</span>
+                          <span class="btn danger sm">↩ Return</span>
+                        </div>
+                        <div style="display: flex; gap: 8px">
+                          <span class="btn ghost sm">Save draft</span>
+                          <span class="btn accent sm">Approve →</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>3</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Reviewer queue</strong> source:
+                  <code>GET /reviews/queue?role=sl</code>. Hanya appraisal yang
+                  <code>reviewerSlUserId === actor.id</code> &amp;
+                  <code>status==='sl_review'</code>.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  <strong>Layout sama</strong> untuk SL/HoD/HoDiv. Beda field
+                  skor (<code>sl_score</code> / <code>hod_score</code> /
+                  <code>hodiv_score</code>).
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">3</span>
+                <p>
+                  <strong>Approve</strong>: <code>POST /advance</code> · target
+                  <code>hod_review</code>. <strong>Return</strong>: modal minta
+                  reason → <code>POST /return</code> · target
+                  <code>draft</code>.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 07 REVIEW HOD ═══════ -->
+        <section class="page" id="review-hod">
+          <header class="page-head">
+            <div class="id">07</div>
+            <div>
+              <h2><em>Approve</em> Review · HoD</h2>
+            </div>
+            <div class="route">/review/hod/$id</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: end">
+                    <div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase">
+                        Team Reviews / HoD Review
+                      </div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-top: 2px">
+                        Aqmal Pratama · Q1 2026
+                      </div>
+                    </div>
+                    <span class="badge hod">hod_review</span>
+                  </div>
+                </div>
+                <div class="box">
+                  <div class="stepper">
+                    <div class="step done">draft</div>
+                    <div class="step done">sl_review</div>
+                    <div class="step now">hod_review</div>
+                    <div class="step">hodiv_review</div>
+                    <div class="step">acknowledge</div>
+                    <div class="step">completed</div>
+                  </div>
+                </div>
+                <div class="box olive">
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <div>
+                      <div style="font-weight: 600; color: var(--olive)">SL approved · Mark Reza · 2026-04-15</div>
+                      <div style="font-size: 11px; color: var(--ink-mute); margin-top: 2px">
+                        SL note: "Solid execution. Push for earlier spec lock-in."
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="threecol">
+                  <div class="col">
+                    <div class="box muted" style="position: relative">
+                      <span class="pin" style="top: -10px; left: -10px">1</span>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px">
+                        Score comparison
+                      </div>
+                      <table class="lite">
+                        <thead><tr><th>KRA</th><th>Self</th><th>SL</th></tr></thead>
+                        <tbody>
+                          <tr><td>Ship feature X</td><td>4</td><td>4</td></tr>
+                          <tr><td>Code quality</td><td>4</td><td>4</td></tr>
+                          <tr><td>Mentor juniors</td><td>4</td><td>5</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="box" style="position: relative">
+                      <span class="pin" style="top: -10px; left: -10px">2</span>
+                      <div style="font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700; margin-bottom: 12px">
+                        Mentor juniors · KRA 3
+                      </div>
+                      <div class="row" style="gap: 18px; margin-bottom: 14px">
+                        <div>
+                          <div style="font-size: 10px; color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase">Self</div>
+                          <div style="font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700">4</div>
+                        </div>
+                        <div>
+                          <div style="font-size: 10px; color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase">SL</div>
+                          <div style="font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--indigo)">5</div>
+                        </div>
+                        <div>
+                          <div style="font-size: 10px; color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase">Your score</div>
+                          <div style="font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--accent)">?</div>
+                        </div>
+                      </div>
+                      <div class="score-picker" style="margin-bottom: 14px">
+                        <span class="s">1</span><span class="s">2</span
+                        ><span class="s">3</span><span class="s">4</span
+                        ><span class="s on">5</span>
+                      </div>
+                      <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">HoD Comment</div>
+                      <div class="input" style="height: auto; min-height: 56px; align-items: flex-start; padding: 10px; color: var(--ink)">
+                        Setuju dengan SL. Mentoring konsisten, dampak terukur. Akan diangkat untuk lead role next cycle.
+                      </div>
+                      <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--rule); display: flex; justify-content: space-between">
+                        <span class="btn danger sm">↩ Return to SL</span>
+                        <div style="display: flex; gap: 8px">
+                          <span class="btn ghost sm">Save draft</span>
+                          <span class="btn accent sm">Approve → HoDiv</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>2</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Score comparison</strong> · HoD lihat self &amp; SL
+                  side-by-side. Bantu kalibrasi cepat.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  <strong>Approve</strong> → <code>hodiv_review</code>.
+                  <strong>Return</strong> → <code>sl_review</code> (skip target
+                  ditentukan <code>returnTargetFor('hodept')</code>).
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 08 REVIEW HODIV ═══════ -->
+        <section class="page" id="review-hodiv">
+          <header class="page-head">
+            <div class="id">08</div>
+            <div>
+              <h2><em>Final approve</em> Review · HoDiv</h2>
+            </div>
+            <div class="route">/review/hodiv/$id</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: end">
+                    <div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase">
+                        Team Reviews / HoDiv Review
+                      </div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700; margin-top: 2px">
+                        Final approval · Aqmal Pratama
+                      </div>
+                    </div>
+                    <span class="badge hodiv">hodiv_review</span>
+                  </div>
+                </div>
+                <div class="box">
+                  <div class="stepper">
+                    <div class="step done">draft</div>
+                    <div class="step done">sl_review</div>
+                    <div class="step done">hod_review</div>
+                    <div class="step now">hodiv_review</div>
+                    <div class="step">acknowledge</div>
+                    <div class="step">completed</div>
+                  </div>
+                </div>
+
+                <div class="box accent" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">1</span>
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <div>
+                      <div style="font-weight: 600; color: var(--accent)">Final scores summary</div>
+                      <div style="font-size: 11.5px; color: var(--ink-soft); margin-top: 2px">
+                        Approve di sini = appraisal masuk acknowledge → owner sign-off → completed.
+                      </div>
+                    </div>
+                    <div style="font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; color: var(--accent)">
+                      4.30
+                    </div>
+                  </div>
+                </div>
+
+                <div class="box">
+                  <table class="lite">
+                    <thead>
+                      <tr>
+                        <th>KRA</th>
+                        <th>Weight</th>
+                        <th>Self</th>
+                        <th>SL</th>
+                        <th>HoD</th>
+                        <th>HoDiv</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Ship feature X</td>
+                        <td>40%</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td><span class="s on" style="width:22px;height:22px;font-size:11px;display:inline-flex">4</span></td>
+                      </tr>
+                      <tr>
+                        <td>Code quality</td>
+                        <td>30%</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td>4</td>
+                        <td><span class="s on" style="width:22px;height:22px;font-size:11px;display:inline-flex">4</span></td>
+                      </tr>
+                      <tr>
+                        <td>Mentor juniors</td>
+                        <td>30%</td>
+                        <td>4</td>
+                        <td>5</td>
+                        <td>5</td>
+                        <td><span class="s on" style="width:22px;height:22px;font-size:11px;display:inline-flex">5</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="box">
+                  <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">HoDiv feedback notes</div>
+                  <div class="input" style="height: auto; min-height: 56px; align-items: flex-start; padding: 10px; color: var(--ink)">
+                    Strong cycle. Recommend nominating for lead promotion review next semester.
+                  </div>
+                  <div style="margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--rule); display: flex; justify-content: space-between">
+                    <span class="btn danger sm">↩ Return to HoD</span>
+                    <div style="display: flex; gap: 8px">
+                      <span class="btn ghost sm">Save draft</span>
+                      <span class="btn accent sm">Approve → Acknowledge</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>2</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Final approver</strong>. Approve set status ke
+                  <code>acknowledge</code>, bukan <code>completed</code>. Owner
+                  yang close cycle.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  Score table satu-tabel summary dari semua step sebelumnya.
+                  Lebih ringkas dari per-KRA editor (HoDiv jarang ubah skor
+                  per item).
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 09 ACKNOWLEDGE ═══════ -->
+        <section class="page" id="ack">
+          <header class="page-head">
+            <div class="id">09</div>
+            <div>
+              <h2><em>Sign-off</em> Acknowledge</h2>
+            </div>
+            <div class="route">/acknowledge/$id</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: end">
+                    <div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase">
+                        Final sign-off
+                      </div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; margin-top: 2px">
+                        Acknowledge your appraisal
+                      </div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute)">
+                        Q1 2026 Appraisal · review final scores &amp; sign-off untuk close cycle.
+                      </div>
+                    </div>
+                    <span class="badge ack">acknowledge</span>
+                  </div>
+                </div>
+
+                <div class="box accent" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">1</span>
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent)">Final score</div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 56px; font-weight: 900; line-height: 1; color: var(--accent)">
+                        4.30 <span style="font-size: 18px; color: var(--ink-mute); font-style: italic; font-weight: 400">/ 5</span>
+                      </div>
+                      <div style="font-size: 11px; color: var(--ink-soft); margin-top: 4px">
+                        formula: Σ (hodiv_score ?? hod_score ?? sl_score ?? self_score) × (weight/100)
+                      </div>
+                    </div>
+                    <div style="text-align: right">
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute)">Reviewer chain</div>
+                      <div style="display: flex; align-items: center; gap: 6px; margin-top: 4px">
+                        <span class="av sm">JS</span><span class="chev">›</span>
+                        <span class="av sm">MR</span><span class="chev">›</span>
+                        <span class="av sm">KH</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="box" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">2</span>
+                  <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 10px">
+                    Score comparison
+                  </div>
+                  <table class="lite">
+                    <thead>
+                      <tr>
+                        <th>KRA</th><th>Wt</th><th>Self</th><th>SL</th><th>HoD</th><th>HoDiv</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr><td>Ship feature X</td><td>40%</td><td>4</td><td>4</td><td>4</td><td><strong>4</strong></td></tr>
+                      <tr><td>Code quality</td><td>30%</td><td>4</td><td>4</td><td>4</td><td><strong>4</strong></td></tr>
+                      <tr><td>Mentor juniors</td><td>30%</td><td>4</td><td>5</td><td>5</td><td><strong>5</strong></td></tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="twocol">
+                  <div class="box muted">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px">
+                      Audit timeline
+                    </div>
+                    <div class="audit-line"><span class="when">04-01 09:12</span><span class="pip"></span><span><strong>submit</strong> · staff</span></div>
+                    <div class="audit-line approve"><span class="when">04-05 14:30</span><span class="pip"></span><span><strong>approve</strong> · SL</span></div>
+                    <div class="audit-line approve"><span class="when">04-15 11:00</span><span class="pip"></span><span><strong>approve</strong> · HoD</span></div>
+                    <div class="audit-line approve"><span class="when">04-22 16:45</span><span class="pip"></span><span><strong>approve</strong> · HoDiv</span></div>
+                    <div class="audit-line ack"><span class="when">…pending</span><span class="pip"></span><span style="color: var(--warn)"><strong>acknowledge</strong> · awaiting you</span></div>
+                  </div>
+                  <div class="box dashed" style="display:flex; align-items:center; justify-content:center; min-height:140px">
+                    <div style="text-align:center; position: relative">
+                      <span class="pin" style="top: -16px; right: -16px">3</span>
+                      <div style="font-family: 'Fraunces', serif; font-style: italic; color: var(--ink-mute); margin-bottom: 12px">
+                        Click to close cycle
+                      </div>
+                      <div class="btn accent" style="padding: 0 22px; height: 44px; font-size: 13px">
+                        ✓ Acknowledge &amp; Close
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>3</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Final score hero</strong>. Hitung di FE pakai formula
+                  fallback. Read-only.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  <strong>Comparison table</strong> 4-kolom skor (self/sl/hod/hodiv)
+                  per KRA. Scrollable horizontal di mobile.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">3</span>
+                <p>
+                  <strong>CTA gate</strong>: <code>POST /acknowledge</code>
+                  hanya kalau <code>actor.id === appraisal.userId</code> dan
+                  <code>status === 'acknowledge'</code>. Sukses redirect
+                  <code>/dashboard</code>.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 10 HISTORY ═══════ -->
+        <section class="page" id="history">
+          <header class="page-head">
+            <div class="id">10</div>
+            <div>
+              <h2><em>Archive</em> History Appraisal</h2>
+            </div>
+            <div class="route">/history-appraisal</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: center">
+                    <div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700">History Appraisal</div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute)">Semua appraisal completed kamu.</div>
+                    </div>
+                    <div style="display: flex; gap: 8px">
+                      <div class="input" style="width: 140px; font-size: 11px">▾ Cycle: all</div>
+                      <div class="input" style="width: 100px; font-size: 11px">▾ Year: 2026</div>
+                      <div class="input" style="width: 180px; font-size: 11px">🔍 Search</div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col" style="gap: 10px">
+                  <div class="box" style="display: flex; justify-content: space-between; align-items: center">
+                    <div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700">Q4 2025 · Tech KRA</div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute); margin-top: 2px">
+                        completed · acknowledged 2026-01-10
+                      </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 14px">
+                      <div style="text-align: right">
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.16em; text-transform: uppercase">Final</div>
+                        <div style="font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700">4.30</div>
+                      </div>
+                      <span class="badge completed">B+</span>
+                      <span class="btn ghost sm">View detail →</span>
+                    </div>
+                  </div>
+                  <div class="box" style="display: flex; justify-content: space-between; align-items: center">
+                    <div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 17px; font-weight: 700">Q3 2025 · Tech KRA</div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute); margin-top: 2px">completed · acknowledged 2025-10-12</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 14px">
+                      <div style="text-align: right">
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.16em; text-transform: uppercase">Final</div>
+                        <div style="font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700">4.05</div>
+                      </div>
+                      <span class="badge completed">B</span>
+                      <span class="btn ghost sm">View detail →</span>
+                    </div>
+                  </div>
+                  <div class="box dashed" style="text-align:center; color: var(--ink-mute); font-style: italic; padding: 14px">
+                    ⋯ load more (paginated)
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>2</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  Source: <code>GET /appraisals/user/:userId</code>, filter
+                  <code>status='completed'</code>, sortir
+                  <code>acknowledgedAt</code> desc.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  Detail link buka modal/page read-only (mirror layout
+                  Acknowledge tanpa CTA).
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 11 MY ACCOUNT ═══════ -->
+        <section class="page" id="account">
+          <header class="page-head">
+            <div class="id">11</div>
+            <div>
+              <h2><em>Profile</em> My Account</h2>
+            </div>
+            <div class="route">/my-account</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner twocol">
+                <div class="box">
+                  <div style="display: flex; gap: 14px; align-items: center; margin-bottom: 18px">
+                    <div class="av" style="width: 56px; height: 56px; font-size: 18px">AP</div>
+                    <div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 22px; font-weight: 700">Aqmal Pratama</div>
+                      <div style="font-size: 12px; color: var(--ink-mute)">Tech · Squad Alpha · Sr Engineer</div>
+                    </div>
+                  </div>
+                  <table class="lite">
+                    <tbody>
+                      <tr><th style="width: 30%">Email</th><td>aqmal@performa.id</td></tr>
+                      <tr><th>NIP</th><td>EMP-001</td></tr>
+                      <tr><th>Role</th><td>staff</td></tr>
+                      <tr><th>Manager</th><td>Jane SL</td></tr>
+                      <tr><th>Reviewer chain</th><td>Jane SL → Mark Reza → Kelly H.</td></tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="col">
+                  <div class="box">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px">Security</div>
+                    <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">Current password</div>
+                    <div class="input" style="margin-bottom: 8px">••••••••</div>
+                    <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">New password</div>
+                    <div class="input" style="margin-bottom: 8px">••••••••</div>
+                    <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">Confirm</div>
+                    <div class="input" style="margin-bottom: 12px">••••••••</div>
+                    <div class="btn accent">Update password</div>
+                  </div>
+                  <div class="box muted">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px">Preferences</div>
+                    <div style="font-size: 12px; line-height: 2">
+                      <div>Theme &nbsp; ◯ Light &nbsp; ● Dark</div>
+                      <div>Notifications &nbsp; ☑ Email &nbsp; ☐ In-app</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>2</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  Profile section read-only — perubahan org/manager via HR
+                  Organization page.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  Change password endpoint perlu konfirmasi
+                  (saat ini belum eksplisit di BE — flag handoff).
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 12 HR DASHBOARD ═══════ -->
+        <section class="page" id="hr-dash">
+          <header class="page-head">
+            <div class="id">12</div>
+            <div>
+              <h2><em>Console</em> HR Dashboard</h2>
+            </div>
+            <div class="route">/hr/dashboard</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: end">
+                    <div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase">HR / Dashboard</div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; margin-top: 2px">Performa Console</div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute)">2026-04-30 · all systems normal</div>
+                    </div>
+                    <div class="btn accent">+ New cycle</div>
+                  </div>
+                </div>
+                <div class="kpi-grid" style="grid-template-columns: repeat(5, 1fr)">
+                  <div class="kpi"><div class="k-label">Cycles</div><div class="k-value">8</div><div class="k-foot">all-time</div></div>
+                  <div class="kpi"><div class="k-label">Active</div><div class="k-value">1</div><div class="k-foot">Q1 2026</div></div>
+                  <div class="kpi"><div class="k-label">Distrib.</div><div class="k-value">142</div><div class="k-foot">employees</div></div>
+                  <div class="kpi"><div class="k-label">In review</div><div class="k-value">38</div><div class="k-foot">pending action</div></div>
+                  <div class="kpi"><div class="k-label">Completed</div><div class="k-value">104</div><div class="k-foot">acked</div></div>
+                </div>
+                <div class="twocol">
+                  <div class="box" style="position: relative">
+                    <span class="pin" style="top: -10px; left: -10px">1</span>
+                    <div style="display: flex; justify-content: space-between; align-items: end; margin-bottom: 10px">
+                      <div>
+                        <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute)">Active cycle</div>
+                        <div style="font-family: 'Fraunces', serif; font-size: 20px; font-weight: 700">Q1 2026 Appraisal</div>
+                      </div>
+                      <span class="badge sl">active</span>
+                    </div>
+                    <div style="font-size: 11.5px; color: var(--ink-mute); margin-bottom: 12px">
+                      Window 2026-01-01 → 2026-03-31 · distributed 142/142
+                    </div>
+                    <table class="lite">
+                      <tbody>
+                        <tr><th>draft</th><td><div class="progress" style="height: 8px"><span style="width: 13%"></span></div></td><td style="width: 50px; text-align: right"><strong>18</strong></td></tr>
+                        <tr><th>sl_review</th><td><div class="progress" style="height: 8px"><span style="width: 7%; background: var(--indigo)"></span></div></td><td style="text-align: right"><strong>10</strong></td></tr>
+                        <tr><th>hod_review</th><td><div class="progress" style="height: 8px"><span style="width: 4%; background: #5a3b8a"></span></div></td><td style="text-align: right"><strong>6</strong></td></tr>
+                        <tr><th>hodiv_review</th><td><div class="progress" style="height: 8px"><span style="width: 3%; background: var(--accent)"></span></div></td><td style="text-align: right"><strong>4</strong></td></tr>
+                        <tr><th>acknowledge</th><td><div class="progress" style="height: 8px"><span style="width: 0%; background: var(--warn)"></span></div></td><td style="text-align: right"><strong>0</strong></td></tr>
+                        <tr><th>completed</th><td><div class="progress" style="height: 8px"><span style="width: 73%; background: var(--olive)"></span></div></td><td style="text-align: right"><strong>104</strong></td></tr>
+                      </tbody>
+                    </table>
+                    <div style="margin-top: 14px; display: flex; gap: 8px">
+                      <span class="btn ghost sm">Open detail →</span>
+                      <span class="btn ghost sm">Distribute →</span>
+                      <span class="btn ghost sm">Reports →</span>
+                    </div>
+                  </div>
+                  <div class="col">
+                    <div class="box accent">
+                      <div style="font-weight: 600; color: var(--accent); margin-bottom: 4px">⚙ Pending calibration</div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700">12</div>
+                      <div style="font-size: 11px; color: var(--ink-mute)">appraisal completed belum kalibrasi</div>
+                      <div style="margin-top: 10px"><span class="btn ghost sm">Open Reports →</span></div>
+                    </div>
+                    <div class="box muted">
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px">Org coverage</div>
+                      <table class="lite">
+                        <tbody>
+                          <tr><th>Divisions covered</th><td><strong>4 / 4</strong></td></tr>
+                          <tr><th>Templates active</th><td><strong>8</strong></td></tr>
+                          <tr><th>Employees active</th><td><strong>142</strong></td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>1</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Active cycle card</strong> · status mix bar chart
+                  pakai brand colors per status (sl=indigo, hod=plum,
+                  hodiv=accent, ack=amber, completed=olive).
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 13 HR ORG ═══════ -->
+        <section class="page" id="hr-org">
+          <header class="page-head">
+            <div class="id">13</div>
+            <div>
+              <h2><em>Master data</em> Organization</h2>
+            </div>
+            <div class="route">/hr/organization</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                    <span class="btn ghost sm" style="background: var(--accent); color: #fff; border-color: var(--accent)">Divisions</span>
+                    <span class="btn ghost sm">Departments</span>
+                    <span class="btn ghost sm">Positions</span>
+                    <span class="btn ghost sm">Employees</span>
+                    <span class="btn ghost sm">Job Titles</span>
+                    <span class="btn ghost sm">Squads</span>
+                  </div>
+                </div>
+                <div class="box" style="display: flex; gap: 10px; align-items: center">
+                  <div class="input" style="flex: 1; max-width: 280px">🔍 Search divisions</div>
+                  <div class="input" style="width: 160px; font-size: 11px">▾ Filter: status</div>
+                  <div style="flex:1"></div>
+                  <span class="btn accent sm">+ New division</span>
+                </div>
+                <div class="box" style="position: relative; padding: 0">
+                  <span class="pin" style="top: -10px; left: -10px">1</span>
+                  <table class="lite">
+                    <thead>
+                      <tr>
+                        <th>Code</th><th>Name</th><th>Head</th><th>Headcount</th><th>Status</th><th>Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>TEC</td><td>Technology</td><td>Kelly H.</td><td>42</td><td><span class="badge completed">active</span></td>
+                        <td><span class="btn ghost sm">Edit</span> <span class="btn danger sm" style="margin-left:4px">🗑</span></td>
+                      </tr>
+                      <tr>
+                        <td>OPS</td><td>Operations</td><td>Lara M.</td><td>28</td><td><span class="badge completed">active</span></td>
+                        <td><span class="btn ghost sm">Edit</span> <span class="btn danger sm" style="margin-left:4px">🗑</span></td>
+                      </tr>
+                      <tr>
+                        <td>FIN</td><td>Finance</td><td>Reza K.</td><td>14</td><td><span class="badge completed">active</span></td>
+                        <td><span class="btn ghost sm">Edit</span> <span class="btn danger sm" style="margin-left:4px">🗑</span></td>
+                      </tr>
+                      <tr class="skip">
+                        <td>LGL</td><td>Legal (archived)</td><td>—</td><td>3</td><td><span class="badge draft">archived</span></td>
+                        <td><span class="btn ghost sm">Edit</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="box muted" style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute); display: flex; justify-content: space-between">
+                  <span>‹ 1 2 3 ⋯ ›</span>
+                  <span>4 of 12 · per page 20</span>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>2</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  Generic CRUD pattern. Tab Employees punya extra field
+                  (<code>manager</code>, <code>squad</code>,
+                  <code>reviewerSl/Hod/Hodiv</code>). Modal edit overlay
+                  full-form.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  Endpoints: <code>/org/divisions|departments|positions|employees|job-titles|squads</code>
+                  via helper <code>crud()</code> di
+                  <a href="../../hris-kpi-be/src/app.ts">app.ts</a>.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 14 KRA TEMPLATES ═══════ -->
+        <section class="page" id="hr-kra">
+          <header class="page-head">
+            <div class="id">14</div>
+            <div>
+              <h2><em>Library</em> KRA Templates</h2>
+            </div>
+            <div class="route">/hr/kra-templates</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: end">
+                    <div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700">KRA Templates</div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute)">
+                        Template terikat ke Department + nama (substring of position).
+                      </div>
+                    </div>
+                    <div style="display: flex; gap: 8px">
+                      <div class="input" style="width: 160px; font-size: 11px">▾ Department: all</div>
+                      <span class="btn accent sm">+ New template</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="four-grid" style="grid-template-columns: repeat(2, 1fr)">
+                  <div class="box" style="position: relative">
+                    <span class="pin" style="top: -10px; left: -10px">1</span>
+                    <div style="display: flex; justify-content: space-between; align-items: start">
+                      <div>
+                        <div style="font-family: 'Fraunces', serif; font-size: 19px; font-weight: 700">Tech KRA</div>
+                        <div style="font-size: 11px; color: var(--ink-mute); margin-top: 2px">
+                          Dept: Technology · 5 items · Total weight 100%
+                        </div>
+                      </div>
+                      <span class="badge completed">active</span>
+                    </div>
+                    <div style="margin: 14px 0; font-size: 11px; color: var(--ink-mute)">
+                      Match: position contains <code>"Tech"</code>
+                    </div>
+                    <table class="lite">
+                      <tbody>
+                        <tr><td>Ship feature X</td><td style="text-align:right">40%</td></tr>
+                        <tr><td>Code quality</td><td style="text-align:right">30%</td></tr>
+                        <tr><td>Mentor juniors</td><td style="text-align:right">30%</td></tr>
+                      </tbody>
+                    </table>
+                    <div style="margin-top: 10px; display: flex; gap: 6px">
+                      <span class="btn ghost sm">Edit</span>
+                      <span class="btn ghost sm">Duplicate</span>
+                      <span class="btn danger sm">🗑</span>
+                    </div>
+                  </div>
+                  <div class="box">
+                    <div style="display: flex; justify-content: space-between; align-items: start">
+                      <div>
+                        <div style="font-family: 'Fraunces', serif; font-size: 19px; font-weight: 700">Ops KRA</div>
+                        <div style="font-size: 11px; color: var(--ink-mute); margin-top: 2px">
+                          Dept: Operations · 4 items · Total weight 100%
+                        </div>
+                      </div>
+                      <span class="badge completed">active</span>
+                    </div>
+                    <div style="margin: 14px 0; font-size: 11px; color: var(--ink-mute)">
+                      Match: position contains <code>"Ops"</code>
+                    </div>
+                    <table class="lite">
+                      <tbody>
+                        <tr><td>Process compliance</td><td style="text-align:right">35%</td></tr>
+                        <tr><td>Customer SLA</td><td style="text-align:right">35%</td></tr>
+                        <tr><td>Cost efficiency</td><td style="text-align:right">30%</td></tr>
+                      </tbody>
+                    </table>
+                    <div style="margin-top: 10px; display: flex; gap: 6px">
+                      <span class="btn ghost sm">Edit</span>
+                      <span class="btn ghost sm">Duplicate</span>
+                      <span class="btn danger sm">🗑</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="box dashed" style="position: relative;">
+                  <span class="pin" style="top: -10px; left: -10px">2</span>
+                  <span class="label acc">EDITOR · MODAL/SLIDE-OVER</span>
+                  <div class="row" style="margin-top: 6px">
+                    <div class="grow">
+                      <div style="font-size: 11px; color: var(--ink-mute)">Name</div>
+                      <div class="input">Tech KRA</div>
+                    </div>
+                    <div class="grow">
+                      <div style="font-size: 11px; color: var(--ink-mute)">Department</div>
+                      <div class="input">▾ Technology</div>
+                    </div>
+                  </div>
+                  <div style="margin: 12px 0 6px; display: flex; justify-content: space-between; align-items: center">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute)">
+                      KRA items
+                    </div>
+                    <span class="btn ghost sm">+ Add KRA</span>
+                  </div>
+                  <table class="lite">
+                    <thead><tr><th>#</th><th>Title</th><th>KPI / Target</th><th>Weight</th><th></th></tr></thead>
+                    <tbody>
+                      <tr><td>1</td><td>Ship feature X</td><td>by Mar 15</td><td>40%</td><td><span class="btn danger sm">🗑</span></td></tr>
+                      <tr><td>2</td><td>Code quality</td><td>review pass</td><td>30%</td><td><span class="btn danger sm">🗑</span></td></tr>
+                      <tr><td>3</td><td>Mentor juniors</td><td>2 sessions/m</td><td>30%</td><td><span class="btn danger sm">🗑</span></td></tr>
+                    </tbody>
+                  </table>
+                  <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--olive)">
+                    <span>Total weight ✓ 100%</span>
+                    <div style="display: flex; gap: 6px">
+                      <span class="btn ghost sm">Cancel</span>
+                      <span class="btn accent sm">Save template</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>2</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Card grid</strong> per template. Match rule
+                  <code>deptId + name substring of position</code>
+                  ([app.ts:435]).
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  <strong>Editor</strong> · save gate
+                  <code>total weight === 100</code>. Banner merah kalau tidak.
+                  Duplicate = preset baru.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 15 CYCLES LIST ═══════ -->
+        <section class="page" id="hr-cycles">
+          <header class="page-head">
+            <div class="id">15</div>
+            <div>
+              <h2><em>Lifecycle</em> Cycles</h2>
+            </div>
+            <div class="route">/hr/cycles</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: end">
+                    <div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 24px; font-weight: 700">Cycles</div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute)">8 cycles · 1 active · 2 draft · 5 closed</div>
+                    </div>
+                    <span class="btn accent sm">+ New cycle</span>
+                  </div>
+                </div>
+                <div class="box" style="display: flex; gap: 6px">
+                  <span class="btn ghost sm" style="background: var(--accent); color: #fff; border-color: var(--accent)">All</span>
+                  <span class="btn ghost sm">Draft</span>
+                  <span class="btn ghost sm">Active</span>
+                  <span class="btn ghost sm">Closed</span>
+                  <div style="flex:1"></div>
+                  <div class="input" style="width: 220px; font-size: 11px">🔍 Search by name / desc</div>
+                </div>
+
+                <div class="col" style="gap: 10px">
+                  <div class="box" style="position: relative">
+                    <span class="pin" style="top: -10px; left: -10px">1</span>
+                    <div style="display: flex; justify-content: space-between; align-items: start">
+                      <div>
+                        <div style="font-family: 'Fraunces', serif; font-size: 19px; font-weight: 700">Q1 2026 Appraisal</div>
+                        <div style="font-size: 11.5px; color: var(--ink-mute); margin-top: 2px">
+                          Window 2026-01-01 → 2026-03-31 · self deadline 2026-02-15
+                        </div>
+                      </div>
+                      <span class="badge sl">active</span>
+                    </div>
+                    <div style="margin: 14px 0 6px; font-size: 11px; color: var(--ink-mute); display: flex; justify-content: space-between">
+                      <span>Distributed 142 · in review 38 · completed 104</span>
+                      <span style="font-family: 'JetBrains Mono', monospace">73% completed</span>
+                    </div>
+                    <div class="progress"><span style="width: 73%; background: var(--olive)"></span></div>
+                    <div style="margin-top: 12px; display: flex; gap: 6px">
+                      <span class="btn accent sm">Open detail →</span>
+                      <span class="btn ghost sm">Edit</span>
+                      <span class="btn danger sm">🗑</span>
+                    </div>
+                  </div>
+                  <div class="box muted">
+                    <div style="display: flex; justify-content: space-between; align-items: start">
+                      <div>
+                        <div style="font-family: 'Fraunces', serif; font-size: 19px; font-weight: 700">Q4 2025 Appraisal</div>
+                        <div style="font-size: 11.5px; color: var(--ink-mute); margin-top: 2px">
+                          Window 2025-10-01 → 2025-12-31 · 138/140 completed
+                        </div>
+                      </div>
+                      <span class="badge completed">closed</span>
+                    </div>
+                    <div style="margin-top: 10px; display: flex; gap: 6px">
+                      <span class="btn ghost sm">Open detail →</span>
+                      <span class="btn ghost sm">Reports →</span>
+                    </div>
+                  </div>
+                  <div class="box dashed">
+                    <div style="display: flex; justify-content: space-between; align-items: center">
+                      <div>
+                        <div style="font-family: 'Fraunces', serif; font-size: 18px; font-weight: 700; color: var(--ink-mute)">Q2 2026 Appraisal</div>
+                        <div style="font-size: 11.5px; color: var(--ink-mute)">draft · belum di-distribute</div>
+                      </div>
+                      <span class="badge draft">draft</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>1</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Cycle card</strong> · progress bar pakai
+                  <code>completed/totalAppraisals</code>. Status enum:
+                  <code>draft | active | closed</code>. Distribute action di
+                  detail page.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 16 CYCLE DETAIL ═══════ -->
+        <section class="page" id="hr-cycle">
+          <header class="page-head">
+            <div class="id">16</div>
+            <div>
+              <h2><em>Distribute</em> Cycle Detail</h2>
+            </div>
+            <div class="route">/hr/cycles/$cycleId</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: end">
+                    <div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase">HR / Cycles / Q1 2026</div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-top: 2px">Q1 2026 Appraisal</div>
+                      <div style="font-size: 11.5px; color: var(--ink-mute)">Window 2026-01-01 → 2026-03-31 · status active</div>
+                    </div>
+                    <div style="display: flex; gap: 6px">
+                      <span class="btn ghost sm">Edit cycle</span>
+                      <span class="btn ghost sm" style="border-color: var(--olive); color: var(--olive)">Activate</span>
+                      <span class="btn accent sm" style="position: relative">
+                        <span class="pin" style="top: -12px; right: -12px">1</span>
+                        ⚡ Distribute now
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="four-grid">
+                  <div class="kpi"><div class="k-label">Total scanned</div><div class="k-value">168</div><div class="k-foot">active employees</div></div>
+                  <div class="kpi"><div class="k-label">Matched</div><div class="k-value" style="color: var(--olive)">142</div><div class="k-foot">ready</div></div>
+                  <div class="kpi"><div class="k-label">Skipped</div><div class="k-value" style="color: var(--warn)">26</div><div class="k-foot">12+8+6</div></div>
+                  <div class="kpi"><div class="k-label">Created</div><div class="k-value" style="color: var(--accent)">142</div><div class="k-foot">last run</div></div>
+                </div>
+
+                <div class="box" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap">
+                  <div class="input" style="width: 160px; font-size: 11px">▾ Status: all</div>
+                  <div class="input" style="width: 160px; font-size: 11px">▾ Dept: all</div>
+                  <div class="input" style="width: 200px; font-size: 11px">🔍 Search employee</div>
+                  <div style="flex:1"></div>
+                  <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-mute)">showing 5 of 168</span>
+                </div>
+
+                <div class="box" style="position: relative; padding: 0">
+                  <span class="pin" style="top: -10px; left: -10px">2</span>
+                  <table class="lite">
+                    <thead>
+                      <tr>
+                        <th>Employee</th><th>Dept</th><th>Position</th><th>Template</th><th>Reviewer chain</th><th>Status</th><th>Reason</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>Aqmal Pratama</td><td>Tech</td><td>Sr Engineer</td><td>Tech KRA</td>
+                        <td><span class="av sm">JS</span> · <span class="av sm">MR</span> · <span class="av sm">KH</span></td>
+                        <td><span class="badge completed">matched</span></td>
+                        <td style="color: var(--ink-mute)">—</td>
+                      </tr>
+                      <tr class="warn">
+                        <td>Budi Santoso</td><td>Ops</td><td>Specialist</td><td>—</td>
+                        <td>—</td>
+                        <td><span class="badge ack">no_template</span></td>
+                        <td style="color: var(--warn); font-style: italic">Belum ada template Ops · Specialist</td>
+                      </tr>
+                      <tr class="skip">
+                        <td>Citra Lestari</td><td>Tech</td><td>Engineer</td><td>Tech KRA</td>
+                        <td><span class="av sm">JS</span> · <span class="av sm">MR</span> · <span class="av sm">KH</span></td>
+                        <td><span class="badge draft">already</span></td>
+                        <td>Sudah punya appraisal di Q1 2026</td>
+                      </tr>
+                      <tr class="warn">
+                        <td>Dewi Anggraini</td><td>Tech</td><td>Engineer</td><td>Tech KRA</td>
+                        <td>— · <span class="av sm">MR</span> · —</td>
+                        <td><span class="badge hodiv">no_reviewer</span></td>
+                        <td style="color: var(--accent); font-style: italic">HoDiv kosong · cek struktur org</td>
+                      </tr>
+                      <tr>
+                        <td>Eka Wijaya</td><td>Tech</td><td>Sr Engineer</td><td>Tech KRA</td>
+                        <td><span class="av sm">JS</span> · <span class="av sm">MR</span> · <span class="av sm">KH</span></td>
+                        <td><span class="badge completed">matched</span></td>
+                        <td style="color: var(--ink-mute)">—</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                <div class="box muted" style="font-size: 11.5px; color: var(--ink-soft)">
+                  <strong>After distribute:</strong> created N appraisals (status=<code>draft</code>). Reviewer snapshot
+                  saved per appraisal — perubahan struktur org setelahnya tidak mempengaruhi.
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>2</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Distribute now</strong> disabled saat
+                  <code>status !== 'active'</code>. Confirm modal sebelum
+                  jalan. Sukses: banner + KPI update.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  Skipped row color-coded: amber (no_template), abu (already),
+                  accent (no_reviewer). Reason kolom verbose untuk HR
+                  troubleshoot.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ═══════ 17 REPORTS ═══════ -->
+        <section class="page" id="hr-reports">
+          <header class="page-head">
+            <div class="id">17</div>
+            <div>
+              <h2><em>Calibrate</em> Reports</h2>
+            </div>
+            <div class="route">/hr/reports</div>
+          </header>
+          <div class="canvas-wrap">
+            <div class="canvas">
+              <div class="canvas-inner col">
+                <div class="box">
+                  <div style="display: flex; justify-content: space-between; align-items: end">
+                    <div>
+                      <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--ink-mute); letter-spacing: 0.18em; text-transform: uppercase">HR / Reports</div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 26px; font-weight: 700; margin-top: 2px">Q1 2026 · 142 completed · 12 pending kalibrasi</div>
+                    </div>
+                    <div style="display: flex; gap: 6px">
+                      <span class="btn ghost sm">📥 Export CSV</span>
+                      <span class="btn ghost sm">🖨 Print</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="box" style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center">
+                  <div class="input" style="width: 200px; font-size: 11px">▾ Cycle: Q1 2026</div>
+                  <div style="display: flex; gap: 4px">
+                    <span class="btn ghost sm" style="background: var(--accent); color: #fff; border-color: var(--accent)">All</span>
+                    <span class="btn ghost sm">Pending</span>
+                    <span class="btn ghost sm">Calibrated</span>
+                  </div>
+                  <div class="input" style="width: 160px; font-size: 11px">▾ Dept: all</div>
+                  <div class="input" style="width: 160px; font-size: 11px">▾ Grade: all</div>
+                </div>
+
+                <div class="twocol" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">1</span>
+                  <div class="box">
+                    <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px">
+                      Bell curve · effective score
+                    </div>
+                    <div class="bell">
+                      <div class="b" style="height: 18%"></div>
+                      <div class="b" style="height: 32%"></div>
+                      <div class="b" style="height: 58%"></div>
+                      <div class="b" style="height: 90%"></div>
+                      <div class="b" style="height: 70%"></div>
+                      <div class="b" style="height: 42%"></div>
+                      <div class="b" style="height: 22%"></div>
+                    </div>
+                    <div class="bell-axis"><span>1.0</span><span>2.0</span><span>3.0</span><span>4.0</span><span>5.0</span></div>
+                    <div style="font-size: 10.5px; color: var(--ink-mute); margin-top: 8px">
+                      pakai <code>calibrated_score</code> kalau ada, fallback ke <code>final_score</code>.
+                    </div>
+                  </div>
+                  <div class="four-grid" style="grid-template-columns: 1fr 1fr">
+                    <div class="kpi"><div class="k-label">Total</div><div class="k-value">142</div></div>
+                    <div class="kpi"><div class="k-label">Calibrated</div><div class="k-value" style="color: var(--olive)">130</div></div>
+                    <div class="kpi"><div class="k-label">Pending</div><div class="k-value" style="color: var(--warn)">12</div></div>
+                    <div class="kpi"><div class="k-label">Avg</div><div class="k-value">4.05</div></div>
+                  </div>
+                </div>
+
+                <div class="box" style="position: relative; padding: 0">
+                  <span class="pin" style="top: -10px; left: -10px">2</span>
+                  <table class="lite">
+                    <thead>
+                      <tr>
+                        <th>EMP ID</th><th>Name</th><th>Dept</th><th>Cycle</th><th>Final</th><th>Calibrated</th><th>Grade</th><th>Status</th><th>Action</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td>EMP-001</td><td>Aqmal P.</td><td>Tech</td><td>Q1'26</td>
+                        <td>4.15</td><td><strong>4.20</strong></td>
+                        <td><span class="badge completed">B+</span></td>
+                        <td><span class="badge completed">calibrated</span></td>
+                        <td><span class="btn ghost sm">Detail</span></td>
+                      </tr>
+                      <tr class="warn">
+                        <td>EMP-002</td><td>Budi S.</td><td>Ops</td><td>Q1'26</td>
+                        <td>3.80</td><td>—</td><td>—</td>
+                        <td><span class="badge ack">pending</span></td>
+                        <td><span class="btn accent sm">Calibrate</span></td>
+                      </tr>
+                      <tr>
+                        <td>EMP-003</td><td>Citra L.</td><td>Tech</td><td>Q1'26</td>
+                        <td>4.40</td><td><strong>4.45</strong></td>
+                        <td><span class="badge completed">A−</span></td>
+                        <td><span class="badge completed">calibrated</span></td>
+                        <td><span class="btn ghost sm">Detail</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div class="box dashed" style="position: relative">
+                  <span class="pin" style="top: -10px; left: -10px">3</span>
+                  <span class="label acc">CALIBRATION · MODAL</span>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 6px">
+                    <div>
+                      <div style="font-size: 11px; color: var(--ink-mute)">Original final score</div>
+                      <div style="font-family: 'Fraunces', serif; font-size: 28px; font-weight: 700; color: var(--ink-mute)">4.15</div>
+                    </div>
+                    <div>
+                      <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">Calibrated score</div>
+                      <div class="input" style="margin-bottom: 8px">4.20</div>
+                      <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">Final grade</div>
+                      <div class="input" style="margin-bottom: 8px">▾ B+</div>
+                      <div style="font-size: 11px; color: var(--ink-mute); margin-bottom: 4px">Notes (optional)</div>
+                      <div class="input" style="height: auto; min-height: 50px; align-items: flex-start; padding: 10px"></div>
+                    </div>
+                  </div>
+                  <div style="margin-top: 10px; display: flex; justify-content: flex-end; gap: 6px">
+                    <span class="btn ghost sm">Cancel</span>
+                    <span class="btn accent sm">Save calibration</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <aside class="notes">
+              <div class="notes-title">
+                <span>Annotations</span><span>3</span>
+              </div>
+              <div class="note">
+                <span class="n">1</span>
+                <p>
+                  <strong>Bell curve</strong> dari
+                  <code>effectiveScore = calibrated ?? final</code>. Updates
+                  live saat HR save kalibrasi.
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">2</span>
+                <p>
+                  Tabel actionable. Pending row → CTA Calibrate. Calibrated
+                  row → Detail (read-only print preview).
+                </p>
+              </div>
+              <div class="note">
+                <span class="n">3</span>
+                <p>
+                  Modal kalibrasi. Save → <code>is_calibrated=true</code> +
+                  bell curve auto-recompute.
+                </p>
+              </div>
+            </aside>
+          </div>
+        </section>
+
+        <!-- ─── Sign-off footer ─── -->
+        <div class="signoff">
+          <div>
+            17 wireframes · paired with
+            <a href="./userflow.md" style="color: var(--accent)">userflow.md</a>
+            ·
+            <a href="./wireframes.md" style="color: var(--accent)">wireframes.md</a>
+          </div>
+          <div class="stamp">— blueprint v0.1</div>
+        </div>
+      </main>
+    </div>
+
+    <script>
+      const links = document.querySelectorAll('.toc-link');
+      const pages = document.querySelectorAll('.page');
+      function go(id) {
+        pages.forEach((p) => p.classList.toggle('active', p.id === id));
+        links.forEach((l) =>
+          l.classList.toggle('active', l.dataset.target === id)
+        );
+        if (history.pushState) history.pushState(null, '', '#' + id);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+      links.forEach((l) =>
+        l.addEventListener('click', (e) => {
+          e.preventDefault();
+          go(l.dataset.target);
+        })
+      );
+      // intra-page jumps (e.g., login → forgot)
+      document.querySelectorAll('a[data-target]').forEach((a) => {
+        a.addEventListener('click', (e) => {
+          if (a.classList.contains('toc-link')) return;
+          e.preventDefault();
+          go(a.dataset.target);
+        });
+      });
+      // hash on load
+      const initial = window.location.hash.replace('#', '');
+      if (initial) go(initial);
+      // mark first toc as active
+      else document.querySelector('.toc-link[data-target="login"]')?.classList.add('active');
+    </script>
+  </body>
+</html>

@@ -7,12 +7,22 @@ export interface ActorInfo {
   role: 'staff' | 'sl' | 'hodept' | 'hodiv' | 'hr';
 }
 
+export interface HistoryOwner {
+  id: number;
+  name: string;
+  initials: string;
+  position?: string;
+}
+
+export interface HistoryResponse {
+  items: Appraisal[];
+  owners: Record<number, HistoryOwner>;
+  scopeLabel: string;
+}
+
 export const appraisalApi = {
   byUser: (userId: number) => api<Appraisal[]>(`/appraisals/user/${userId}`),
-  history: (userIds: number[]) =>
-    api<Appraisal[]>(
-      `/appraisals/history?userIds=${encodeURIComponent(userIds.join(','))}`
-    ),
+  history: () => api<HistoryResponse>('/appraisals/history'),
   byId: (id: number) => api<Appraisal | null>(`/appraisals/${id}`),
   update: (id: number, updates: Partial<Appraisal>) =>
     api<Appraisal>(`/appraisals/${id}`, {
